@@ -198,10 +198,15 @@ function CheckoutForm({ searchParams }: { searchParams: { plan?: string; amount?
   );
 }
 
-export default function CheckoutPage({ searchParams }: { searchParams: { plan?: string; amount?: string } }) {
+export default async function CheckoutPage({
+  searchParams
+}: {
+  searchParams: Promise<{ plan?: string; amount?: string }>
+}) {
+  const resolvedSearchParams = await searchParams;
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <CheckoutForm searchParams={searchParams} />
+      <CheckoutForm searchParams={resolvedSearchParams} />
     </Suspense>
   );
 }
