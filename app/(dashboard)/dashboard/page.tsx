@@ -9,7 +9,7 @@ import {
   CardTitle,
   CardFooter
 } from '@/components/ui/card';
-import { customerPortalAction } from '@/lib/payments/actions';
+
 import { useActionState } from 'react';
 import { TeamDataWithMembers, User } from '@/lib/db/schema';
 import { removeTeamMember, inviteTeamMember } from '@/app/(login)/actions';
@@ -60,11 +60,11 @@ function ManageSubscription() {
                   : 'No active subscription'}
               </p>
             </div>
-            <form action={customerPortalAction}>
-              <Button type="submit" variant="outline">
-                Manage Subscription
+            <a href="/pricing">
+              <Button type="button" variant="outline">
+                Change Plan
               </Button>
-            </form>
+            </a>
           </div>
         </div>
       </CardContent>

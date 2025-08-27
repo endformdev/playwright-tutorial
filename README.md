@@ -1,27 +1,26 @@
-# Next.js SaaS Starter
+# Next.js SaaS Starter (SQLite Version)
 
-This is a starter template for building a SaaS application using **Next.js** with support for authentication, Stripe integration for payments, and a dashboard for logged-in users.
-
-**Demo: [https://next-saas-start.vercel.app/](https://next-saas-start.vercel.app/)**
+This is a starter template for building a SaaS application using **Next.js** with support for authentication, dummy payment processing, and a dashboard for logged-in users. This version has been modified to be easier to deploy and test by using SQLite instead of Postgres and a dummy payment system instead of Stripe.
 
 ## Features
 
 - Marketing landing page (`/`) with animated Terminal element
-- Pricing page (`/pricing`) which connects to Stripe Checkout
+- Pricing page (`/pricing`) with dummy payment processing
 - Dashboard pages with CRUD operations on users/teams
 - Basic RBAC with Owner and Member roles
-- Subscription management with Stripe Customer Portal
+- Dummy subscription management (no real payments)
 - Email/password authentication with JWTs stored to cookies
 - Global middleware to protect logged-in routes
 - Local middleware to protect Server Actions or validate Zod schemas
 - Activity logging system for any user events
+- SQLite database for easy local development and deployment
 
 ## Tech Stack
 
 - **Framework**: [Next.js](https://nextjs.org/)
-- **Database**: [Postgres](https://www.postgresql.org/)
+- **Database**: [SQLite](https://www.sqlite.org/) with [better-sqlite3](https://github.com/WiseLibs/better-sqlite3)
 - **ORM**: [Drizzle](https://orm.drizzle.team/)
-- **Payments**: [Stripe](https://stripe.com/)
+- **Payments**: Dummy payment system (for demonstration only)
 - **UI Library**: [shadcn/ui](https://ui.shadcn.com/)
 
 ## Getting Started
@@ -34,22 +33,22 @@ pnpm install
 
 ## Running Locally
 
-[Install](https://docs.stripe.com/stripe-cli) and log in to your Stripe account:
-
-```bash
-stripe login
-```
-
 Use the included setup script to create your `.env` file:
 
 ```bash
 pnpm db:setup
 ```
 
-Run the database migrations and seed the database with a default user and team:
+Generate and run the database migrations:
 
 ```bash
+pnpm db:generate
 pnpm db:migrate
+```
+
+Seed the database with a default user and team:
+
+```bash
 pnpm db:seed
 ```
 
@@ -68,29 +67,20 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser to see the app in action.
 
-You can listen for Stripe webhooks locally through their CLI to handle subscription change events:
-
-```bash
-stripe listen --forward-to localhost:3000/api/stripe/webhook
-```
-
 ## Testing Payments
 
-To test Stripe payments, use the following test card details:
+This version uses a dummy payment system for demonstration purposes:
 
-- Card Number: `4242 4242 4242 4242`
-- Expiration: Any future date
-- CVC: Any 3-digit number
+- **Card Numbers**: Only 8-digit numbers are accepted (e.g., `12345678`)
+- **Expiration**: Any future date in MM/YY format (e.g., `12/25`)
+- **CVV**: Any 3-digit number (e.g., `123`)
+- **Billing Address**: Any valid address information
+
+The dummy payment system will store payment information in the database but won't process any real payments. This prevents accidental real credit card usage during development and testing.
 
 ## Going to Production
 
 When you're ready to deploy your SaaS application to production, follow these steps:
-
-### Set up a production Stripe webhook
-
-1. Go to the Stripe Dashboard and create a new webhook for your production environment.
-2. Set the endpoint URL to your production API route (e.g., `https://yourdomain.com/api/stripe/webhook`).
-3. Select the events you want to listen for (e.g., `checkout.session.completed`, `customer.subscription.updated`).
 
 ### Deploy to Vercel
 
@@ -100,13 +90,11 @@ When you're ready to deploy your SaaS application to production, follow these st
 
 ### Add environment variables
 
-In your Vercel project settings (or during deployment), add all the necessary environment variables. Make sure to update the values for the production environment, including:
+In your Vercel project settings (or during deployment), add the necessary environment variables:
 
 1. `BASE_URL`: Set this to your production domain.
-2. `STRIPE_SECRET_KEY`: Use your Stripe secret key for the production environment.
-3. `STRIPE_WEBHOOK_SECRET`: Use the webhook secret from the production webhook you created in step 1.
-4. `POSTGRES_URL`: Set this to your production database URL.
-5. `AUTH_SECRET`: Set this to a random string. `openssl rand -base64 32` will generate one.
+2. `DATABASE_URL`: Set this to your SQLite database path (or use a production database like PlanetScale, Neon, etc.)
+3. `AUTH_SECRET`: Set this to a random string. `openssl rand -base64 32` will generate one.
 
 ## Other Templates
 
