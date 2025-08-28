@@ -26,6 +26,15 @@ export async function sync() {
         await commitAllChanges(commitMessage);
     }
 
+    for (const stage of nextStages) {
+        await switchBranch(stage.name);
+        await pullToThisStage(currentBranch);
+        await commitAllChanges(commitMessage);
+    }
+
+    await switchBranch(currentBranch);
+    
+
     // for stages before this one
 
     // go to that stage
