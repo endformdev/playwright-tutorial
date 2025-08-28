@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { tutorialConfig } from "../tutorial.config";
-import { sync } from "./sync";
+import { sync, syncDocsContent } from "./sync";
 import { getCurrentBranch, pushBranch, switchBranch } from "./utils";
 
 // CLI usage
@@ -17,7 +17,9 @@ if (import.meta.main) {
 			case "sync":
 				await sync();
 				break;
-
+			case "sync-docs":
+				await syncDocsContent();
+				break;
 			case "push":
 				await push();
 				break;
@@ -25,33 +27,13 @@ if (import.meta.main) {
 			default:
 				console.log("Tutorial Manager");
 				console.log("");
-				console.log("Usage: bun run tutorial:<command>");
+				console.log("Usage: bun run tutorial <command>");
 				console.log("");
 				console.log("Commands:");
-				console.log(
-					"  status                    - Show current tutorial status",
-				);
 				console.log("  list                      - List all tutorial stages");
-				console.log("  stage <name>              - Switch to a tutorial stage");
+				console.log("  sync                      - Sync all tutorial stages");
 				console.log(
-					"  sync [stage|all]          - Sync stage content to docs repo",
-				);
-				console.log(
-					"  propagate [from] [to]     - Propagate from current to all next, or between specific stages",
-				);
-				console.log(
-					"  init                      - Initialize all tutorial branches",
-				);
-				console.log("");
-				console.log("Examples:");
-				console.log("  bun run tutorial:stage stage-1-setup");
-				console.log("  bun run tutorial:sync");
-				console.log("  bun run tutorial:sync all");
-				console.log(
-					"  bun run tutorial:propagate               # From current to all next",
-				);
-				console.log(
-					"  bun run tutorial:propagate stage-1-setup stage-2-generated-tests  # Specific stages",
+					"  sync-docs                 - Sync docs content to docs repo",
 				);
 				process.exit(1);
 		}
