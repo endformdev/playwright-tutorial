@@ -1,11 +1,11 @@
 export interface TutorialStage {
-  name: string;
-  title: string;
-  order: number;
+	name: string;
+	title: string;
+	order: number;
 }
 
 export interface TutorialConfig {
-  stages: TutorialStage[];
-  docsRepo: string;
-  docsBasePath: string;
+	stages: TutorialStage[];
+	docsRepo: string;
+	docsBasePath: string;
 }
