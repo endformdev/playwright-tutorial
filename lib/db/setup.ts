@@ -9,7 +9,7 @@ function generateAuthSecret(): string {
 
 async function setupDatabase(): Promise<string> {
   console.log('Step 2: Setting up SQLite database...');
-  const dbPath = path.join(process.cwd(), 'lib/db/database.db');
+  const dbPath = path.join(process.cwd(), 'local-sqlite-database.db');
   
   // Create the database directory if it doesn't exist
   const dbDir = path.dirname(dbPath);
