@@ -1,5 +1,5 @@
 import { existsSync } from "fs";
-import { mkdir, readdir, readFile, writeFile } from "fs/promises";
+import { copyFile, mkdir, readdir, readFile, writeFile } from "fs/promises";
 import { dirname, join } from "path";
 import { tutorialConfig } from "../tutorial.config";
 import {
@@ -82,11 +82,17 @@ export async function syncDocsContent() {
 			tutorialConfig.docsRepo,
 			tutorialConfig.docsBasePath,
 		);
+		const docsAssetsPath = join(
+			process.cwd(),
+			tutorialConfig.docsRepo,
+			tutorialConfig.docsAssetsPath,
+		);
 
 		try {
 			// Read all MDX files in the tutorial stage directory
 			const files = await readdir(tutorialStagePath);
 			const mdxFiles = files.filter((file) => file.endsWith(".mdx"));
+			const otherFiles = files.filter((file) => !file.endsWith(".mdx"));
 
 			console.log(`Found ${mdxFiles.length} MDX files in ${stage.name}`);
 
@@ -99,6 +105,13 @@ export async function syncDocsContent() {
 				await writeFile(targetPath, content, "utf-8");
 
 				console.log(`Copied ${mdxFile} to docs`);
+			}
+
+			for (const otherFile of otherFiles) {
+				const sourcePath = join(tutorialStagePath, otherFile);
+				const targetPath = join(docsAssetsPath, otherFile);
+
+				await copyFile(sourcePath, targetPath);
 			}
 		} catch (error) {
 			console.error(`Error syncing ${stage.name}:`, error);
