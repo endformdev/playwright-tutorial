@@ -1,55 +1,55 @@
-import { db } from './drizzle';
-import { users, teams, teamMembers } from './schema';
-import { hashPassword } from '@/lib/auth/session';
+import { hashPassword } from "@/lib/auth/session";
+import { db } from "./drizzle";
+import { teamMembers, teams, users } from "./schema";
 
 async function seed() {
-  console.log('Seeding database with initial data...');
-  
-  const email = 'test@test.com';
-  const password = 'admin123';
-  const passwordHash = await hashPassword(password);
+	console.log("Seeding database with initial data...");
 
-  const [user] = await db
-    .insert(users)
-    .values([
-      {
-        email: email,
-        passwordHash: passwordHash,
-        role: "owner",
-      },
-    ])
-    .returning();
+	const email = "test@test.com";
+	const password = "admin123";
+	const passwordHash = await hashPassword(password);
 
-  console.log('Initial user created.');
+	const [user] = await db
+		.insert(users)
+		.values([
+			{
+				email: email,
+				passwordHash: passwordHash,
+				role: "owner",
+			},
+		])
+		.returning();
 
-  const [team] = await db
-    .insert(teams)
-    .values({
-      name: 'Test Team',
-    })
-    .returning();
+	console.log("Initial user created.");
 
-  await db.insert(teamMembers).values({
-    teamId: team.id,
-    userId: user.id,
-    role: 'owner',
-  });
+	const [team] = await db
+		.insert(teams)
+		.values({
+			name: "Test Team",
+		})
+		.returning();
 
-  console.log('Sample team and membership created.');
-  console.log('');
-  console.log('🎉 Database seeded successfully!');
-  console.log('');
-  console.log('You can now sign in with:');
-  console.log(`Email: ${email}`);
-  console.log(`Password: ${password}`);
+	await db.insert(teamMembers).values({
+		teamId: team.id,
+		userId: user.id,
+		role: "owner",
+	});
+
+	console.log("Sample team and membership created.");
+	console.log("");
+	console.log("🎉 Database seeded successfully!");
+	console.log("");
+	console.log("You can now sign in with:");
+	console.log(`Email: ${email}`);
+	console.log(`Password: ${password}`);
 }
 
 seed()
-  .catch((error) => {
-    console.error('Seed process failed:', error);
-    process.exit(1);
-  })
-  .finally(() => {
-    console.log('Seed process finished. Exiting...');
-    process.exit(0);
-  });
+	.catch((error) => {
+		console.error("Seed process failed:", error);
+		process.exit(1);
+	})
+	.finally(() => {
+		console.log("Seed process finished. Exiting...");
+		process.exit(0);
+	});

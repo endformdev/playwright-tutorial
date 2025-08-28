@@ -1,8 +1,8 @@
-import { drizzle } from 'drizzle-orm/libsql';
-import { createClient } from '@libsql/client';
-import * as schema from './schema';
-import dotenv from 'dotenv';
-import path from 'path';
+import path from "node:path";
+import { createClient } from "@libsql/client";
+import dotenv from "dotenv";
+import { drizzle } from "drizzle-orm/libsql";
+import * as schema from "./schema";
 
 dotenv.config();
 
@@ -12,18 +12,19 @@ const authToken = process.env.DATABASE_AUTH_TOKEN;
 
 let clientConfig;
 
-if (databaseUrl && databaseUrl.startsWith('libsql://')) {
-  // Turso connection
-  clientConfig = {
-    url: databaseUrl,
-    authToken: authToken,
-  };
+if (databaseUrl?.startsWith("libsql://")) {
+	// Turso connection
+	clientConfig = {
+		url: databaseUrl,
+		authToken: authToken,
+	};
 } else {
-  // Local SQLite file
-  const dbPath = databaseUrl || path.join(process.cwd(), 'local-sqlite-database.db');
-  clientConfig = {
-    url: dbPath.startsWith('file:') ? dbPath : `file:${dbPath}`,
-  };
+	// Local SQLite file
+	const dbPath =
+		databaseUrl || path.join(process.cwd(), "local-sqlite-database.db");
+	clientConfig = {
+		url: dbPath.startsWith("file:") ? dbPath : `file:${dbPath}`,
+	};
 }
 
 export const client = createClient(clientConfig);
