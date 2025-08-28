@@ -71,3 +71,16 @@ export async function switchBranch(branchName: string): Promise<void> {
     throw new Error(`Failed to switch branch: ${error}`);
   }
 }
+
+export async function pushBranch(): Promise<void> {
+  const proc = Bun.spawn(['git', 'push'], {
+    stdout: 'pipe',
+    stderr: 'pipe',
+  });
+  await proc.exited;
+
+  if (proc.exitCode !== 0) {
+    const error = await new Response(proc.stderr).text();
+    throw new Error(`Failed to push: ${error}`);
+  }
+}
