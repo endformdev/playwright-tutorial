@@ -5,6 +5,11 @@ sidebar:
   order: 1
 ---
 
+import { Image } from "astro:assets";
+import ConfidenceBull from "../../../assets/confidence-bull.jpg";
+
+<Image src={ConfidenceBull} alt="Confidence Bull" width={600} />
+
 In this tutorial, we will take an untested saas application and build a Playwright test suite for it.
 
 We will start with a simple application that has no tests, and we will build a test suite for it.
