@@ -1,0 +1,14 @@
+{
+  "name": "stage-0-baseline",
+  "title": "SaaS Application Overview",
+  "order": 0,
+  "branch": "stage-0-baseline",
+  "prerequisites": ["Node.js", "Bun", "Git"],
+  "learningObjectives": [
+    "Understand the SaaS application structure",
+    "Set up the development environment",
+    "Run the application locally"
+  ],
+  "docsPath": "tutorials/playwright-tutorial/00-baseline.md",
+  "assetsPrefix": "/tutorial-assets/stage-0/"
+}
