@@ -18,7 +18,7 @@ This is a starter template for building a SaaS application using **Next.js** wit
 ## Tech Stack
 
 - **Framework**: [Next.js](https://nextjs.org/)
-- **Database**: [SQLite](https://www.sqlite.org/) with [better-sqlite3](https://github.com/WiseLibs/better-sqlite3)
+- **Database**: [SQLite](https://www.sqlite.org/) with [libSQL client](https://github.com/tursodatabase/libsql-js) (supports both local files and [Turso](https://turso.tech/))
 - **ORM**: [Drizzle](https://orm.drizzle.team/)
 - **Payments**: Dummy payment system (for demonstration only)
 - **UI Library**: [shadcn/ui](https://ui.shadcn.com/)
@@ -93,7 +93,8 @@ When you're ready to deploy your SaaS application to production, follow these st
 In your Vercel project settings (or during deployment), add the necessary environment variables:
 
 1. `BASE_URL`: Set this to your production domain.
-2. `DATABASE_URL`: Set this to your SQLite database path (or use a production database like PlanetScale, Neon, etc.)
+2. `DATABASE_URL`: Set this to your SQLite database path for local files, or your Turso connection string (libsql://your-database.turso.io)
+3. `DATABASE_AUTH_TOKEN`: Required if using Turso - your database auth token
 3. `AUTH_SECRET`: Set this to a random string. `openssl rand -base64 32` will generate one.
 
 ## Other Templates
