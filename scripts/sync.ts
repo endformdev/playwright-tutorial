@@ -1,3 +1,6 @@
+import { existsSync } from "fs";
+import { mkdir, readdir, readFile, writeFile } from "fs/promises";
+import { dirname, join } from "path";
 import { tutorialConfig } from "../tutorial.config";
 import {
 	getCurrentBranch,
@@ -43,6 +46,8 @@ export async function sync() {
 
 	await switchBranch(currentBranch);
 
+	await syncDocsContent();
+
 	// for stages before this one
 
 	// go to that stage
@@ -65,6 +70,42 @@ export async function sync() {
 
 	// bring all content to current stage
 	// git restore --source=current-stage -- .
+}
+
+export async function syncDocsContent() {
+	console.log("Syncing tutorial content to docs...");
+
+	for (const stage of tutorialConfig.stages) {
+		const tutorialStagePath = join(process.cwd(), "tutorial", stage.name);
+		const docsTargetPath = join(
+			process.cwd(),
+			tutorialConfig.docsRepo,
+			tutorialConfig.docsBasePath,
+		);
+
+		try {
+			// Read all MDX files in the tutorial stage directory
+			const files = await readdir(tutorialStagePath);
+			const mdxFiles = files.filter((file) => file.endsWith(".mdx"));
+
+			console.log(`Found ${mdxFiles.length} MDX files in ${stage.name}`);
+
+			for (const mdxFile of mdxFiles) {
+				const sourcePath = join(tutorialStagePath, mdxFile);
+				const targetPath = join(docsTargetPath, mdxFile);
+
+				// Read and copy the file content
+				const content = await readFile(sourcePath, "utf-8");
+				await writeFile(targetPath, content, "utf-8");
+
+				console.log(`Copied ${mdxFile} to docs`);
+			}
+		} catch (error) {
+			console.error(`Error syncing ${stage.name}:`, error);
+		}
+	}
+
+	console.log("Tutorial content sync completed");
 }
 
 export async function pullToThisStage(fromStageBranch: string): Promise<void> {
