@@ -1,4 +1,11 @@
-# Next.js SaaS Starter (SQLite Version)
+# SaaS Playwright testing tutorial
+
+## About the tutorial
+
+This tutorial is geared towards learning how to create a realistic playwright setup for testing fully fledged software as a service applications, generating tests for realistic applications, and then running those tests with Endform. 
+
+
+## About the SaaS
 
 This is a starter template for building a SaaS application using **Next.js** with support for authentication, dummy payment processing, and a dashboard for logged-in users. This version has been modified to be easier to deploy and test by using SQLite instead of Postgres and a dummy payment system instead of Stripe.
 
@@ -97,12 +104,3 @@ In your Vercel project settings (or during deployment), add the necessary enviro
 3. `DATABASE_AUTH_TOKEN`: Required if using Turso - your database auth token
 3. `AUTH_SECRET`: Set this to a random string. `openssl rand -base64 32` will generate one.
 
-## Other Templates
-
-While this template is intentionally minimal and to be used as a learning resource, there are other paid versions in the community which are more full-featured:
-
-- https://achromatic.dev
-- https://shipfa.st
-- https://makerkit.dev
-- https://zerotoshipped.com
-- https://turbostarter.dev
