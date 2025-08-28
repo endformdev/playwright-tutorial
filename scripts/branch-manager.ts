@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { tutorialConfig } from '../tutorial.config';
-import { getCurrentBranch, switchBranch, createBranch } from './utils';
+import { getCurrentBranch, switchBranch, } from './utils';
 
 export async function listStages(): Promise<void> {
   console.log('Available tutorial stages:');
@@ -10,58 +10,10 @@ export async function listStages(): Promise<void> {
   tutorialConfig.stages.forEach(stage => {
     console.log(`${stage.order}. ${stage.name}`);
     console.log(`   Title: ${stage.title}`);
-    console.log(`   Branch: ${stage.branch}`);
     console.log('');
   });
 }
 
-export async function switchToStage(stageName: string): Promise<void> {
-  const stage = tutorialConfig.stages.find(s => s.name === stageName);
-  
-  if (!stage) {
-    throw new Error(`Stage not found: ${stageName}`);
-  }
-  
-  const currentBranch = await getCurrentBranch();
-  console.log(`Current branch: ${currentBranch}`);
-  
-  if (currentBranch === stage.branch) {
-    console.log(`Already on stage branch: ${stage.branch}`);
-    return;
-  }
-  
-  try {
-    await switchBranch(stage.branch);
-    console.log(`✅ Switched to stage: ${stage.title}`);
-    console.log(`   Branch: ${stage.branch}`);
-  } catch (error) {
-    console.log(`Branch ${stage.branch} doesn't exist. Creating it...`);
-    await createBranch(stage.branch);
-    console.log(`✅ Created and switched to stage: ${stage.title}`);
-    console.log(`   Branch: ${stage.branch}`);
-  }
-}
-
-export async function createAllBranches(): Promise<void> {
-  console.log('Creating all tutorial stage branches...');
-  
-  const currentBranch = await getCurrentBranch();
-  console.log(`Starting from branch: ${currentBranch}`);
-  
-  for (const stage of tutorialConfig.stages) {
-    try {
-      console.log(`Creating branch: ${stage.branch}`);
-      await createBranch(stage.branch);
-      console.log(`✅ Created: ${stage.branch}`);
-    } catch (error) {
-      console.log(`⚠️  Branch ${stage.branch} might already exist`);
-    }
-  }
-  
-  // Switch back to original branch
-  await switchBranch(currentBranch);
-  console.log(`✅ Switched back to: ${currentBranch}`);
-}
 
 export async function propagateChanges(fromStage: string, toStage: string): Promise<void> {
   const fromStageConfig = tutorialConfig.stages.find(s => s.name === fromStage);
