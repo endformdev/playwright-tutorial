@@ -1,0 +1,15 @@
+{
+  "name": "stage-1-setup",
+  "title": "Setting Up Playwright Project Structure",
+  "order": 1,
+  "branch": "stage-1-setup",
+  "prerequisites": ["SaaS app running", "Basic understanding of testing"],
+  "learningObjectives": [
+    "Install Playwright dependencies",
+    "Create playwright.config.ts configuration",
+    "Set up test folder structure",
+    "Configure test environments"
+  ],
+  "docsPath": "tutorials/playwright-tutorial/01-setup.md",
+  "assetsPrefix": "/tutorial-assets/stage-1/"
+}

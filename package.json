@@ -8,7 +8,13 @@
     "db:seed": "npx tsx lib/db/seed.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "tutorial:status": "bun run scripts/tutorial-manager.ts status",
+    "tutorial:list": "bun run scripts/tutorial-manager.ts list",
+    "tutorial:stage": "bun run scripts/tutorial-manager.ts stage",
+    "tutorial:sync": "bun run scripts/tutorial-manager.ts sync",
+    "tutorial:propagate": "bun run scripts/tutorial-manager.ts propagate",
+    "tutorial:init": "bun run scripts/tutorial-manager.ts init"
   },
   "dependencies": {
     "@libsql/client": "^0.15.14",
