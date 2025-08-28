@@ -1,8 +1,6 @@
 #!/usr/bin/env bun
 
-import { syncStageToocs, syncAllStagesToocs } from './content-sync';
-import { listStages, propagateChanges, propagateFromCurrentToAllNext } from './branch-manager';
-import { getCurrentBranch } from './utils';
+import { getCurrentBranch, pushBranch, switchBranch } from './utils';
 import { tutorialConfig } from '../tutorial.config';
 import { sync } from './sync';
 
@@ -24,31 +22,10 @@ if (import.meta.main) {
         break;
       case 'sync':
         await sync();
-        // const stageName = args[1];
-        // if (stageName && stageName !== 'all') {
-        //   await syncStageToocs(stageName);
-        // } else if (stageName === 'all') {
-        //   await syncAllStagesToocs();
-        // } else {
-        //   // Sync current stage if no argument provided
-        //   const currentStage = await getCurrentStage();
-        //   if (currentStage) {
-        //     await syncStageToocs(currentStage);
-        //   } else {
-        //     console.error('Not on a tutorial stage branch. Please specify a stage name or use "all".');
-        //     process.exit(1);
-        //   }
-        // }
         break;
         
-       case 'propagate':
-        if (args[1] && args[2]) {
-          // Specific stage-to-stage propagation
-          await propagateChanges(args[1], args[2]);
-        } else {
-          // Auto-propagate from current stage to all next stages
-          await propagateFromCurrentToAllNext();
-        }
+       case 'push':
+        await push();
         break;
         
       default:
@@ -77,3 +54,22 @@ if (import.meta.main) {
     process.exit(1);
   }
 }
+
+async function listStages(): Promise<void> {
+  console.log('Available tutorial stages:');
+  console.log('');
+  
+  tutorialConfig.stages.forEach(stage => {
+    console.log(`${stage.order}. ${stage.name}`);
+    console.log(`   Title: ${stage.title}`);
+    console.log('');
+  });
+}
+
+async function push(): Promise<void> {
+  for (const stage of tutorialConfig.stages) {
+    await switchBranch(stage.name);
+    await pushBranch();
+  }
+}
+
