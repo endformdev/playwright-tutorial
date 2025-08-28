@@ -1,14 +1,8 @@
 #!/usr/bin/env bun
 
-import { getCurrentBranch, pushBranch, switchBranch } from './utils';
+import { pushBranch, switchBranch } from './utils';
 import { tutorialConfig } from '../tutorial.config';
 import { sync } from './sync';
-
-async function getCurrentStage(): Promise<string | null> {
-  const currentBranch = await getCurrentBranch();
-  const stage = tutorialConfig.stages.find(s => s.name === currentBranch);
-  return stage?.name || null;
-}
 
 // CLI usage
 if (import.meta.main) {
