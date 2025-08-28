@@ -17,9 +17,6 @@ export async function sync() {
     const previousStages = tutorialConfig.stages.filter(s => s.order < currentStage.order);
     const nextStages = tutorialConfig.stages.filter(s => s.order > currentStage.order);
 
-    console.log(previousStages);
-    console.log(nextStages);
-
     for (const stage of previousStages) {
         await switchBranch(stage.name);
         await pullToThisStage(currentBranch);
