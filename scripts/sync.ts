@@ -32,6 +32,10 @@ export async function sync() {
         await commitAllChanges(commitMessage);
     }
 
+    await switchBranch('main');
+    await pullToThisStage(currentBranch);
+    await commitAllChanges(commitMessage);
+
     await switchBranch(currentBranch);
     
 
