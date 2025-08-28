@@ -3,17 +3,16 @@
 import { join } from 'path';
 import { mkdir } from 'fs/promises';
 import { tutorialConfig } from '../tutorial.config';
-import { exists, copyDirectory, loadStageMetadata, loadStageContent, processContent } from './utils';
+import { exists, copyDirectory, loadStageContent, processContent } from './utils';
 
 export async function syncStageToocs(stageName: string): Promise<void> {
   console.log(`Syncing stage ${stageName} to docs repository...`);
   
   try {
-    const metadata = await loadStageMetadata(stageName);
     const content = await loadStageContent(stageName);
     
     // Process content to fix asset paths
-    const processedContent = processContent(content, metadata);
+    const processedContent = processContent(content);
     
     // Ensure docs repository exists
     const docsRepoPath = tutorialConfig.docsRepo;
@@ -22,28 +21,28 @@ export async function syncStageToocs(stageName: string): Promise<void> {
     }
     
     // Create docs content file path
-    const docsContentPath = join(docsRepoPath, 'src', 'content', 'docs', metadata.docsPath);
-    const docsContentDir = join(docsContentPath, '..');
+    // const docsContentPath = join(docsRepoPath, 'src', 'content', 'docs', metadata.docsPath);
+    // const docsContentDir = join(docsContentPath, '..');
     
-    // Ensure directory exists
-    await mkdir(docsContentDir, { recursive: true });
+    // // Ensure directory exists
+    // await mkdir(docsContentDir, { recursive: true });
     
-    // Write content to docs repo
-    await Bun.write(docsContentPath, processedContent);
-    console.log(`✓ Content synced to: ${docsContentPath}`);
+    // // Write content to docs repo
+    // await Bun.write(docsContentPath, processedContent);
+    // console.log(`✓ Content synced to: ${docsContentPath}`);
     
-    // Copy assets if they exist
-    const stageAssetsDir = join('tutorial', stageName, 'assets');
-    const docsAssetsDir = join(docsRepoPath, 'public', 'tutorial-assets', stageName.replace('stage-', 'stage-'));
+    // // Copy assets if they exist
+    // const stageAssetsDir = join('tutorial', stageName, 'assets');
+    // const docsAssetsDir = join(docsRepoPath, 'public', 'tutorial-assets', stageName.replace('stage-', 'stage-'));
     
-    if (await exists(stageAssetsDir)) {
-      await copyDirectory(stageAssetsDir, docsAssetsDir);
-      console.log(`✓ Assets synced to: ${docsAssetsDir}`);
-    } else {
-      console.log(`- No assets found for stage ${stageName}`);
-    }
+    // if (await exists(stageAssetsDir)) {
+    //   await copyDirectory(stageAssetsDir, docsAssetsDir);
+    //   console.log(`✓ Assets synced to: ${docsAssetsDir}`);
+    // } else {
+    //   console.log(`- No assets found for stage ${stageName}`);
+    // }
     
-    console.log(`✅ Stage ${stageName} synced successfully`);
+    // console.log(`✅ Stage ${stageName} synced successfully`);
     
   } catch (error) {
     console.error(`❌ Failed to sync stage ${stageName}:`, error);
