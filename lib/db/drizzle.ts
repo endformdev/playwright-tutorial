@@ -20,7 +20,7 @@ if (databaseUrl && databaseUrl.startsWith('libsql://')) {
   };
 } else {
   // Local SQLite file
-  const dbPath = databaseUrl || path.join(process.cwd(), 'lib/db/database.db');
+  const dbPath = databaseUrl || path.join(process.cwd(), 'local-sqlite-database.db');
   clientConfig = {
     url: dbPath.startsWith('file:') ? dbPath : `file:${dbPath}`,
   };
