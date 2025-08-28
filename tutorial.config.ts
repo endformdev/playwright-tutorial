@@ -2,7 +2,8 @@ import type { TutorialConfig } from "./scripts/types";
 
 export const tutorialConfig: TutorialConfig = {
 	docsRepo: "../docs",
-	docsBasePath: "src/content/docs/tutorials/playwright-tutorial",
+	docsBasePath: "src/content/docs/tutorial",
+	docsAssetsPath: "src/assets",
 	stages: [
 		{
 			name: "stage-0-baseline",
