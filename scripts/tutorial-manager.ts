@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-import { pushBranch, switchBranch } from './utils';
+import { getCurrentBranch, pushBranch, switchBranch } from './utils';
 import { tutorialConfig } from '../tutorial.config';
 import { sync } from './sync';
 
@@ -61,9 +61,16 @@ async function listStages(): Promise<void> {
 }
 
 async function push(): Promise<void> {
+  const currentBranch = await getCurrentBranch();
+
   for (const stage of tutorialConfig.stages) {
     await switchBranch(stage.name);
     await pushBranch();
   }
+
+  await switchBranch('main');
+  await pushBranch();
+  
+  await switchBranch(currentBranch);
 }
 
