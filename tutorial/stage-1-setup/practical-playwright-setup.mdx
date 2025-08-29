@@ -23,5 +23,40 @@ For more information about getting started with the tutorial repository, go [her
 </Aside>
 
 
+## Base file structure with `playwright init`
 
+## Alternatives for creating temporary test data (like users)
 
+Almost all of the tests that you will end up making will require some amount of initial test data, so that you don't have to completely re-create the world within each separate test.
+
+There are two schools of thought about how to create this test data.
+Either you can create it by using the browser and clicking through your application to create that data, or you can use either your public API or create internal APIs in order to create this data more efficiently.
+
+Playwright has two methods of globally setting up test data before your suite runs. Project dependencies, which runs a browser, or global setup, which is more like a simple script more suited to API calls.
+
+If we look at [Playwrights documentation](https://playwright.dev/docs/test-global-setup-teardown), we can see that it slightly prefers using project dependencies to globally set up and tear down test data.
+The table in the documentation there outlines how using project dependencies provides more visibility into how the set up and tear down steps work.
+
+In our experience, having an API endpoint available to create data (like test users), instead of requiring a whole browser, makes your Playwright project more flexible long term.
+Initially you will feel like one user is enough, in which case the browser-based setup method is the simplest.
+However, further down the line, you will likely need to make several users, some for cases where users collide such as your "delete user" flow.
+When this happens, you will find that your API endpoints will make it much easier to create these tests.
+
+If you learn to create and use API endpoints like this, it will be much easier for you to extend them to create more kinds of useful test data, such as organisations or organisation memberships.
+This will really take your ability to test end to end test your application to a whole new level.
+
+Today we will learn to use both kinds of set up approaches.
+
+### Creating / deleting users through a project
+
+### Creating / deleting users through an API
+
+This starter has a `seed.ts` file that does something similar.
+
+Let's make an API route that enables us to do the same.
+
+Let's secure the API route using a token.
+
+## Using `storageState` to make use of the test user in multiple tests
+
+## Wrapping up
