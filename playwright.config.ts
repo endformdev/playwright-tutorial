@@ -36,8 +36,25 @@ export default defineConfig({
 	/* Configure projects for major browsers */
 	projects: [
 		{
+			name: "setup",
+			testMatch: "setup.spec.ts",
+			teardown: "teardown",
+		},
+		{
 			name: "chromium",
-			use: { ...devices["Desktop Chrome"] },
+			testIgnore: ["setup.spec.ts", "teardown.spec.ts"],
+			dependencies: ["setup"],
+			use: {
+				storageState: ".auth/shared-user.json",
+				...devices["Desktop Chrome"],
+			},
+		},
+		{
+			name: "teardown",
+			testMatch: "teardown.spec.ts",
+			use: {
+				storageState: ".auth/shared-user.json",
+			},
 		},
 	],
 
