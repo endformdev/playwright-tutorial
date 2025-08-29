@@ -10,9 +10,16 @@ import {
 
 export async function sync() {
 	const currentBranch = await getCurrentBranch();
-	const currentStage = tutorialConfig.stages.find(
+	let currentStage = tutorialConfig.stages.find(
 		(s) => s.name === currentBranch,
 	);
+	if (currentBranch === "main") {
+		currentStage = {
+			name: "main",
+			title: "Main",
+			order: 999,
+		};
+	}
 	if (!currentStage) {
 		throw new Error("Current branch is not a tutorial stage");
 	}
