@@ -189,6 +189,10 @@ async function removeFuturePaths(futurePaths: string[]): Promise<void> {
 }
 
 async function restoreFuturePaths(futurePaths: string[]): Promise<void> {
+	if (futurePaths.length === 0) {
+		return;
+	}
+
 	const proc = Bun.spawn(
 		["git", "restore", "--source=HEAD", "--", ...futurePaths],
 		{
