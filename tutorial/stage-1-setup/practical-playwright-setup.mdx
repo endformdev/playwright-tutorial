@@ -282,11 +282,171 @@ export default defineConfig({
 
 ### Creating / deleting users through an API
 
-This starter has a `seed.ts` file that does something similar.
+Let's explore the alternative to creating users through the browser, which is to create and use API endpoints for our test data. 
 
-Let's make an API route that enables us to do the same.
+Let's make ourselves an internal API endpoint for our tests to use.
 
-Let's secure the API route using a token.
+```bash
+git checkout stage-1-setup -- app/api/internal/user/route.ts
+```
 
+This file contains a `POST` and `DELETE` endpoint for creating and deleting users.
+
+```ts
+function isAuthorized(request: Request) {
+	const authHeader = request.headers.get("authorization");
+	if (!authHeader) return false;
+	const [scheme, token] = authHeader.split(" ");
+	return scheme === "Bearer" && token === "VerySecretDummyToken";
+}
+
+export async function POST(request: Request) {
+	if (!isAuthorized(request)) {
+		return new Response("Unauthorized", { status: 401 });
+	}
+
+	// Create user in DB
+}
+
+export async function DELETE(request: Request) {
+	if (!isAuthorized(request)) {
+		return new Response("Unauthorized", { status: 401 });
+	}
+
+	// Delete user from DB
+}
+```
+
+Let's set up a global setup and global teardown script to use these API endpoints. 
+First we need to modify the `playwright.config.ts` file.
+
+```ts
+export default defineConfig({
+	globalSetup: "./global-setup.ts",
+	globalTeardown: "./global-teardown.ts",
+});
+```
+
+Then we need to create the `global-setup.ts` and `global-teardown.ts` files.
+
+```bash
+touch global-setup.ts global-teardown.ts
+```
+
+Can you figure out what these scripts should contain?
+
+Here's an outline of the setup script:
+
+<Tabs>
+<TabItem label="global-setup.ts (Hint)">
+```ts
+import type { FullConfig } from "@playwright/test";
+
+export default async function globalSetup(config: FullConfig) {
+	const { baseURL } = config.projects[0]?.use || {};
+	if (!baseURL) {
+		throw new Error("baseURL is required");
+	}
+
+    // Create a random email and password
+
+	// Make a POST request to the API to create a user
+	await fetch(`${baseURL}/api/internal/user`);
+}
+
+```
+</TabItem>
+<TabItem label="global-setup.ts (Completed)">
+```ts
+import type { FullConfig } from "@playwright/test";
+
+export default async function globalSetup(config: FullConfig) {
+	const { baseURL } = config.projects[0]?.use || {};
+	if (!baseURL) {
+		throw new Error("baseURL is required");
+	}
+
+	const email = `${Math.random().toString(36).substring(2, 15)}@example.com`;
+	const password = "testpassword123";
+
+	try {
+		const response = await fetch(`${baseURL}/api/internal/user`, {
+			method: "POST",
+			headers: {
+				"content-type": "application/json",
+				authorization: "Bearer VerySecretDummyToken",
+			},
+			body: JSON.stringify({ email, password }),
+		});
+		const data = await response.json().catch(() => null);
+		console.log("[globalSetup] create user status:", response.status);
+		console.log("[globalSetup] create user body:", data);
+	} catch (error) {
+		console.error("[globalSetup] error creating user:", error);
+	}
+}
+
+```
+</TabItem>
+</Tabs>
+
+Here's an outline of the teardown script:
+
+<Tabs>
+<TabItem label="global-teardown.ts (Hint)">
+```ts
+import type { FullConfig } from "@playwright/test";
+
+export default async function globalTeardown(config: FullConfig) {
+	const { baseURL } = config.projects[0]?.use || {};
+	if (!baseURL) {
+		throw new Error("baseURL is required");
+	}
+
+	// Make a DELETE request to the API to delete the user
+	await fetch(`${baseURL}/api/internal/user`);
+}
+```
+</TabItem>
+<TabItem label="global-teardown.ts (Completed)">
+```ts
+import type { FullConfig } from "@playwright/test";
+
+export default async function globalTeardown(config: FullConfig) {
+	const { baseURL } = config.projects[0]?.use || {};
+	if (!baseURL) {
+		throw new Error("baseURL is required");
+	}
+
+	// How to get the email of the test user?
+	const email = "pw-global@example.com";
+
+	try {
+		const response = await fetch(`${baseURL}/api/internal/user`, {
+			method: "DELETE",
+			headers: {
+				"content-type": "application/json",
+				authorization: "Bearer VerySecretDummyToken",
+			},
+			body: JSON.stringify({ email }),
+		});
+		const data = await response.json().catch(() => null);
+		console.log("[globalTeardown] delete user status:", response.status);
+		console.log("[globalTeardown] delete user body:", data);
+	} catch (error) {
+		console.error("[globalTeardown] error deleting user:", error);
+	}
+}
+```
+</TabItem>
+</Tabs>
 
 ## Wrapping up
+
+At this point in time, we don't just have a basic playwright project set up, but we have a very practical playwright set up for our future testing needs. 
+
+We have:
+
+- A file structure and config file for running a Playwright suite in typescript
+- A set of projects that depend on each other where we can create shared test data
+- API endpoints for easily creating more test data when needed
