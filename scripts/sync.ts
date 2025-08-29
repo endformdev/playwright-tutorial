@@ -47,6 +47,8 @@ export async function sync() {
 	for (const stage of nextStages) {
 		await switchBranch(stage.name);
 		await pullToThisStage(currentBranch);
+		const futurePaths = getFuturePathsFrom(stage.name);
+		await restoreFuturePaths(futurePaths);
 		await commitAllChanges(commitMessage);
 	}
 
@@ -183,6 +185,27 @@ async function removeFuturePaths(futurePaths: string[]): Promise<void> {
 				throw new Error(`Failed to remove untracked path ${path}: ${error}`);
 			}
 		}
+	}
+}
+
+async function restoreFuturePaths(futurePaths: string[]): Promise<void> {
+	if (futurePaths.length === 0) {
+		return;
+	}
+
+	const proc = Bun.spawn(
+		["git", "restore", "--source=HEAD", "--", ...futurePaths],
+		{
+			stdout: "pipe",
+			stderr: "pipe",
+		},
+	);
+
+	await proc.exited;
+
+	if (proc.exitCode !== 0) {
+		const error = await new Response(proc.stderr).text();
+		throw new Error(`Failed to restore future paths: ${error}`);
 	}
 }
 
