@@ -2,6 +2,7 @@ export interface TutorialStage {
 	name: string;
 	title: string;
 	order: number;
+	newPaths: string[];
 }
 
 export interface TutorialConfig {
