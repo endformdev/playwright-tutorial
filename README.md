@@ -4,6 +4,24 @@
 
 This tutorial is geared towards learning how to create a realistic playwright setup for testing fully fledged software as a service applications, generating tests for realistic applications, and then running those tests with Endform. 
 
+## Getting started with the tutorial repository
+
+To get started, you will need to:
+
+- [Clone the repository](https://github.com/endformdev/playwright-tutorial): `git clone https://github.com/endformdev/playwright-tutorial && cd playwright-tutorial`
+- Make sure you have [`pnpm` installed on your system](https://pnpm.io/installation#using-corepack)
+- Install the dependencies: `pnpm install`
+- Checkout the branch for the stage you want to start from, for example: `git checkout stage-0-baseline`
+
+We will be testing against a realistic dummy application.
+You can either:
+
+- Run the tests against our pre-deployed application at [https://endform-playwright-tutorial.vercel.app](https://endform-playwright-tutorial.vercel.app)
+- Run the application locally, for this option you will need to:
+  - Set up `.env` and run migrations on a local SQLite database: `pnpm db:setup`
+  - Run the application: `pnpm dev`, or for better performance `pnpm build && pnpm start`
+  - Check that it loads correctly at [http://localhost:3000](http://localhost:3000)
+
 
 ## About the SaaS
 
@@ -42,36 +60,22 @@ pnpm install
 
 ## Running Locally
 
-Use the included setup script to create your `.env` file:
+Use the included setup script to create your `.env` file and run the database migrations:
 
 ```bash
 pnpm db:setup
 ```
 
-Generate and run the database migrations:
-
-```bash
-pnpm db:generate
-pnpm db:migrate
-```
-
-Seed the database with a default user and team:
-
-```bash
-pnpm db:seed
-```
-
-This will create the following user and team:
-
-- User: `test@test.com`
-- Password: `admin123`
-
-You can also create new users through the `/sign-up` route.
-
-Finally, run the Next.js development server:
+Then, run the Next.js development server:
 
 ```bash
 pnpm dev
+```
+
+Or for better performance:
+
+```bash
+pnpm build && pnpm start
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser to see the app in action.
