@@ -5,7 +5,9 @@ sidebar:
   order: 2
 ---
 
-import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Aside } from '@astrojs/starlight/components';
+import { Image } from "astro:assets";
+import StepOverDebug from "../../../assets/step-over-debug.png";
 
 In this part of the tutorial, we will both set up a Playwright project from scratch, but we will also learn to use the most important features to be more productive with Playwright when using a real-world application.
 
@@ -22,8 +24,60 @@ To start from this step, checkout the [`stage-0-baseline` branch](https://github
 For more information about getting started with the tutorial repository, go [here](/docs/tutorial/from-cowboy-to-confidence#getting-started-with-the-tutorial-repository).
 </Aside>
 
+## Create the base file structure
 
-## Base file structure with `playwright init`
+### Initializing with `create playwright`
+
+Following the [Playwright documentation](https://playwright.dev/docs/intro#using-npm-yarn-or-pnpm), let's set up our base Playwright file structure.
+
+```bash
+pnpm create playwright
+```
+
+Follow the wizard. You should now have a `playwright.config.ts` file, a `tests` directory, and also a `tests-examples` directory.
+You can remove the `tests-examples` directory, we won't be using it.
+
+### Modifying `playwright.config.ts` for our needs
+
+Take a look at the `playwright.config.ts` file - it's the primary way of configuring Playwright.
+Peruse the [docs](https://playwright.dev/docs/test-configuration) for more information about the different options that are available here.
+
+Let's modify the `baseURL` to point to our application.
+
+```ts
+export default defineConfig({
+	use: {
+    // If you want to run tests against the pre-deployed application
+		baseURL: "https://endform-playwright-tutorial.vercel.app",
+    // If you want to run tests against a locally running application
+    // baseURL: "http://localhost:3000",
+	}
+});
+```
+
+At the moment the Playwright project is configured with three projects that test against three different browsers. Let's simplify this by just testing against Chrome for now.
+
+```ts
+projects: [
+	{
+		name: "chromium",
+		use: { ...devices["Desktop Chrome"] },
+	}
+  // Remove the other firefox and webkit projects
+]
+```
+
+### Run your first test
+
+Let's check that this works by modifying the `example.spec.ts` test file in the `tests` directory.
+
+- Remove the second test "get started link"
+- Modify the first test to go to the default url `await page.goto("/")`
+- Modify the expectation to check for our page title `/Playwright Tutorial/`
+- Watch your test run `pnpm playwright test --debug`
+
+You can watch your test step by step by using the "step over" button.
+<Image src={StepOverDebug} alt="Step over button in Playwrights inspector" width={600} />
 
 ## Alternatives for creating temporary test data (like users)
 
