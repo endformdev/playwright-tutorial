@@ -15,7 +15,13 @@ export const tutorialConfig: TutorialConfig = {
 			name: "stage-1-setup",
 			title: "Setting up Playwright",
 			order: 1,
-			newPaths: ["tests/", "playwright.config.ts"],
+			newPaths: [
+				"tests/",
+				"playwright.config.ts",
+				"global-setup.ts",
+				"global-teardown.ts",
+				"api/internal/",
+			],
 		},
 		{
 			name: "stage-2-generated-tests",
