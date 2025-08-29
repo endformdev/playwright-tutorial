@@ -20,7 +20,7 @@ export const tutorialConfig: TutorialConfig = {
 				"playwright.config.ts",
 				"global-setup.ts",
 				"global-teardown.ts",
-				"api/internal/",
+				"app/api/internal/",
 			],
 		},
 		{
