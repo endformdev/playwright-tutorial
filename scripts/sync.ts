@@ -18,6 +18,7 @@ export async function sync() {
 			name: "main",
 			title: "Main",
 			order: 999,
+			newPaths: [],
 		};
 	}
 	if (!currentStage) {
@@ -38,6 +39,8 @@ export async function sync() {
 	for (const stage of previousStages) {
 		await switchBranch(stage.name);
 		await pullToThisStage(currentBranch);
+		const futurePaths = getFuturePathsFrom(stage.name);
+		await removeFuturePaths(futurePaths);
 		await commitAllChanges(commitMessage);
 	}
 
@@ -128,6 +131,59 @@ export async function syncDocsContent() {
 	}
 
 	console.log("Tutorial content sync completed");
+}
+
+function getFuturePathsFrom(stageName: string): string[] {
+	const stage = tutorialConfig.stages.find((s) => s.name === stageName);
+	if (!stage) {
+		throw new Error("Stage not found");
+	}
+	const nextStages = tutorialConfig.stages.filter((s) => s.order > stage.order);
+	return nextStages.flatMap((s) => s.newPaths);
+}
+
+async function isPathTrackedByGit(path: string): Promise<boolean> {
+	const proc = Bun.spawn(["git", "ls-files", "--error-unmatch", "--", path], {
+		stdout: "pipe",
+		stderr: "pipe",
+	});
+
+	await proc.exited;
+	return proc.exitCode === 0;
+}
+
+async function removeFuturePaths(futurePaths: string[]): Promise<void> {
+	for (const path of futurePaths) {
+		const isTracked = await isPathTrackedByGit(path);
+
+		if (isTracked) {
+			// If tracked by git, restore from HEAD
+			const proc = Bun.spawn(["git", "restore", "--source=HEAD", "--", path], {
+				stdout: "pipe",
+				stderr: "pipe",
+			});
+
+			await proc.exited;
+
+			if (proc.exitCode !== 0) {
+				const error = await new Response(proc.stderr).text();
+				throw new Error(`Failed to restore tracked path ${path}: ${error}`);
+			}
+		} else {
+			// If not tracked by git, remove forcefully
+			const proc = Bun.spawn(["rm", "-rf", path], {
+				stdout: "pipe",
+				stderr: "pipe",
+			});
+
+			await proc.exited;
+
+			if (proc.exitCode !== 0) {
+				const error = await new Response(proc.stderr).text();
+				throw new Error(`Failed to remove untracked path ${path}: ${error}`);
+			}
+		}
+	}
 }
 
 export async function pullToThisStage(fromStageBranch: string): Promise<void> {
