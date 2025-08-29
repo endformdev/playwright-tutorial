@@ -18,6 +18,7 @@ export async function sync() {
 			name: "main",
 			title: "Main",
 			order: 999,
+			newPaths: [],
 		};
 	}
 	if (!currentStage) {
@@ -38,6 +39,8 @@ export async function sync() {
 	for (const stage of previousStages) {
 		await switchBranch(stage.name);
 		await pullToThisStage(currentBranch);
+		const futurePaths = getFuturePathsFrom(stage.name);
+		await removeFuturePaths(futurePaths);
 		await commitAllChanges(commitMessage);
 	}
 
@@ -128,6 +131,32 @@ export async function syncDocsContent() {
 	}
 
 	console.log("Tutorial content sync completed");
+}
+
+function getFuturePathsFrom(stageName: string): string[] {
+	const stage = tutorialConfig.stages.find((s) => s.name === stageName);
+	if (!stage) {
+		throw new Error("Stage not found");
+	}
+	const nextStages = tutorialConfig.stages.filter((s) => s.order > stage.order);
+	return nextStages.flatMap((s) => s.newPaths);
+}
+
+async function removeFuturePaths(futurePaths: string[]): Promise<void> {
+	const proc = Bun.spawn(
+		["git", "restore", "--source=HEAD", "--", ...futurePaths],
+		{
+			stdout: "pipe",
+			stderr: "pipe",
+		},
+	);
+
+	await proc.exited;
+
+	if (proc.exitCode !== 0) {
+		const error = await new Response(proc.stderr).text();
+		throw new Error(`Failed to remove future paths: ${error}`);
+	}
 }
 
 export async function pullToThisStage(fromStageBranch: string): Promise<void> {
