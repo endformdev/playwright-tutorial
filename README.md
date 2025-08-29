@@ -7,6 +7,8 @@ This tutorial is geared towards learning how to create a realistic playwright se
 
 ## About the SaaS
 
+The SaaS is based on the [Next.JS SaaS Starter Tempate](https://github.com/nextjs/saas-starter).
+
 This is a starter template for building a SaaS application using **Next.js** with support for authentication, dummy payment processing, and a dashboard for logged-in users. This version has been modified to be easier to deploy and test by using SQLite instead of Postgres and a dummy payment system instead of Stripe.
 
 ## Features
