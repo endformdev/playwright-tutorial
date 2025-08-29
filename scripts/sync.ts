@@ -142,20 +142,47 @@ function getFuturePathsFrom(stageName: string): string[] {
 	return nextStages.flatMap((s) => s.newPaths);
 }
 
-async function removeFuturePaths(futurePaths: string[]): Promise<void> {
-	const proc = Bun.spawn(
-		["git", "restore", "--source=HEAD", "--", ...futurePaths],
-		{
-			stdout: "pipe",
-			stderr: "pipe",
-		},
-	);
+async function isPathTrackedByGit(path: string): Promise<boolean> {
+	const proc = Bun.spawn(["git", "ls-files", "--error-unmatch", "--", path], {
+		stdout: "pipe",
+		stderr: "pipe",
+	});
 
 	await proc.exited;
+	return proc.exitCode === 0;
+}
 
-	if (proc.exitCode !== 0) {
-		const error = await new Response(proc.stderr).text();
-		throw new Error(`Failed to remove future paths: ${error}`);
+async function removeFuturePaths(futurePaths: string[]): Promise<void> {
+	for (const path of futurePaths) {
+		const isTracked = await isPathTrackedByGit(path);
+
+		if (isTracked) {
+			// If tracked by git, restore from HEAD
+			const proc = Bun.spawn(["git", "restore", "--source=HEAD", "--", path], {
+				stdout: "pipe",
+				stderr: "pipe",
+			});
+
+			await proc.exited;
+
+			if (proc.exitCode !== 0) {
+				const error = await new Response(proc.stderr).text();
+				throw new Error(`Failed to restore tracked path ${path}: ${error}`);
+			}
+		} else {
+			// If not tracked by git, remove forcefully
+			const proc = Bun.spawn(["rm", "-rf", path], {
+				stdout: "pipe",
+				stderr: "pipe",
+			});
+
+			await proc.exited;
+
+			if (proc.exitCode !== 0) {
+				const error = await new Response(proc.stderr).text();
+				throw new Error(`Failed to remove untracked path ${path}: ${error}`);
+			}
+		}
 	}
 }
 
