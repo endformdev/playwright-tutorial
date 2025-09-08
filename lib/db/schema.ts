@@ -48,7 +48,9 @@ export const activityLogs = sqliteTable("activity_logs", {
 	teamId: integer("team_id")
 		.notNull()
 		.references(() => teams.id),
-	userId: integer("user_id").references(() => users.id),
+	userId: integer("user_id").references(() => users.id, {
+		onDelete: "cascade",
+	}),
 	action: text("action").notNull(),
 	timestamp: integer("timestamp", { mode: "timestamp" })
 		.notNull()

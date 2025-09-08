@@ -11,10 +11,11 @@ if (scriptArg !== "create" && scriptArg !== "delete") {
 	process.exit(1);
 }
 
-const baseURL =
-	process.env.BASE_URL || "https://endform-playwright-tutorial.vercel.app";
+const baseURL = "https://endform-playwright-tutorial.vercel.app";
+// const baseURL = "http://localhost:3000";
 
 if (scriptArg === "create") {
+	console.log("Creating MCP user", baseURL);
 	await createUser(baseURL, "mcp");
 } else if (scriptArg === "delete") {
 	await deleteUser(baseURL, "mcp");
