@@ -357,7 +357,7 @@ export default async function globalSetup(config: FullConfig) {
 	// The response contains a JSON object with the form:
 	// { user: { id: number, email: string }, session: string }
 	// Look at your existing .auth/shared-ui-user.json file to see how to save the user to the storage state
-	// Save it to the .auth/shared-api-user.json file so that we can use both states
+	// Save it to the .auth/api-user.json file so that we can use both states
 }
 
 ```
@@ -398,7 +398,7 @@ export default async function globalSetup(config: FullConfig) {
 
 function writeSessionFile(session: string, baseURL: string) {
 	fs.writeFileSync(
-		".auth/shared-api-user.json",
+		".auth/api-user.json",
 		JSON.stringify({
 			cookies: [
 				{
@@ -480,7 +480,7 @@ export default defineConfig({
 		{
 			name: "chromium",
 			use: {
-				storageState: ".auth/shared-api-user.json",
+				storageState: ".auth/api-user.json",
 			},
 		},
 	],
