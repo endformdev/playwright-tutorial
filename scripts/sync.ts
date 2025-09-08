@@ -227,6 +227,18 @@ export async function pullToThisStage(fromStageBranch: string): Promise<void> {
 }
 
 export async function commitAllChanges(message: string): Promise<void> {
+	// Check if there are any changes to commit first
+	const checkProc = Bun.spawn(["git", "diff", "--quiet"], {
+		stdout: "pipe",
+		stderr: "pipe",
+	});
+	await checkProc.exited;
+
+	// If exit code is 0, there are no changes, so return early
+	if (checkProc.exitCode === 0) {
+		return;
+	}
+
 	// git add -A
 	const proc = Bun.spawn(["git", "add", "-A"], {
 		stdout: "pipe",
