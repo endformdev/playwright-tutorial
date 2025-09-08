@@ -43,13 +43,17 @@ export async function getSession() {
 	return await verifyToken(session);
 }
 
+export async function createSession(userId: number, expires: Date) {
+	const session: SessionData = {
+		user: { id: userId, },
+		expires: expires.toISOString(),
+	};
+	return await signToken(session);
+}
+
 export async function setSession(user: NewUser) {
 	const expiresInOneDay = new Date(Date.now() + 24 * 60 * 60 * 1000);
-	const session: SessionData = {
-		user: { id: user.id! },
-		expires: expiresInOneDay.toISOString(),
-	};
-	const encryptedSession = await signToken(session);
+	const encryptedSession = await createSession(user.id!, expiresInOneDay);
 	(await cookies()).set("session", encryptedSession, {
 		expires: expiresInOneDay,
 		httpOnly: true,
