@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const authFile = ".auth/shared-user.json";
+const authFile = ".auth/shared-ui-user.json";
 
 test("user signup and login flow", async ({ page }) => {
 	const randomEmail = `${Math.random().toString(36).substring(2, 15)}@example.com`;
