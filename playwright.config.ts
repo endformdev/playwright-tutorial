@@ -48,7 +48,7 @@ export default defineConfig({
 			testIgnore: ["setup.spec.ts", "teardown.spec.ts"],
 			dependencies: ["setup"],
 			use: {
-				storageState: ".auth/shared-user.json",
+				storageState: ".auth/shared-api-user.json",
 				...devices["Desktop Chrome"],
 			},
 		},
@@ -56,7 +56,7 @@ export default defineConfig({
 			name: "teardown",
 			testMatch: "teardown.spec.ts",
 			use: {
-				storageState: ".auth/shared-user.json",
+				storageState: ".auth/shared-ui-user.json",
 			},
 		},
 	],
