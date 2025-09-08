@@ -37,6 +37,7 @@ export const tutorialConfig: TutorialConfig = {
 				"tests/change-name.spec.ts",
 				"tests/plan-upgrade.spec.ts",
 				"tests/change-email.spec.ts",
+				"tests/team-invitation.spec.ts",
 			],
 		},
 		{
