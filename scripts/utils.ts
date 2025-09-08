@@ -83,3 +83,16 @@ export async function pushBranch(): Promise<void> {
 		throw new Error(`Failed to push: ${error}`);
 	}
 }
+
+export async function pullBranch(): Promise<void> {
+	const proc = Bun.spawn(["git", "pull"], {
+		stdout: "pipe",
+		stderr: "pipe",
+	});
+	await proc.exited;
+
+	if (proc.exitCode !== 0) {
+		const error = await new Response(proc.stderr).text();
+		throw new Error(`Failed to pull: ${error}`);
+	}
+}
