@@ -40,6 +40,8 @@ export async function deleteUser(baseURL: string, userKindName: string) {
 		const data = await response.json().catch(() => null);
 		console.log("[globalTeardown] delete user status:", response.status);
 		console.log("[globalTeardown] delete user body:", data);
+		fs.unlinkSync(`.auth/${userKindName}-user-email.txt`);
+		fs.unlinkSync(`.auth/${userKindName}-user.json`);
 	} catch (error) {
 		console.error("[globalTeardown] error deleting user:", error);
 	}
