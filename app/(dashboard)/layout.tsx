@@ -47,7 +47,7 @@ function UserMenu() {
 
 	return (
 		<DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-			<DropdownMenuTrigger>
+			<DropdownMenuTrigger data-testid="user-menu-trigger">
 				<Avatar className="cursor-pointer size-9">
 					<AvatarImage alt={user.name || ""} />
 					<AvatarFallback>
@@ -59,8 +59,12 @@ function UserMenu() {
 				</Avatar>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end" className="flex flex-col gap-1">
-				<DropdownMenuItem className="cursor-pointer">
-					<Link href="/dashboard" className="flex w-full items-center">
+				<DropdownMenuItem className="cursor-pointer" asChild>
+					<Link
+						href="/dashboard"
+						className="flex w-full items-center"
+						onClick={() => setIsMenuOpen(false)}
+					>
 						<Home className="mr-2 h-4 w-4" />
 						<span>Dashboard</span>
 					</Link>
