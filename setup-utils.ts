@@ -21,7 +21,7 @@ export async function createUser(baseURL: string, userKindName: string) {
 		writeEmailFile(email, `.auth/${userKindName}-user-email.txt`);
 		writeSessionFile(data.session, baseURL, `.auth/${userKindName}-user.json`);
 	} catch (error) {
-		console.error("[globalSetup] error creating user:", error);
+		console.error("[setup-utils] error creating user:", error);
 	}
 }
 
@@ -38,12 +38,12 @@ export async function deleteUser(baseURL: string, userKindName: string) {
 			body: JSON.stringify({ email }),
 		});
 		const data = await response.json().catch(() => null);
-		console.log("[globalTeardown] delete user status:", response.status);
-		console.log("[globalTeardown] delete user body:", data);
+		// console.log("[setup-utils] delete user status:", response.status);
+		// console.log("[setup-utils] delete user body:", data);
 		fs.unlinkSync(`.auth/${userKindName}-user-email.txt`);
 		fs.unlinkSync(`.auth/${userKindName}-user.json`);
 	} catch (error) {
-		console.error("[globalTeardown] error deleting user:", error);
+		console.error("[setup-utils] error deleting user:", error);
 	}
 }
 

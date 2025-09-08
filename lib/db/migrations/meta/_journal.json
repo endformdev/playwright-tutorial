@@ -1,13 +1,20 @@
 {
-	"version": "7",
-	"dialect": "sqlite",
-	"entries": [
-		{
-			"idx": 0,
-			"version": "6",
-			"when": 1756307406997,
-			"tag": "0000_late_mastermind",
-			"breakpoints": true
-		}
-	]
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1756307406997,
+      "tag": "0000_late_mastermind",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1757329816216,
+      "tag": "0001_heavy_mentor",
+      "breakpoints": true
+    }
+  ]
 }

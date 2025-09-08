@@ -16,7 +16,9 @@ export const tutorialConfig: TutorialConfig = {
 			title: "Setting up Playwright",
 			order: 1,
 			newPaths: [
-				"tests/",
+				"tests/check-setup.spec.ts",
+				"tests/setup.spec.ts",
+				"tests/teardown.spec.ts",
 				"playwright.config.ts",
 				"global-setup.ts",
 				"global-teardown.ts",
@@ -28,7 +30,7 @@ export const tutorialConfig: TutorialConfig = {
 			name: "stage-2-generated-tests",
 			title: "Generating tests with the Playwright MCP Server",
 			order: 2,
-			newPaths: ["mcp-user.ts"],
+			newPaths: ["mcp-user.ts", "tests/activity-section.spec.ts"],
 		},
 		{
 			name: "stage-3-endform-integration",
