@@ -10,7 +10,8 @@
 		"db:migrate": "drizzle-kit migrate",
 		"db:studio": "drizzle-kit studio",
 		"tutorial": "bun run scripts/tutorial-manager.ts",
-		"format:fix": "pnpm biome check --write"
+		"format:fix": "pnpm biome check --write",
+		"mcp-user": "bun run mcp-user.ts"
 	},
 	"dependencies": {
 		"@libsql/client": "^0.15.14",
