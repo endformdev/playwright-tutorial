@@ -330,13 +330,16 @@ export const inviteTeamMember = validatedActionWithUser(
 		}
 
 		// Create a new invitation
-		await db.insert(invitations).values({
-			teamId: userWithTeam.teamId,
-			email,
-			role,
-			invitedBy: user.id,
-			status: "pending",
-		});
+		const invitation = await db
+			.insert(invitations)
+			.values({
+				teamId: userWithTeam.teamId,
+				email,
+				role,
+				invitedBy: user.id,
+				status: "pending",
+			})
+			.returning();
 
 		await logActivity(
 			userWithTeam.teamId,
@@ -347,6 +350,6 @@ export const inviteTeamMember = validatedActionWithUser(
 		// TODO: Send invitation email and include ?inviteId={id} to sign-up URL
 		// await sendInvitationEmail(email, userWithTeam.team.name, role)
 
-		return { success: "Invitation sent successfully" };
+		return { success: "Invitation sent successfully", id: invitation[0].id };
 	},
 );
