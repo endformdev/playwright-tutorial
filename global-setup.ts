@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import type { FullConfig } from "@playwright/test";
 
 export default async function globalSetup(config: FullConfig) {
@@ -18,10 +19,35 @@ export default async function globalSetup(config: FullConfig) {
 			},
 			body: JSON.stringify({ email, password }),
 		});
-		const data = await response.json().catch(() => null);
-		console.log("[globalSetup] create user status:", response.status);
-		console.log("[globalSetup] create user body:", data);
+		const data = (await response.json()) as { session: string };
+		if (!data.session) {
+			throw new Error("Failed to create user");
+		}
+
+		writeSessionFile(data.session, baseURL);
 	} catch (error) {
 		console.error("[globalSetup] error creating user:", error);
 	}
+}
+
+function writeSessionFile(session: string, baseURL: string) {
+	fs.writeFileSync(
+		".auth/shared-api-user.json",
+		JSON.stringify({
+			cookies: [
+				{
+					name: "session",
+					value: session,
+					domain: new URL(baseURL).hostname,
+					path: "/",
+					// Playwright will delete the cookie when the test is done
+					expires: -1,
+					httpOnly: true,
+					secure: true,
+					sameSite: "Lax",
+				},
+			],
+			origins: [],
+		}),
+	);
 }
