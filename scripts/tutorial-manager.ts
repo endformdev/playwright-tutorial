@@ -2,7 +2,7 @@
 
 import { tutorialConfig } from "../tutorial.config";
 import { sync, syncDocsContent } from "./sync";
-import { getCurrentBranch, pushBranch, switchBranch } from "./utils";
+import { getCurrentBranch, pullBranch, pushBranch, switchBranch } from "./utils";
 
 // CLI usage
 if (import.meta.main) {
@@ -22,6 +22,9 @@ if (import.meta.main) {
 				break;
 			case "push":
 				await push();
+				break;
+			case "pull":
+				await pull();
 				break;
 
 			default:
@@ -64,6 +67,20 @@ async function push(): Promise<void> {
 
 	await switchBranch("main");
 	await pushBranch();
+
+	await switchBranch(currentBranch);
+}
+
+async function pull(): Promise<void> {
+	const currentBranch = await getCurrentBranch();
+
+	for (const stage of tutorialConfig.stages) {
+		await switchBranch(stage.name);
+		await pullBranch();
+	}
+
+	await switchBranch("main");
+	await pullBranch();
 
 	await switchBranch(currentBranch);
 }
