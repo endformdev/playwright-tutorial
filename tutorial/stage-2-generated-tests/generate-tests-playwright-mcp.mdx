@@ -365,6 +365,17 @@ Here are a few more prompts you can try out to generate more tests (don't forget
 - Verify that the current plan is now "Plus".
 ```
 
+#### Modify user name
+```
+# Test scenario
+- Navigate to the dashboard at /dashboard.
+- Navigate to the general section.
+- Change the user name to "John Doe".
+- Navigate to the team settings section.
+- Verify that the users new name is displayed in the team members list.
+```
+
+
 
 ## List of bugs we found and fixed in the course of generating these tests
 
@@ -376,6 +387,7 @@ Instead, here's a list of bugs we fixed to give you an idea of the kinds of prob
 - User activities weren't always created - race condition
 - Users couldn't not be deleted when activities existed, foreign key constraint
 - The user menu wouldn't collapse on click
+- Updating the user name wouldn't update the user menu name icon
 
 Other classic problems with the tests that the AI generated:
 
