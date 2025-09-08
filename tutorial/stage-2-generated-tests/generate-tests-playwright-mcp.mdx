@@ -335,3 +335,39 @@ test.describe("Activity Section", () => {
 </Tabs>
 
 Otherwise, it was a pretty good test - we've got solid, modern locators and it's labelling steps in a an understandable way.
+
+## Generating more tests
+
+Here are a few more prompts you can try out to generate more tests (don't forget to add the rest of the setup & background information from the previous steps):
+
+#### Change the password
+```
+# Test scenario
+- Navigate to the dashboard.
+- Navigate to the general section.
+- Check what my current email is and make a copy of it.
+- Navigate to the security page.
+- Change the password to "newpassword123".
+- The current password is "testpassword123".
+- Sign out.
+- Sign in with the new password and the email we copied earlier.
+- Verify that we are logged in.
+```
+
+
+## List of bugs we found and fixed in the course of generating these tests
+
+Just by creating this section and generating more tests for this application, we discovered several bugs in the application itself that were preventing the tests from working.
+In real world scenarios, this is why making tests is a great exercise.
+We won't force you to learn the intricacies of this application and Next.js to be able to write your tests.
+Instead, here's a list of bugs we fixed to give you an idea of the kinds of problems that you might encounter when creating tests like these for your own website.
+
+- User activities weren't always created - race condition
+- Users couldn't not be deleted when activities existed, foreign key constraint
+- The user menu wouldn't collapse on click
+
+Other classic problems with the tests that the AI generated:
+
+- Strict mode violations / more than one element on the page that matches a locator
+- Adding manual timeouts to tests instead of crafting good assertions
+- Hardcoding urls instead of using relative paths
