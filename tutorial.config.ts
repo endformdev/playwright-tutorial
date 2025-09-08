@@ -30,7 +30,11 @@ export const tutorialConfig: TutorialConfig = {
 			name: "stage-2-generated-tests",
 			title: "Generating tests with the Playwright MCP Server",
 			order: 2,
-			newPaths: ["mcp-user.ts", "tests/activity-section.spec.ts"],
+			newPaths: [
+				"mcp-user.ts",
+				"tests/activity-section.spec.ts",
+				"tests/change-password.ts",
+			],
 		},
 		{
 			name: "stage-3-endform-integration",
