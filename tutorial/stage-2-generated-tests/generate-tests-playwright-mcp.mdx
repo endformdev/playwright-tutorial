@@ -55,3 +55,78 @@ npx @playwright/mcp@latest --isolated --storage-state .auth/shared-api-user.json
 ```
 
 It's just that at the moment, our projects are configured to create and delete users during the course of a suite run, so that user won't exist!
+
+Let's add a script to help us create and remove users for the MCP server when we need them.
+
+<Tabs>
+<TabItem label="mcp-user.ts (Hint)">
+```ts
+// import existing user creation and deletion functions
+
+const scriptArg = process.argv[2];
+
+if (scriptArg !== "create" && scriptArg !== "delete") {
+	console.error(
+		`Error: Invalid argument "${scriptArg}". Expected "create" or "delete".`,
+	);
+	process.exit(1);
+}
+
+// create or delete user based on script arg
+```
+</TabItem>
+<TabItem label="mcp-user.ts (Completed)">
+```ts
+import { createUser, deleteUser } from "./setup-utils";
+
+const scriptArg = process.argv[2];
+
+if (scriptArg !== "create" && scriptArg !== "delete") {
+	console.error(
+		`Error: Invalid argument "${scriptArg}". Expected "create" or "delete".`,
+	);
+	process.exit(1);
+}
+
+const baseURL =
+	process.env.BASE_URL || "https://endform-playwright-tutorial.vercel.app";
+
+if (scriptArg === "create") {
+	await createUser(baseURL, "mcp");
+} else if (scriptArg === "delete") {
+	await deleteUser(baseURL, "mcp");
+}
+
+```
+</TabItem>
+</Tabs>
+
+Now we can make an mcp user by running:
+
+```bash
+bun run mcp-user create
+```
+
+And delete it by running:
+
+```bash
+bun run mcp-user delete
+```
+
+Don't forget to update our MCP server configuration for our new user.
+
+```json
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest",
+        "--isolated",
+        "--storage-state",
+        ".auth/shared-mcp-user.json"
+      ]
+    }
+  }
+}
+```
