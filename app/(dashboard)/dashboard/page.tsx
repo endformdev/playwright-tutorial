@@ -1,7 +1,7 @@
 "use client";
 
 import { Loader2, PlusCircle } from "lucide-react";
-import { Suspense, useActionState } from "react";
+import { Suspense, useActionState, useEffect } from "react";
 import useSWR from "swr";
 import { inviteTeamMember, removeTeamMember } from "@/app/(login)/actions";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -21,6 +21,7 @@ import type { TeamDataWithMembers, User } from "@/lib/db/schema";
 type ActionState = {
 	error?: string;
 	success?: string;
+	id?: number;
 };
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -123,7 +124,11 @@ function TeamMembers() {
 			<CardContent>
 				<ul className="space-y-4">
 					{teamData.teamMembers.map((member, index) => (
-						<li key={member.id} className="flex items-center justify-between">
+						<li
+							data-testid="team-member"
+							key={member.id}
+							className="flex items-center justify-between"
+						>
 							<div className="flex items-center space-x-4">
 								<Avatar>
 									{/* 
@@ -143,10 +148,13 @@ function TeamMembers() {
 									</AvatarFallback>
 								</Avatar>
 								<div>
-									<p className="font-medium">
+									<p data-testid="team-member-name" className="font-medium">
 										{getUserDisplayName(member.user)}
 									</p>
-									<p className="text-sm text-muted-foreground capitalize">
+									<p
+										data-testid="team-member-role"
+										className="text-sm text-muted-foreground capitalize"
+									>
 										{member.role}
 									</p>
 								</div>
@@ -192,6 +200,12 @@ function InviteTeamMember() {
 		ActionState,
 		FormData
 	>(inviteTeamMember, {});
+
+	useEffect(() => {
+		if (inviteState?.id) {
+			console.log("[inviteState]", inviteState.id);
+		}
+	}, [inviteState]);
 
 	return (
 		<Card>
