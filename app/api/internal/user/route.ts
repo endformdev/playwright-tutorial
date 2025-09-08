@@ -1,7 +1,8 @@
-import { eq } from "drizzle-orm";
-import { createSession, hashPassword } from "@/lib/auth/session";
+import { and, eq } from "drizzle-orm";
+import { signup } from "@/lib/auth/login";
+import { createSession } from "@/lib/auth/session";
 import { db } from "@/lib/db/drizzle";
-import { users } from "@/lib/db/schema";
+import { teamMembers, users } from "@/lib/db/schema";
 
 function isAuthorized(request: Request) {
 	const authHeader = request.headers.get("authorization");
@@ -21,20 +22,18 @@ export async function POST(request: Request) {
 			return new Response("Missing email or password", { status: 400 });
 		}
 
-		const passwordHash = await hashPassword(password);
+		const createdUser = await signup(email, password, undefined);
 
-		const createdUser = (
-			await db
-				.insert(users)
-				.values({ email, passwordHash, role: "member" })
-				.returning({ id: users.id, email: users.email })
-		)[0];
+		if ("error" in createdUser) {
+			return new Response(createdUser.error, { status: 400 });
+		}
 
 		const expiresInOneDay = new Date(Date.now() + 24 * 60 * 60 * 1000);
 		const encryptedSession = await createSession(
 			createdUser.id!,
 			expiresInOneDay,
 		);
+
 		return Response.json({
 			user: createdUser,
 			session: encryptedSession,
@@ -57,15 +56,32 @@ export async function DELETE(request: Request) {
 		if (!email) {
 			return new Response("Missing email", { status: 400 });
 		}
+		console.log("[DELETE] email:", email);
 
 		// Check if user exists before attempting to delete
-		const existingUser = await db
-			.select()
+		const existingUserRows = await db
+			.select({
+				user: users,
+				teamId: teamMembers.teamId,
+			})
 			.from(users)
-			.where(eq(users.email, email))
-			.limit(1);
-		if (existingUser.length === 0) {
+			.leftJoin(teamMembers, eq(users.id, teamMembers.userId))
+			.where(eq(users.email, email));
+		if (existingUserRows.length === 0) {
 			return new Response("User not found", { status: 404 });
+		}
+
+		for (const existingUserRow of existingUserRows) {
+			if (existingUserRow.teamId) {
+				await db
+					.delete(teamMembers)
+					.where(
+						and(
+							eq(teamMembers.userId, existingUserRow.user.id),
+							eq(teamMembers.teamId, existingUserRow.teamId),
+						),
+					);
+			}
 		}
 
 		await db.delete(users).where(eq(users.email, email));
