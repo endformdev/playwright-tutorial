@@ -14,6 +14,44 @@ To start from this step, checkout the [`stage-1-setup` branch](https://github.co
 For more information about getting started with the tutorial repository, go [here](/docs/tutorial/from-cowboy-to-confidence#getting-started-with-the-tutorial-repository).
 </Aside>
 
-<Aside type="caution">
-This tutorial is a work in progress! More coming soon.
-</Aside>
+## Setting up the Playwright MCP Server
+
+In this part of the tutorial, we will be using the [Playwright MCP server](https://github.com/microsoft/playwright-mcp).
+
+We will use Cursor for the purposes of this tutorial, but you could use any IDE or CLI tool that supports MCP in its place.
+
+Be sure to check out the installation instructions in the [Playwright MCP repository](https://github.com/microsoft/playwright-mcp) to correctly set up the Playwright MCP server before continuing.
+
+For example for Cursor, your `mcp.json` file could look like this:
+
+```json
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ]
+    }
+  }
+}
+```
+
+## Authenticating with the Playwright MCP Server
+
+At the time of writing, the Playwright MCP server doesn't have support for the projects or storage states that we set up in our Playwright config in the previous step. 
+
+You can achieve something similar by using the following flags to the MCP server:
+
+```
+--isolated                   keep the browser profile in memory, do not save it to disk.
+--storage-state <path>       path to the storage state file for isolated sessions.
+```
+
+Our mcp command with these arguments could look like this:
+
+```
+npx @playwright/mcp@latest --isolated --storage-state .auth/shared-api-user.json
+```
+
+It's just that at the moment, our projects are configured to create and delete users during the course of a suite run, so that user won't exist!
