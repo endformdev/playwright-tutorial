@@ -34,6 +34,7 @@ export const tutorialConfig: TutorialConfig = {
 				"mcp-user.ts",
 				"tests/activity-section.spec.ts",
 				"tests/change-password.ts",
+				"tests/plan-upgrade.spec.ts",
 			],
 		},
 		{
