@@ -354,6 +354,17 @@ Here are a few more prompts you can try out to generate more tests (don't forget
 - Verify that we are logged in.
 ```
 
+#### Purchase a subscription
+```
+# Test scenario
+- Navigate to the dashboard at /dashboard.
+- Check that the current plan is "Free".
+- Click the "Change Plan" button.
+- Choose the "Plus" plan.
+- Complete the purchase of the "Plus" plan.
+- Verify that the current plan is now "Plus".
+```
+
 
 ## List of bugs we found and fixed in the course of generating these tests
 
@@ -371,3 +382,4 @@ Other classic problems with the tests that the AI generated:
 - Strict mode violations / more than one element on the page that matches a locator
 - Adding manual timeouts to tests instead of crafting good assertions
 - Hardcoding urls instead of using relative paths
+- Not using Playwright `test.step` to label steps in the test & excessive comments
