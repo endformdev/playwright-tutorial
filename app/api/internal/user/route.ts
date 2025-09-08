@@ -58,6 +58,16 @@ export async function DELETE(request: Request) {
 			return new Response("Missing email", { status: 400 });
 		}
 
+		// Check if user exists before attempting to delete
+		const existingUser = await db
+			.select()
+			.from(users)
+			.where(eq(users.email, email))
+			.limit(1);
+		if (existingUser.length === 0) {
+			return new Response("User not found", { status: 404 });
+		}
+
 		await db.delete(users).where(eq(users.email, email));
 
 		return new Response("", { status: 200 });
