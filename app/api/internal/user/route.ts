@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { hashPassword } from "@/lib/auth/session";
+import { createSession, hashPassword } from "@/lib/auth/session";
 import { db } from "@/lib/db/drizzle";
 import { users } from "@/lib/db/schema";
 
@@ -30,7 +30,15 @@ export async function POST(request: Request) {
 				.returning({ id: users.id, email: users.email })
 		)[0];
 
-		return Response.json({ user: createdUser });
+		const expiresInOneDay = new Date(Date.now() + 24 * 60 * 60 * 1000);
+		const encryptedSession = await createSession(
+			createdUser.id!,
+			expiresInOneDay,
+		);
+		return Response.json({
+			user: createdUser,
+			session: encryptedSession,
+		});
 	} catch (error) {
 		return Response.json(
 			{ error: `Failed to create user: ${error}` },
