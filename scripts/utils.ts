@@ -85,7 +85,7 @@ export async function pushBranch(): Promise<void> {
 }
 
 export async function pullBranch(): Promise<void> {
-	const proc = Bun.spawn(["git", "pull"], {
+	const proc = Bun.spawn(["git", "pull", "--rebase"], {
 		stdout: "pipe",
 		stderr: "pipe",
 	});
