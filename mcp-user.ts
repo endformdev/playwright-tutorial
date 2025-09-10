@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { createUser, deleteUser } from "./setup-utils";
+import { createUserInFile, deleteUserFromFile } from "./setup-utils";
 
 const scriptArg = process.argv[2];
 
@@ -16,7 +16,7 @@ const baseURL = "https://endform-playwright-tutorial.vercel.app";
 
 if (scriptArg === "create") {
 	console.log("Creating MCP user", baseURL);
-	await createUser(baseURL, "mcp");
+	await createUserInFile(baseURL, "mcp");
 } else if (scriptArg === "delete") {
-	await deleteUser(baseURL, "mcp");
+	await deleteUserFromFile(baseURL, "mcp");
 }
