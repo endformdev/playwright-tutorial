@@ -32,7 +32,6 @@ test.describe("User Password Change Flow", () => {
 
 				expect(userEmail).toBeTruthy();
 				expect(userEmail).toContain("@");
-				console.log("User email captured:", userEmail);
 			});
 
 			await test.step("navigate to security settings", async () => {
