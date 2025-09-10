@@ -35,7 +35,6 @@ test.describe("Team Invitation Flow", () => {
 					const match = text.match(/\[inviteState\]\s+(\d+)/);
 					if (match) {
 						invitationId = match[1];
-						console.log(`Captured invitation ID: ${invitationId}`);
 					}
 				});
 
