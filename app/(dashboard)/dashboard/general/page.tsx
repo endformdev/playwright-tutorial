@@ -1,8 +1,8 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
-import { Suspense, useActionState } from "react";
-import useSWR from "swr";
+import { Suspense, useActionState, useEffect } from "react";
+import useSWR, { mutate } from "swr";
 import { updateAccount } from "@/app/(login)/actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -76,6 +76,15 @@ export default function GeneralPage() {
 		updateAccount,
 		{},
 	);
+
+	// Invalidate team cache when account is successfully updated
+	useEffect(() => {
+		if (state?.success) {
+			// Invalidate both user and team caches since team data includes user info
+			mutate("/api/user");
+			mutate("/api/team");
+		}
+	}, [state?.success]);
 
 	return (
 		<section className="flex-1 p-4 lg:p-8">
