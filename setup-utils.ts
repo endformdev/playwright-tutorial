@@ -44,6 +44,7 @@ export async function createUserInFile(baseURL: string, userKindName: string) {
 	try {
 		const { email, session } = await createUser(baseURL);
 
+		fs.mkdirSync(".auth", { recursive: true });
 		writeEmailFile(email, `.auth/${userKindName}-user-email.txt`);
 		writeSessionFile(session, baseURL, `.auth/${userKindName}-user.json`);
 	} catch (error) {
