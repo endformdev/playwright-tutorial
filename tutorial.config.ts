@@ -45,7 +45,7 @@ export const tutorialConfig: TutorialConfig = {
 			name: "stage-3-endform-integration",
 			title: "Running tests with Endform",
 			order: 3,
-			newPaths: [],
+			newPaths: [".github/workflows/endform-tests-on-main.yml"],
 		},
 		{
 			name: "stage-4-completed",
