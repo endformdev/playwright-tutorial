@@ -51,7 +51,7 @@ export const tutorialConfig: TutorialConfig = {
 			name: "stage-4-completed",
 			title: "Understanding test results with the Endform dashboard",
 			order: 4,
-			newPaths: [],
+			newPaths: ["tests/flaky-test.spec.ts"],
 		},
 	],
 };
