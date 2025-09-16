@@ -9,6 +9,8 @@ import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 import { Image } from "astro:assets";
 import HtmlReportTrace from "../../../assets/html-report-trace.png";
 import ExampleTrace from "../../../assets/example-trace.png";
+import EndformResults from "../../../assets/endform-results.png";
+import EndformFilters from "../../../assets/endform-filters.png";
 
 In this guide, we will use the endform dashboard to understand the test results.
 
@@ -113,3 +115,26 @@ pnpm endform test --repeat-each=10 flaky-test.spec.ts
 ```
 
 There you'll get a link to the Endform dashboard where you can also look at the results.
+
+<Image src={EndformResults} alt="Endform results" width={900} />
+
+Enform dashboard is particularly useful for understanding suite's performance over time. You can query for things like:
+
+- Which test fails most frequently?
+- Which test is the slowest?
+- Which test is the most flaky?
+
+You can do this using a combination of the graph view and the results filters.
+Here for example we have a view of the most frequently failing tests over the last few weeks.
+
+<Image src={EndformFilters} alt="Endform filters" width={900} />
+
+## Conclusion
+
+Thanks for following along with our Playwright tutorial!
+
+Our favourite takeaways from this tutorial are:
+
+- Spending some time on a good playwright set up early on saves you a lot of pain further down the road.
+- Generating tests using the Playwright MCP server is a great way to get going - and it becomes even more powerful if you have the right tools to generate the test data you need.
+- Don't forget to take care of your suite as you scale it to more tests. Endform is a great platform to help you do so.
