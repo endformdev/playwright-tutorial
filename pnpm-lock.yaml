@@ -94,8 +94,8 @@ importers:
         specifier: ^1.2.21
         version: 1.2.21(@types/react@19.1.12)
       endform:
-        specifier: ^0.35.3
-        version: 0.35.3
+        specifier: ^0.35.4
+        version: 0.35.4
 
 packages:
 
@@ -1528,8 +1528,8 @@ packages:
   '@types/node@24.3.0':
     resolution: {integrity: sha512-aPTXCrfwnDLj4VvXrm+UUCQjNEvJgNA8s5F1cvwQU+3KNltTOkBm1j30uNLyqqPNe7gE3KFzImYoZEfLhp4Yow==}
 
-  '@types/node@24.3.1':
-    resolution: {integrity: sha512-3vXmQDXy+woz+gnrTvuvNrPzekOi+Ds0ReMxw0LzBiK3a+1k0kQn9f2NWk+lgD4rJehFUmYy2gMhJ2ZI+7YP9g==}
+  '@types/node@24.5.0':
+    resolution: {integrity: sha512-y1dMvuvJspJiPSDZUQ+WMBvF7dpnEqN4x9DDC9ie5Fs/HUZJA3wFp7EhHoVaKX/iI0cRoECV8X2jL8zi0xrHCg==}
 
   '@types/react-dom@19.1.8':
     resolution: {integrity: sha512-xG7xaBMJCpcK0RpN8jDbAACQo54ycO6h4dSSmgv8+fu6ZIAdANkx/WsawASUjVXYfy+J9AbUpRMNNEsXCDfDBQ==}
@@ -1624,6 +1624,15 @@ packages:
       supports-color:
         optional: true
 
+  debug@4.4.3:
+    resolution: {integrity: sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA==}
+    engines: {node: '>=6.0'}
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
+
   decompress-response@6.0.0:
     resolution: {integrity: sha512-aW35yZM6Bb/4oJlZncMH2LCoZtJXTRxES17vE3hoRiowU2kWHaJKFkSBDnDR+cm9J+9QhXmREyIfv0pji9ejCQ==}
     engines: {node: '>=10'}
@@ -1642,6 +1651,10 @@ packages:
 
   detect-libc@2.0.4:
     resolution: {integrity: sha512-3UDv+G9CsCKO1WKMGw9fwq/SWJYbI0c5Y7LU1AXYoDdbhE2AHQ6N6Nb34sG8Fj7T5APy8qXDCKuuIHd1BR0tVA==}
+    engines: {node: '>=8'}
+
+  detect-libc@2.1.0:
+    resolution: {integrity: sha512-vEtk+OcP7VBRtQZ1EJ3bdgzSfBjgnEalLTp5zjJrS+2Z1w2KZly4SBdac/WDU3hhsNAZ9E8SC96ME4Ey8MZ7cg==}
     engines: {node: '>=8'}
 
   detect-node-es@1.1.0:
@@ -1750,28 +1763,28 @@ packages:
   end-of-stream@1.4.5:
     resolution: {integrity: sha512-ooEGc6HP26xXq/N+GCGOT0JKCLDGrq2bQUZrQ7gyrJiZANJ/8YDTxTpQBXGMn+WbIQXNVpyWymm7KYVICQnyOg==}
 
-  endform-darwin-arm64@0.35.3:
-    resolution: {integrity: sha512-wAW8+GA8J6tE+o+NbPcBMfJ1nrqOna9ZOBsPfWd3AYjCgVqpVkIS0j/W4CXfkJ8WLSvjglgwkmmqbFfrNYcLCg==}
+  endform-darwin-arm64@0.35.4:
+    resolution: {integrity: sha512-jErBmivJmOcIrzp1GaQtOujLrVhxCnYl2Kw+S+snIzRLdTXLsSWVV8eLi73fOugsZn3amO0bpUsKUQkd/Wsabg==}
     cpu: [arm64]
     os: [darwin]
 
-  endform-darwin-x86@0.35.3:
-    resolution: {integrity: sha512-yT/LctNArJjr9mlw2ixN3Ee3gcPZSdOMR7IeXJCC/4S8y8hE3slD2v+XCmTCXRSYlovZEbq2qZTyNRIEPjt9Xw==}
+  endform-darwin-x86@0.35.4:
+    resolution: {integrity: sha512-Qkii/JkjUf/I9+IdidhIqn3yOQ6ALiw0L/cNSWgzQQPQ+8SDihAcUPDpceVBHJrxA1v4tNP2HQBxfkyZJ4JDXQ==}
     cpu: [x86]
     os: [darwin]
 
-  endform-linux-arm64@0.35.3:
-    resolution: {integrity: sha512-3w2LgquXe61Y62Q2vS0/7fA3+VGjnutCaO7SZd4vWn5P8micFozzfrWNsBRyRQ2giKSQsjQ4zgeD0/sDKkxUqA==}
+  endform-linux-arm64@0.35.4:
+    resolution: {integrity: sha512-pWNx2VH6FetUzsikxbbbxqD7ySXJgW182thSkO17WgKxpeTI8n73uFdRyw70UY6DQZBZDzbjdhIyKY+GP28czw==}
     cpu: [arm64]
     os: [linux]
 
-  endform-linux-x86@0.35.3:
-    resolution: {integrity: sha512-H8iuYkJ9DOGj2VcnnEZmhNFSm7J35fmPKnlY5bybdnFTBnX1cBD9kjtjzqX7yUa5L3l/JAbwrTNQsAo1J1cz+g==}
+  endform-linux-x86@0.35.4:
+    resolution: {integrity: sha512-6p2ZQeweBPQM991VBVXzB2eo3cGQfsHNYO1QfYVnEBIC4bKXx1TQTpdMronobH5cBphcE5IkV6JQZP0WbFWX3w==}
     cpu: [x86]
     os: [linux]
 
-  endform@0.35.3:
-    resolution: {integrity: sha512-CeLSBEEJdCSanQ8Snp3tIZ9GORb0hGOEODyjnMwDSCgfzdRQ//JcMoQO9Fj+yxbiLS++kvpnzwT29/51PAlceQ==}
+  endform@0.35.4:
+    resolution: {integrity: sha512-DoJ/0w3tejC05xjMQO7sFRiHk5xPgl6Z5Qb6WZnt1+l6ualW4jBnwSKf7k+R19T+jlAP+iKQKZIGRsSTWzBgEw==}
     hasBin: true
 
   enhanced-resolve@5.18.3:
@@ -2215,6 +2228,9 @@ packages:
 
   undici-types@7.10.0:
     resolution: {integrity: sha512-t5Fy/nfn+14LuOc2KNYg75vZqClpAiqscVvMygNnlsHBFpSXdJaYtXMcdNLpl/Qvc3P2cB3s6lOV51nqsFq4ag==}
+
+  undici-types@7.12.0:
+    resolution: {integrity: sha512-goOacqME2GYyOZZfb5Lgtu+1IDmAlAEu5xnD3+xTzS10hT0vzpf0SPjkXwAw9Jm+4n/mQGDP3LO8CPbYROeBfQ==}
 
   use-callback-ref@1.3.3:
     resolution: {integrity: sha512-jQL3lRnocaFtu3V00JToYz/4QkNWswxijDaCVNZRiRTO3HQDLsdu1ZtmIUvV4yPp+rvWm5j0y0TG/S61cuijTg==}
@@ -3523,7 +3539,7 @@ snapshots:
 
   '@types/better-sqlite3@7.6.13':
     dependencies:
-      '@types/node': 24.3.1
+      '@types/node': 24.5.0
     optional: true
 
   '@types/bun@1.2.21(@types/react@19.1.12)':
@@ -3536,9 +3552,9 @@ snapshots:
     dependencies:
       undici-types: 7.10.0
 
-  '@types/node@24.3.1':
+  '@types/node@24.5.0':
     dependencies:
-      undici-types: 7.10.0
+      undici-types: 7.12.0
     optional: true
 
   '@types/react-dom@19.1.8(@types/react@19.1.12)':
@@ -3636,6 +3652,11 @@ snapshots:
     dependencies:
       ms: 2.1.3
 
+  debug@4.4.3:
+    dependencies:
+      ms: 2.1.3
+    optional: true
+
   decompress-response@6.0.0:
     dependencies:
       mimic-response: 3.1.0
@@ -3649,6 +3670,9 @@ snapshots:
   detect-libc@2.0.2: {}
 
   detect-libc@2.0.4: {}
+
+  detect-libc@2.1.0:
+    optional: true
 
   detect-node-es@1.1.0: {}
 
@@ -3677,24 +3701,24 @@ snapshots:
       once: 1.4.0
     optional: true
 
-  endform-darwin-arm64@0.35.3:
+  endform-darwin-arm64@0.35.4:
     optional: true
 
-  endform-darwin-x86@0.35.3:
+  endform-darwin-x86@0.35.4:
     optional: true
 
-  endform-linux-arm64@0.35.3:
+  endform-linux-arm64@0.35.4:
     optional: true
 
-  endform-linux-x86@0.35.3:
+  endform-linux-x86@0.35.4:
     optional: true
 
-  endform@0.35.3:
+  endform@0.35.4:
     optionalDependencies:
-      endform-darwin-arm64: 0.35.3
-      endform-darwin-x86: 0.35.3
-      endform-linux-arm64: 0.35.3
-      endform-linux-x86: 0.35.3
+      endform-darwin-arm64: 0.35.4
+      endform-darwin-x86: 0.35.4
+      endform-linux-arm64: 0.35.4
+      endform-linux-x86: 0.35.4
 
   enhanced-resolve@5.18.3:
     dependencies:
@@ -3789,7 +3813,7 @@ snapshots:
   gel@2.1.0:
     dependencies:
       '@petamoriken/float16': 3.9.2
-      debug: 4.4.1
+      debug: 4.4.3
       env-paths: 3.0.0
       semver: 7.7.2
       shell-quote: 1.8.3
@@ -3991,7 +4015,7 @@ snapshots:
 
   prebuild-install@7.1.3:
     dependencies:
-      detect-libc: 2.0.4
+      detect-libc: 2.1.0
       expand-template: 2.0.3
       github-from-package: 0.0.0
       minimist: 1.2.8
@@ -4257,6 +4281,9 @@ snapshots:
   typescript@5.9.2: {}
 
   undici-types@7.10.0: {}
+
+  undici-types@7.12.0:
+    optional: true
 
   use-callback-ref@1.3.3(@types/react@19.1.12)(react@19.1.1):
     dependencies:
