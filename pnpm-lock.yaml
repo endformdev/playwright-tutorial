@@ -94,8 +94,8 @@ importers:
         specifier: ^1.2.21
         version: 1.2.21(@types/react@19.1.12)
       endform:
-        specifier: ^0.35.4
-        version: 0.35.4
+        specifier: ^0.37.0
+        version: 0.37.0
 
 packages:
 
@@ -1528,8 +1528,8 @@ packages:
   '@types/node@24.3.0':
     resolution: {integrity: sha512-aPTXCrfwnDLj4VvXrm+UUCQjNEvJgNA8s5F1cvwQU+3KNltTOkBm1j30uNLyqqPNe7gE3KFzImYoZEfLhp4Yow==}
 
-  '@types/node@24.5.0':
-    resolution: {integrity: sha512-y1dMvuvJspJiPSDZUQ+WMBvF7dpnEqN4x9DDC9ie5Fs/HUZJA3wFp7EhHoVaKX/iI0cRoECV8X2jL8zi0xrHCg==}
+  '@types/node@24.5.2':
+    resolution: {integrity: sha512-FYxk1I7wPv3K2XBaoyH2cTnocQEu8AOZ60hPbsyukMPLv5/5qr7V1i8PLHdl6Zf87I+xZXFvPCXYjiTFq+YSDQ==}
 
   '@types/react-dom@19.1.8':
     resolution: {integrity: sha512-xG7xaBMJCpcK0RpN8jDbAACQo54ycO6h4dSSmgv8+fu6ZIAdANkx/WsawASUjVXYfy+J9AbUpRMNNEsXCDfDBQ==}
@@ -1763,28 +1763,28 @@ packages:
   end-of-stream@1.4.5:
     resolution: {integrity: sha512-ooEGc6HP26xXq/N+GCGOT0JKCLDGrq2bQUZrQ7gyrJiZANJ/8YDTxTpQBXGMn+WbIQXNVpyWymm7KYVICQnyOg==}
 
-  endform-darwin-arm64@0.35.4:
-    resolution: {integrity: sha512-jErBmivJmOcIrzp1GaQtOujLrVhxCnYl2Kw+S+snIzRLdTXLsSWVV8eLi73fOugsZn3amO0bpUsKUQkd/Wsabg==}
+  endform-darwin-arm64@0.37.0:
+    resolution: {integrity: sha512-CsFI4IMa0BEV84ibBeTBDb1uZ250TyNbcn2rjYnqx9Qygfxz8wnehS3+toZB0p50LW8aK3LMWdTXr239Xxtltg==}
     cpu: [arm64]
     os: [darwin]
 
-  endform-darwin-x86@0.35.4:
-    resolution: {integrity: sha512-Qkii/JkjUf/I9+IdidhIqn3yOQ6ALiw0L/cNSWgzQQPQ+8SDihAcUPDpceVBHJrxA1v4tNP2HQBxfkyZJ4JDXQ==}
+  endform-darwin-x86@0.37.0:
+    resolution: {integrity: sha512-phht8ezaHxs7m2YY58CafAu+4oELeGZazP4paf4fPq7hK4HQG1eKQyvo1yPIALigkPDqiIisLcwQUvCtY4m9/g==}
     cpu: [x86]
     os: [darwin]
 
-  endform-linux-arm64@0.35.4:
-    resolution: {integrity: sha512-pWNx2VH6FetUzsikxbbbxqD7ySXJgW182thSkO17WgKxpeTI8n73uFdRyw70UY6DQZBZDzbjdhIyKY+GP28czw==}
+  endform-linux-arm64@0.37.0:
+    resolution: {integrity: sha512-bVYO9hYytr4NoNGzBG5pPtZhOJaImsAGwnE0VqQrha0pcZrDXulOAuGF2uEwNDMgqDbtoxQbQ/MrhvcBE/parg==}
     cpu: [arm64]
     os: [linux]
 
-  endform-linux-x86@0.35.4:
-    resolution: {integrity: sha512-6p2ZQeweBPQM991VBVXzB2eo3cGQfsHNYO1QfYVnEBIC4bKXx1TQTpdMronobH5cBphcE5IkV6JQZP0WbFWX3w==}
+  endform-linux-x86@0.37.0:
+    resolution: {integrity: sha512-NhRRXOv/XolCKjW8fi630GMvXs3f5M0I/8TmJ/NLmn/8nLfkdoNxX7tlEXYuWVdY8YXlgLzc/iqaBsZu72dH/w==}
     cpu: [x86]
     os: [linux]
 
-  endform@0.35.4:
-    resolution: {integrity: sha512-DoJ/0w3tejC05xjMQO7sFRiHk5xPgl6Z5Qb6WZnt1+l6ualW4jBnwSKf7k+R19T+jlAP+iKQKZIGRsSTWzBgEw==}
+  endform@0.37.0:
+    resolution: {integrity: sha512-gNlvEZ4d7baz2UPOQWl+YwcT+iVHipuNsMp9RTX5Fpj/YQ1bQfnTOpEJbOIcD70ksBcrtSGaBfjUWrX2b4duwA==}
     hasBin: true
 
   enhanced-resolve@5.18.3:
@@ -2201,8 +2201,8 @@ packages:
     resolution: {integrity: sha512-ZL6DDuAlRlLGghwcfmSn9sK3Hr6ArtyudlSAiCqQ6IfE+b+HHbydbYDIG15IfS5do+7XQQBdBiubF/cV2dnDzg==}
     engines: {node: '>=6'}
 
-  tar-fs@2.1.3:
-    resolution: {integrity: sha512-090nwYJDmlhwFwEW3QQl+vaNnxsO2yVsd45eTKRBzSzu+hlb1w2K9inVq5b0ngXuLVqQ4ApvsUHHnu/zQNkWAg==}
+  tar-fs@2.1.4:
+    resolution: {integrity: sha512-mDAjwmZdh7LTT6pNleZ05Yt65HC3E+NiQzl672vQG38jIrehtJk/J3mNwIg+vShQPcLF/LV7CMnDW6vjj6sfYQ==}
 
   tar-stream@2.2.0:
     resolution: {integrity: sha512-ujeqbceABgwMZxEJnk2HDY2DlnUZ+9oEcb1KzTVfYHio0UE6dG71n60d8D2I4qNvleWrrXpmjpt7vZeF1LnMZQ==}
@@ -3539,7 +3539,7 @@ snapshots:
 
   '@types/better-sqlite3@7.6.13':
     dependencies:
-      '@types/node': 24.5.0
+      '@types/node': 24.5.2
     optional: true
 
   '@types/bun@1.2.21(@types/react@19.1.12)':
@@ -3552,7 +3552,7 @@ snapshots:
     dependencies:
       undici-types: 7.10.0
 
-  '@types/node@24.5.0':
+  '@types/node@24.5.2':
     dependencies:
       undici-types: 7.12.0
     optional: true
@@ -3701,24 +3701,24 @@ snapshots:
       once: 1.4.0
     optional: true
 
-  endform-darwin-arm64@0.35.4:
+  endform-darwin-arm64@0.37.0:
     optional: true
 
-  endform-darwin-x86@0.35.4:
+  endform-darwin-x86@0.37.0:
     optional: true
 
-  endform-linux-arm64@0.35.4:
+  endform-linux-arm64@0.37.0:
     optional: true
 
-  endform-linux-x86@0.35.4:
+  endform-linux-x86@0.37.0:
     optional: true
 
-  endform@0.35.4:
+  endform@0.37.0:
     optionalDependencies:
-      endform-darwin-arm64: 0.35.4
-      endform-darwin-x86: 0.35.4
-      endform-linux-arm64: 0.35.4
-      endform-linux-x86: 0.35.4
+      endform-darwin-arm64: 0.37.0
+      endform-darwin-x86: 0.37.0
+      endform-linux-arm64: 0.37.0
+      endform-linux-x86: 0.37.0
 
   enhanced-resolve@5.18.3:
     dependencies:
@@ -4025,7 +4025,7 @@ snapshots:
       pump: 3.0.3
       rc: 1.2.8
       simple-get: 4.0.1
-      tar-fs: 2.1.3
+      tar-fs: 2.1.4
       tunnel-agent: 0.6.0
     optional: true
 
@@ -4243,7 +4243,7 @@ snapshots:
 
   tapable@2.2.3: {}
 
-  tar-fs@2.1.3:
+  tar-fs@2.1.4:
     dependencies:
       chownr: 1.1.4
       mkdirp-classic: 0.5.3
