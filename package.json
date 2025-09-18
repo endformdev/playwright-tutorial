@@ -45,6 +45,6 @@
 		"@biomejs/biome": "^2.2.2",
 		"@playwright/test": "^1.55.0",
 		"@types/bun": "^1.2.21",
-		"endform": "^0.35.4"
+		"endform": "^0.37.0"
 	}
 }
