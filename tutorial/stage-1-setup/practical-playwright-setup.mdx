@@ -267,6 +267,10 @@ Running the tests at the moment will break, since we haven't asked Playwright to
 
 To do this, we need to modify our `playwright.config.ts` file to use the `storageState` option:
 
+<Aside type="tip">
+The code below only shows the `storageState` additions. Keep your existing project configurations (like `testMatch`, `testIgnore`, `dependencies`, and device settings) and just add the `storageState` to the `use` object.
+</Aside>
+
 ```ts
 export default defineConfig({
 	projects: [
@@ -277,6 +281,7 @@ export default defineConfig({
 		{
 			name: "chromium",
 			use: {
+				// Add this to your existing use configuration
 				storageState: ".auth/shared-ui-user.json",
 			},
 		},
@@ -499,12 +504,17 @@ export default async function globalTeardown(config: FullConfig) {
 
 Don't forget to modify the `playwright.config.ts` file to use the new `storageState` file. Then try running your tests again to make sure everything is working.
 
+<Aside type="tip">
+Update the `storageState` path in your existing project configurations. Keep all your other settings (like `testMatch`, `testIgnore`, `dependencies`, and device configurations).
+</Aside>
+
 ```ts
 export default defineConfig({
 	projects: [
 		{
 			name: "chromium",
 			use: {
+				// Change the storageState path to use the API-created user
 				storageState: ".auth/api-user.json",
 			},
 		},
