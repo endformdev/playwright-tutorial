@@ -36,7 +36,13 @@ export default defineConfig({
 		trace: "retain-on-failure",
 	},
 
-	/* Configure projects for major browsers */
+	/* Run your local dev server before starting the tests */
+	// webServer: {
+	//   command: 'pnpm dev',
+	//   url: 'http://localhost:3000',
+	//   reuseExistingServer: !process.env.CI,
+	// },
+
 	projects: [
 		{
 			name: "setup",
@@ -60,11 +66,4 @@ export default defineConfig({
 			},
 		},
 	],
-
-	/* Run your local dev server before starting the tests */
-	// webServer: {
-	//   command: 'npm run start',
-	//   url: 'http://localhost:3000',
-	//   reuseExistingServer: !process.env.CI,
-	// },
 });
