@@ -1,0 +1,41 @@
+name: Run end to end tests with endform
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  id-token: write # required for authentication with Endform
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Wait for Vercel deployment
+        uses: endformdev/actions/await-vercel-deployment@main
+        with:
+          project-name: endform-playwright-tutorial
+          set-url-env-var: BASE_URL # Sets the Vercel preview URL as this environment variable
+
+      - name: Run end to end tests with endform
+        run: |
+          npx endform@latest test
