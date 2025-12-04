@@ -1,13 +1,14 @@
-import { Suspense } from "react";
+import { Suspense, use } from "react";
 import { processPayment } from "@/lib/payments/actions";
 
 function CheckoutForm({
 	searchParams,
 }: {
-	searchParams: { plan?: string; amount?: string };
+	searchParams: Promise<{ plan?: string; amount?: string }>;
 }) {
-	const planName = searchParams.plan || "Unknown Plan";
-	const amount = Number(searchParams.amount) || 0;
+	const resolvedParams = use(searchParams);
+	const planName = resolvedParams.plan || "Unknown Plan";
+	const amount = Number(resolvedParams.amount) || 0;
 
 	return (
 		<main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -237,15 +238,14 @@ function CheckoutForm({
 	);
 }
 
-export default async function CheckoutPage({
+export default function CheckoutPage({
 	searchParams,
 }: {
 	searchParams: Promise<{ plan?: string; amount?: string }>;
 }) {
-	const resolvedSearchParams = await searchParams;
 	return (
 		<Suspense fallback={<div>Loading...</div>}>
-			<CheckoutForm searchParams={resolvedSearchParams} />
+			<CheckoutForm searchParams={searchParams} />
 		</Suspense>
 	);
 }
