@@ -28,7 +28,8 @@ export default defineConfig({
 	/* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
 	use: {
 		/* Base URL to use in actions like `await page.goto('/')`. */
-		baseURL: "https://endform-playwright-tutorial.vercel.app",
+		baseURL:
+			process.env.BASE_URL || "https://endform-playwright-tutorial.vercel.app",
 		// You can use this localhost baseURL if you are running the application locally
 		// baseURL: "http://localhost:3000",
 
