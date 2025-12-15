@@ -7,9 +7,22 @@ on:
 
 jobs:
   e2e-tests:
+    if: github.event.client_payload.git.ref == 'main'
     timeout-minutes: 5
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      statuses: write
+      contents: read
     steps:
+      - name: Vercel Repository Dispatch Debug
+        uses: vercel/repository-dispatch/actions/debug@v1
+
+      - name: With Commit Status
+        uses: vercel/repository-dispatch/actions/status@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Checkout code
         uses: actions/checkout@v4
         with:
