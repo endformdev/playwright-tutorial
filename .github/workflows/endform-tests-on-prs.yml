@@ -34,7 +34,7 @@ jobs:
         uses: endformdev/actions/await-vercel-deployment@main
         with:
           project-name: endform-playwright-tutorial
-          set-url-env-var: BASE_URL # Sets the Vercel preview URL as this environment variable
+          set-url-env-var: BASE_URL # Sets the Vercel preview URL as the BASE_URL environment variable
 
       - name: Run end to end tests with endform
         run: |
