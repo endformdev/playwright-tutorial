@@ -18,7 +18,17 @@ export async function createUser(baseURL: string): Promise<ApiUser> {
 		},
 		body: JSON.stringify({ email, password }),
 	});
-	const data = (await response.json()) as { session: string };
+
+	
+	let data: { session: string };
+	
+	const textResponse = await response.text()
+	try {
+		data = JSON.parse(textResponse)
+	} catch {
+		throw new Error(`Failed to parse response (${response.status} ${response.statusText}): ${textResponse}`)
+	}
+
 	if (!data.session) {
 		throw new Error("Failed to create user");
 	}
