@@ -36,6 +36,9 @@ jobs:
           project-name: endform-playwright-tutorial
           set-url-env-var: BASE_URL # Sets the Vercel preview URL as the BASE_URL environment variable
 
+      - name: Log
+        run: echo "hej $BASE_URL"
+
       - name: Run end to end tests with endform
         run: |
           npx endform@latest test
