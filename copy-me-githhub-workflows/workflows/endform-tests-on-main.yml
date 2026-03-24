@@ -1,7 +1,7 @@
-name: Run end to end tests with endform
+name: Run end to end tests with endform on main 2
 
 on:
-  pull_request:
+  push:
     branches:
       - main
 
@@ -18,17 +18,16 @@ jobs:
         with:
           fetch-depth: 0
       
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
           cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install
+      
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: true
 
       - name: Wait for Vercel deployment
         uses: endformdev/actions/run-with-vercel-deployment@main

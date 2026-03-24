@@ -10,15 +10,33 @@ export async function createUser(baseURL: string): Promise<ApiUser> {
 	const email = `${Math.random().toString(36).substring(2, 15)}@example.com`;
 	const password = "testpassword123";
 
+
+	const headers = new Headers({
+		"content-type": "application/json",
+		authorization: "Bearer VerySecretDummyToken",
+	})
+
+	if (process.env.VERCEL_BYPASS_TOKEN)
+		headers.set('x-vercel-protection-bypass', process.env.VERCEL_BYPASS_TOKEN)
+
+	console.log('token', process.env.VERCEL_BYPASS_TOKEN, headers)
+
 	const response = await fetch(`${baseURL}/api/internal/user`, {
 		method: "POST",
-		headers: {
-			"content-type": "application/json",
-			authorization: "Bearer VerySecretDummyToken",
-		},
+		headers,
 		body: JSON.stringify({ email, password }),
 	});
-	const data = (await response.json()) as { session: string };
+
+
+	let data: { session: string };
+
+	const textResponse = await response.text()
+	try {
+		data = JSON.parse(textResponse)
+	} catch {
+		throw new Error(`Failed to parse response (${response.status} ${response.statusText}): ${textResponse}`)
+	}
+
 	if (!data.session) {
 		throw new Error("Failed to create user");
 	}
@@ -27,12 +45,17 @@ export async function createUser(baseURL: string): Promise<ApiUser> {
 }
 
 export async function deleteUser(baseURL: string, email: string) {
+	const headers = new Headers({
+		"content-type": "application/json",
+		authorization: "Bearer VerySecretDummyToken",
+	})
+
+	if (process.env.VERCEL_BYPASS_TOKEN)
+		headers.set('x-vercel-protection-bypass', process.env.VERCEL_BYPASS_TOKEN)
+
 	const response = await fetch(`${baseURL}/api/internal/user`, {
 		method: "DELETE",
-		headers: {
-			"content-type": "application/json",
-			authorization: "Bearer VerySecretDummyToken",
-		},
+		headers,
 		body: JSON.stringify({ email }),
 	});
 	const data = await response.json().catch(() => null);
