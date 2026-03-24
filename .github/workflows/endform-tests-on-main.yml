@@ -1,4 +1,4 @@
-name: Run end to end tests with endform on main 2
+name: Run end to end tests with endform on main
 
 on:
   push:
@@ -29,7 +29,6 @@ jobs:
         
       - name: Install dependencies
         run: pnpm install
-      
 
       - name: Wait for Vercel deployment
         uses: endformdev/actions/run-with-vercel-deployment@main
