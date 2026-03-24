@@ -30,7 +30,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-
       - name: Wait for Vercel deployment
         uses: endformdev/actions/run-with-vercel-deployment@main
         with:
