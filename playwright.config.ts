@@ -8,6 +8,10 @@ import { defineConfig, devices } from "@playwright/test";
 // import path from 'path';
 // dotenv.config({ path: path.resolve(__dirname, '.env') });
 
+const baseURL = process.env.BASE_URL || "https://endform-playwright-tutorial.vercel.app"
+
+console.log('playwright.config.ts', baseURL)
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -28,8 +32,7 @@ export default defineConfig({
 	/* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
 	use: {
 		/* Base URL to use in actions like `await page.goto('/')`. */
-		baseURL:
-			process.env.BASE_URL || "https://endform-playwright-tutorial.vercel.app",
+		baseURL,
 		// You can use this localhost baseURL if you are running the application locally
 		// baseURL: "http://localhost:3000",
 
