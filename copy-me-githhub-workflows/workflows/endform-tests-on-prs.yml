@@ -1,7 +1,7 @@
-name: Run end to end tests with endform on main 2
+name: Run end to end tests with endform
 
 on:
-  push:
+  pull_request:
     branches:
       - main
 
@@ -18,24 +18,23 @@ jobs:
         with:
           fetch-depth: 0
       
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
           cache: 'pnpm'
 
-      - name: Install dependencies
-        run: pnpm install
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: true
 
       - name: Wait for Vercel deployment
         uses: endformdev/actions/run-with-vercel-deployment@main
         with:
           project-name: endform-playwright-tutorial
           set-url-env-var: BASE_URL # Sets the Vercel preview URL as the BASE_URL environment variable
-          set-vercel-bypass-env-var: VERCEL_BYPASS_TOKEN
+          set-vercel-bypass-env-var: VERCEL_BYPASS_TOKEN # Exports a deployment protection bypass token as this env var
 
       - name: Run end to end tests with endform
         run: |

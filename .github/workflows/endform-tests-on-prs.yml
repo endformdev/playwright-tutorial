@@ -35,6 +35,7 @@ jobs:
         with:
           project-name: endform-playwright-tutorial
           set-url-env-var: BASE_URL # Sets the Vercel preview URL as the BASE_URL environment variable
+          set-vercel-bypass-env-var: VERCEL_BYPASS_TOKEN # Exports a deployment protection bypass token as this env var
 
       - name: Run end to end tests with endform
         run: |
