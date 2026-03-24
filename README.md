@@ -1,5 +1,7 @@
 # SaaS Playwright testing tutorial
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fendformdev%2Fplaywright-tutorial&project-name=endform-playwright-example&repository-name=endform-playwright-example&demo-title=Next.JS%2FPlaywright%2FEndform&demo-description=A%20next.js%20web%20app%20tested%20with%20Playwright%20and%20Endform&demo-url=https%3A%2F%2Fendform-playwright-tutorial.vercel.app&integration-ids=oac_5LFIKN8LRMK2uwnltOSeyCFE)
+
 ## About the tutorial
 
 This tutorial is geared towards learning how to create a realistic playwright setup for testing fully fledged software as a service applications, generating tests for realistic applications, and then running those tests with Endform. 
@@ -21,6 +23,11 @@ You can either:
   - Set up `.env` and run migrations on a local SQLite database: `pnpm db:setup`
   - Run the application: `pnpm dev`, or for better performance `pnpm build && pnpm start`
   - Check that it loads correctly at [http://localhost:3000](http://localhost:3000)
+
+## Coming from "Deploy with Vercel"?
+
+- Don't forget to connect your project with the Endform vercel integration
+- You will need the `copy-me-github-workflows` copied to `.github/workflows` to get going with running your tests in github actions
 
 
 ## About the SaaS
