@@ -1,10 +1,9 @@
 import type { Config } from "drizzle-kit";
+import { resolveDrizzleKitDatabaseUrl } from "./lib/db/config";
 
-const databaseUrl =
-	process.env.DATABASE_URL || "file:./local-sqlite-database.db";
+const databaseUrl = resolveDrizzleKitDatabaseUrl();
 const authToken = process.env.DATABASE_AUTH_TOKEN;
 
-// For Turso connections, we need to include the auth token
 const dbCredentials =
 	databaseUrl.startsWith("libsql://") && authToken
 		? { url: databaseUrl, authToken }
