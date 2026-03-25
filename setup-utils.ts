@@ -19,8 +19,6 @@ export async function createUser(baseURL: string): Promise<ApiUser> {
 	if (process.env.VERCEL_BYPASS_TOKEN)
 		headers.set('x-vercel-protection-bypass', process.env.VERCEL_BYPASS_TOKEN)
 
-	console.log('token', process.env.VERCEL_BYPASS_TOKEN, headers)
-
 	const response = await fetch(`${baseURL}/api/internal/user`, {
 		method: "POST",
 		headers,
