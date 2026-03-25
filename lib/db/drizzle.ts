@@ -6,7 +6,7 @@ import {
 	type AsyncRemoteCallback,
 	drizzle as drizzleProxy,
 } from "drizzle-orm/sqlite-proxy";
-import { isPlaceholderProxyUrl, resolveRuntimeDatabaseConfig } from "./config";
+import { resolveRuntimeDatabaseConfig } from "./config";
 import * as schema from "./schema";
 
 dotenv.config();
@@ -18,12 +18,6 @@ type ProxyQueryResult = Awaited<ReturnType<AsyncRemoteCallback>>;
 const databaseConfig = resolveRuntimeDatabaseConfig();
 
 function getProxyEndpoint(proxyUrl: string, pathname: "/query" | "/batch") {
-	if (isPlaceholderProxyUrl(proxyUrl)) {
-		throw new Error(
-			`Set DATABASE_URL to a local SQLite file, a libsql:// URL, or replace DEFAULT_DATABASE_PROXY_URL in lib/db/config.ts before using the shared Durable Object fallback.`,
-		);
-	}
-
 	return new URL(pathname, ensureTrailingSlash(proxyUrl)).toString();
 }
 
