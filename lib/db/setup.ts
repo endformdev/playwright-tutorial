@@ -2,6 +2,7 @@ import { execSync } from "node:child_process";
 import crypto from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import { getLocalDatabasePath } from "./config";
 
 function generateAuthSecret(): string {
 	console.log("Step 1: Generating AUTH_SECRET...");
@@ -19,9 +20,9 @@ async function writeEnvFile(envVars: Record<string, string>) {
 }
 
 async function main() {
-	console.log("🚀 Setting up Next.js SaaS Starter (SQLite Version)...\n");
+	console.log("🚀 Switching this project to local SQLite mode...\n");
 
-	const DATABASE_URL = path.join(process.cwd(), "local-sqlite-database.db");
+	const DATABASE_URL = getLocalDatabasePath();
 	const BASE_URL = "http://localhost:3000";
 	const AUTH_SECRET = generateAuthSecret();
 
@@ -36,7 +37,8 @@ async function main() {
 
 	console.log("\n🎉 Setup completed successfully!");
 	console.log("\nNext steps:");
-	console.log("4. Run `pnpm dev` to start the development server");
+	console.log("1. Run `pnpm db:seed` if you want sample local data");
+	console.log("2. Run `pnpm dev` to start the development server");
 }
 
 main().catch(console.error);
