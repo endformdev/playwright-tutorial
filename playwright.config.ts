@@ -10,8 +10,6 @@ import { defineConfig, devices } from "@playwright/test";
 
 const baseURL = process.env.BASE_URL || "https://endform-playwright-tutorial.vercel.app"
 
-console.log('playwright.config.ts', baseURL)
-
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
