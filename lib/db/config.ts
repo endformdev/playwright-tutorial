@@ -77,10 +77,6 @@ export function getLocalDatabasePath() {
 	return DEFAULT_LOCAL_DATABASE_PATH;
 }
 
-export function isPlaceholderProxyUrl(url: string) {
-	return url === DEFAULT_DATABASE_PROXY_URL;
-}
-
 function normalizeLocalDatabaseUrl(databaseUrl: string) {
 	return databaseUrl.startsWith("file:") ? databaseUrl : `file:${databaseUrl}`;
 }
