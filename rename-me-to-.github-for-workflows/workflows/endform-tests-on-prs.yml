@@ -33,7 +33,7 @@ jobs:
       - name: Wait for Vercel deployment
         uses: endformdev/actions/run-with-vercel-deployment@main
         with:
-          project-name: endform-playwright-tutorial
+          project-name: endform-playwright-example # Set this to the name of your vercel project
           set-url-env-var: BASE_URL # Sets the Vercel preview URL as the BASE_URL environment variable
           set-vercel-bypass-env-var: VERCEL_BYPASS_TOKEN # Exports a deployment protection bypass token as this env var
 
