@@ -2,7 +2,19 @@ import { hashPassword } from "@/lib/auth/session";
 import { db } from "./drizzle";
 import { teamMembers, teams, users } from "./schema";
 
+function assertSafeSeedTarget() {
+	const databaseUrl = process.env.DATABASE_URL?.trim();
+
+	if (!databaseUrl || databaseUrl.startsWith("http")) {
+		throw new Error(
+			"Refusing to seed the shared remote demo database. Run `pnpm db:setup` first or set DATABASE_URL to a local SQLite file or a dedicated Turso database.",
+		);
+	}
+}
+
 async function seed() {
+	assertSafeSeedTarget();
+
 	console.log("Seeding database with initial data...");
 
 	const email = "test@test.com";

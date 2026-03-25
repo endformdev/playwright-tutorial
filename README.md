@@ -20,8 +20,10 @@ You can either:
 
 - Run the tests against our pre-deployed application at [https://endform-playwright-tutorial.vercel.app](https://endform-playwright-tutorial.vercel.app)
 - Run the application locally, for this option you will need to:
-  - Set up `.env` and run migrations on a local SQLite database: `pnpm db:setup`
-  - Run the application: `pnpm dev`, or for better performance `pnpm build && pnpm start`
+  - Install dependencies: `pnpm install`
+  - Run the application right away: `pnpm dev`
+  - Optionally switch to local SQLite instead of the shared demo Durable Object: `pnpm db:setup`
+  - Optionally seed your local database: `pnpm db:seed`
   - Check that it loads correctly at [http://localhost:3000](http://localhost:3000)
 
 ## Coming from "Deploy with Vercel"?
@@ -52,7 +54,7 @@ This is a starter template for building a SaaS application using **Next.js** wit
 ## Tech Stack
 
 - **Framework**: [Next.js](https://nextjs.org/)
-- **Database**: [SQLite](https://www.sqlite.org/) with [libSQL client](https://github.com/tursodatabase/libsql-js) (supports both local files and [Turso](https://turso.tech/))
+- **Database**: [SQLite](https://www.sqlite.org/) via a shared Cloudflare Durable Object proxy by default, with optional local file SQLite and [Turso](https://turso.tech/) support
 - **ORM**: [Drizzle](https://orm.drizzle.team/)
 - **Payments**: Dummy payment system (for demonstration only)
 - **UI Library**: [shadcn/ui](https://ui.shadcn.com/)
@@ -60,17 +62,31 @@ This is a starter template for building a SaaS application using **Next.js** wit
 ## Getting Started
 
 ```bash
-git clone https://github.com/nextjs/saas-starter
-cd saas-starter
+git clone https://github.com/endformdev/playwright-tutorial
+cd playwright-tutorial
 pnpm install
 ```
 
 ## Running Locally
 
-Use the included setup script to create your `.env` file and run the database migrations:
+By default, the app works without any database or auth environment variables. If you do nothing, it connects to the shared demo SQLite database through an HTTP proxy backed by a Cloudflare Durable Object. That shared demo database is public and wiped on a schedule, so it is meant for quick starts and testing only.
+
+Start the app immediately:
+
+```bash
+pnpm dev
+```
+
+If you want your own local SQLite file instead, use the included setup script to create `.env` and run the database migrations:
 
 ```bash
 pnpm db:setup
+```
+
+You can optionally seed that local database too:
+
+```bash
+pnpm db:seed
 ```
 
 Then, run the Next.js development server:
@@ -113,7 +129,6 @@ When you're ready to deploy your SaaS application to production, follow these st
 In your Vercel project settings (or during deployment), add the necessary environment variables:
 
 1. `BASE_URL`: Set this to your production domain.
-2. `DATABASE_URL`: Set this to your SQLite database path for local files, or your Turso connection string (libsql://your-database.turso.io)
-3. `DATABASE_AUTH_TOKEN`: Required if using Turso - your database auth token
-3. `AUTH_SECRET`: Set this to a random string. `openssl rand -base64 32` will generate one.
-
+2. `DATABASE_URL`: Leave unset to use the shared Durable Object proxy, set it to a local SQLite path, set it to your own proxy URL, or use a Turso connection string (`libsql://your-database.turso.io`)
+3. `DATABASE_AUTH_TOKEN`: Required if using Turso
+4. `AUTH_SECRET`: Optional in demo mode, but set this to a random string for any non-demo deployment. `openssl rand -base64 32` will generate one.
