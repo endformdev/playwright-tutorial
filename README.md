@@ -1,6 +1,6 @@
 # SaaS Playwright testing tutorial
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fendformdev%2Fplaywright-tutorial&project-name=endform-playwright-example&repository-name=endform-playwright-example&demo-title=Next.JS%2FPlaywright%2FEndform&demo-description=A%20next.js%20web%20app%20tested%20with%20Playwright%20and%20Endform&demo-url=https%3A%2F%2Fendform-playwright-tutorial.vercel.app&integration-ids=oac_5LFIKN8LRMK2uwnltOSeyCFE)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fendformdev%2Fplaywright-tutorial&project-name=endform-playwright-example&repository-name=endform-playwright-example&products=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22endform%22%2C%22productSlug%22%3A%22endform%22%2C%22protocol%22%3A%22other%22%7D%5D)
 
 ## About the tutorial
 
