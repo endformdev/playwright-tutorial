@@ -49,7 +49,7 @@ importers:
         version: 0.561.0(react@19.2.3)
       next:
         specifier: 16.0.10
-        version: 16.0.10(@playwright/test@1.58.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 16.0.10(@playwright/test@1.59.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       postcss:
         specifier: ^8.5.6
         version: 8.5.6
@@ -88,14 +88,14 @@ importers:
         specifier: ^2.3.9
         version: 2.3.9
       '@playwright/test':
-        specifier: 1.58.2
-        version: 1.58.2
+        specifier: 1.59.1
+        version: 1.59.1
       '@types/bun':
         specifier: ^1.3.4
         version: 1.3.4
       endform:
-        specifier: ^0.52.2
-        version: 0.52.2
+        specifier: ^0.60.1
+        version: 0.60.1
       tsx:
         specifier: ^4.21.0
         version: 4.21.0
@@ -903,8 +903,8 @@ packages:
   '@petamoriken/float16@3.9.3':
     resolution: {integrity: sha512-8awtpHXCx/bNpFt4mt2xdkgtgVvKqty8VbjHI/WWWQuEw+KLzFot3f4+LkQY9YmOtq7A5GdOnqoIC8Pdygjk2g==}
 
-  '@playwright/test@1.58.2':
-    resolution: {integrity: sha512-akea+6bHYBBfA9uQqSYmlJXn61cTa+jbO87xVLCWbTqbWadRVmhxlXATaOjOgcBaWU4ePo0wB41KMFv3o35IXA==}
+  '@playwright/test@1.59.1':
+    resolution: {integrity: sha512-PG6q63nQg5c9rIi4/Z5lR5IVF7yU5MqmKaPOe0HSc0O2cX1fPi96sUQu5j7eo4gKCkB2AnNGoWt7y4/Xx3Kcqg==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -1897,28 +1897,28 @@ packages:
   end-of-stream@1.4.5:
     resolution: {integrity: sha512-ooEGc6HP26xXq/N+GCGOT0JKCLDGrq2bQUZrQ7gyrJiZANJ/8YDTxTpQBXGMn+WbIQXNVpyWymm7KYVICQnyOg==}
 
-  endform-darwin-arm64@0.52.2:
-    resolution: {integrity: sha512-U18PkVjTsW5fV5sKSCPD7bbNE04l4955WCfMTtbDd+8zqw2Z0m3PP43R2KIqttW4wXWPFFxzRX0Blx/aiGfbmQ==}
+  endform-darwin-arm64@0.60.1:
+    resolution: {integrity: sha512-AbPhbXzn+3ZX8T+ErKhau7RIZ6DlWsW0ErhCyKcMNOZYZ+nWeXpAX9/i85gt1g2v9tCTC+18Y2xqblvSryoxlQ==}
     cpu: [arm64]
     os: [darwin]
 
-  endform-darwin-x86@0.52.2:
-    resolution: {integrity: sha512-tqbZ14lb3FifzjVJQiYDA/m1h9xMb2sbFOiiaVEdVJGiXiAFtq2wseS6vnaVO9ZVOk9nqxOtTBkHfP8cvfkTFQ==}
+  endform-darwin-x86@0.60.1:
+    resolution: {integrity: sha512-9/SfFB/4vwIETEBbNPimr5xB04OzeN7Uys71dqdB/Tgd53LYhhg+XlJjW+zeOo9iOhU/bVEQa2tn/Yo6lpx6sA==}
     cpu: [x64]
     os: [darwin]
 
-  endform-linux-arm64@0.52.2:
-    resolution: {integrity: sha512-+1ujLmBzeC//BmuaDuds8+JoB9VxZgLl3KciTKrfnzTOf5wKrbi/0iEGIwHnrdxjausA6/Wm9+nyDYVUSpw9ig==}
+  endform-linux-arm64@0.60.1:
+    resolution: {integrity: sha512-/7lb/TL0uly1cEoSD6mWmVqRNJyBk0cf1Kv2DyWxa3ZdjuRb8PP1ongpNKbsjYqF9TdQYdmMskZ79IEeBLYFLQ==}
     cpu: [arm64]
     os: [linux]
 
-  endform-linux-x86@0.52.2:
-    resolution: {integrity: sha512-HSQmIJZiLgVFvykAW9Nz+eywRoluKLYuu3WAfqjg5NuRBksCUKeHcqbNbmJRDV4mobPShzsQOdDeXPWT8fiI0g==}
+  endform-linux-x86@0.60.1:
+    resolution: {integrity: sha512-uyUIQPxThvZGr3l2dhRW7T+DuNVaLSoNBumP5DqwPDMRApwZ3CFOijcz1qgjpvs2MvMY1M29IvnodyLy1akFDg==}
     cpu: [x64]
     os: [linux]
 
-  endform@0.52.2:
-    resolution: {integrity: sha512-jXzDN9TfeJKTpz+OHAtZk1LJaQGd1WEyKT3lyXwZwtejT1M3N5MV+pGjpFFXZ5rTnDYPAQ8Vh4B5WeKci99a5g==}
+  endform@0.60.1:
+    resolution: {integrity: sha512-oGRHTtytxOkxomgubugiv/obZRec2VaUkObtXu17s+l7uzKePXeN5DqFcINtzyu0qZU2VQ5nbo8C+Rl49URPww==}
     hasBin: true
 
   enhanced-resolve@5.18.4:
@@ -2162,13 +2162,13 @@ packages:
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
 
-  playwright-core@1.58.2:
-    resolution: {integrity: sha512-yZkEtftgwS8CsfYo7nm0KE8jsvm6i/PTgVtB8DL726wNf6H2IMsDuxCpJj59KDaxCtSnrWan2AeDqM7JBaultg==}
+  playwright-core@1.59.1:
+    resolution: {integrity: sha512-HBV/RJg81z5BiiZ9yPzIiClYV/QMsDCKUyogwH9p3MCP6IYjUFu/MActgYAvK0oWyV9NlwM3GLBjADyWgydVyg==}
     engines: {node: '>=18'}
     hasBin: true
 
-  playwright@1.58.2:
-    resolution: {integrity: sha512-vA30H8Nvkq/cPBnNw4Q8TWz1EJyqgpuinBcHET0YVJVFldr8JDNiU9LaWAE1KqSkRYazuaBhTpB5ZzShOezQ6A==}
+  playwright@1.59.1:
+    resolution: {integrity: sha512-C8oWjPR3F81yljW9o5OxcWzfh6avkVwDD2VYdwIGqTkl+OGFISgypqzfu7dOe4QNLL2aqcWBmI3PMtLIK233lw==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -2921,9 +2921,9 @@ snapshots:
   '@petamoriken/float16@3.9.3':
     optional: true
 
-  '@playwright/test@1.58.2':
+  '@playwright/test@1.59.1':
     dependencies:
-      playwright: 1.58.2
+      playwright: 1.59.1
 
   '@radix-ui/number@1.1.1': {}
 
@@ -3871,24 +3871,24 @@ snapshots:
       once: 1.4.0
     optional: true
 
-  endform-darwin-arm64@0.52.2:
+  endform-darwin-arm64@0.60.1:
     optional: true
 
-  endform-darwin-x86@0.52.2:
+  endform-darwin-x86@0.60.1:
     optional: true
 
-  endform-linux-arm64@0.52.2:
+  endform-linux-arm64@0.60.1:
     optional: true
 
-  endform-linux-x86@0.52.2:
+  endform-linux-x86@0.60.1:
     optional: true
 
-  endform@0.52.2:
+  endform@0.60.1:
     optionalDependencies:
-      endform-darwin-arm64: 0.52.2
-      endform-darwin-x86: 0.52.2
-      endform-linux-arm64: 0.52.2
-      endform-linux-x86: 0.52.2
+      endform-darwin-arm64: 0.60.1
+      endform-darwin-x86: 0.60.1
+      endform-linux-arm64: 0.60.1
+      endform-linux-x86: 0.60.1
 
   enhanced-resolve@5.18.4:
     dependencies:
@@ -4141,7 +4141,7 @@ snapshots:
   napi-build-utils@2.0.0:
     optional: true
 
-  next@16.0.10(@playwright/test@1.58.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
+  next@16.0.10(@playwright/test@1.59.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
     dependencies:
       '@next/env': 16.0.10
       '@swc/helpers': 0.5.15
@@ -4159,7 +4159,7 @@ snapshots:
       '@next/swc-linux-x64-musl': 16.0.10
       '@next/swc-win32-arm64-msvc': 16.0.10
       '@next/swc-win32-x64-msvc': 16.0.10
-      '@playwright/test': 1.58.2
+      '@playwright/test': 1.59.1
       sharp: 0.34.5
     transitivePeerDependencies:
       - '@babel/core'
@@ -4185,11 +4185,11 @@ snapshots:
 
   picocolors@1.1.1: {}
 
-  playwright-core@1.58.2: {}
+  playwright-core@1.59.1: {}
 
-  playwright@1.58.2:
+  playwright@1.59.1:
     dependencies:
-      playwright-core: 1.58.2
+      playwright-core: 1.59.1
     optionalDependencies:
       fsevents: 2.3.2
 
