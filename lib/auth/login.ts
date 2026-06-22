@@ -1,5 +1,5 @@
 import { and, eq } from "drizzle-orm";
-import { hashPassword, setSession } from "@/lib/auth/session";
+import { hashPassword } from "@/lib/auth/session";
 import { db } from "@/lib/db/drizzle";
 import {
 	ActivityType,
@@ -11,6 +11,7 @@ import {
 	teams,
 	users,
 } from "@/lib/db/schema";
+import { isFaultActive } from "@/lib/faults";
 import { logActivity } from "./activity";
 
 export async function signup(
@@ -115,8 +116,14 @@ export async function signup(
 		role: userRole,
 	};
 
+	const skipTeamMembership =
+		Boolean(inviteId) &&
+		(await isFaultActive("invite-accepted-but-member-missing"));
+
 	await Promise.all([
-		db.insert(teamMembers).values(newTeamMember),
+		...(skipTeamMembership
+			? []
+			: [db.insert(teamMembers).values(newTeamMember)]),
 		logActivity(teamId, createdUser.id, ActivityType.SIGN_UP),
 	]);
 
