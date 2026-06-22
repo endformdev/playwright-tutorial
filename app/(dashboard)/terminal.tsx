@@ -3,17 +3,18 @@
 import { Check, Copy } from "lucide-react";
 import { useEffect, useState } from "react";
 
+const terminalSteps = [
+	"git clone https://github.com/endformdev/playwright-tutorial",
+	"pnpm install",
+	"pnpm dev",
+	"pnpm db:setup   # optional: switch to local SQLite",
+	"pnpm db:seed    # optional: add local sample data",
+	"open http://localhost:3000 🎉",
+];
+
 export function Terminal() {
 	const [terminalStep, setTerminalStep] = useState(0);
 	const [copied, setCopied] = useState(false);
-	const terminalSteps = [
-		"git clone https://github.com/endformdev/playwright-tutorial",
-		"pnpm install",
-		"pnpm dev",
-		"pnpm db:setup   # optional: switch to local SQLite",
-		"pnpm db:seed    # optional: add local sample data",
-		"open http://localhost:3000 🎉",
-	];
 
 	useEffect(() => {
 		const timer = setTimeout(() => {
@@ -41,6 +42,7 @@ export function Terminal() {
 						<div className="w-3 h-3 rounded-full bg-green-500"></div>
 					</div>
 					<button
+						type="button"
 						onClick={copyToClipboard}
 						className="text-gray-400 hover:text-white transition-colors"
 						aria-label="Copy to clipboard"
@@ -55,7 +57,7 @@ export function Terminal() {
 				<div className="space-y-2">
 					{terminalSteps.map((step, index) => (
 						<div
-							key={index}
+							key={step}
 							className={`${index > terminalStep ? "opacity-0" : "opacity-100"} transition-opacity duration-300`}
 						>
 							<span className="text-green-400">$</span> {step}
