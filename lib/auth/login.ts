@@ -71,7 +71,9 @@ export async function signup(
 
 		if (invitation) {
 			teamId = invitation.teamId;
-			userRole = invitation.role;
+			userRole = (await isFaultActive("invite-role-drift"))
+				? "owner"
+				: invitation.role;
 
 			await db
 				.update(invitations)
