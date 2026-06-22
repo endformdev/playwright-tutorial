@@ -71,9 +71,12 @@ function formatAction(action: ActivityType): string {
 
 export default async function ActivityPage() {
 	const logs = await getActivityLogs();
-	const visibleLogs = (await isFaultActive("activity-missing-create-team"))
+	const filteredLogs = (await isFaultActive("activity-missing-create-team"))
 		? logs.filter((log) => log.action !== ActivityType.CREATE_TEAM)
 		: logs;
+	const visibleLogs = (await isFaultActive("activity-order-inverted"))
+		? [...filteredLogs].reverse()
+		: filteredLogs;
 
 	return (
 		<section className="flex-1 p-4 lg:p-8">
