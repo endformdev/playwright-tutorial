@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./test";
 import { testWithNewUser } from "./test-with-new-user";
 
 test.describe("Team Invitation Flow", () => {
@@ -55,7 +55,7 @@ test.describe("Team Invitation Flow", () => {
 			});
 
 			await test.step("Complete signup process with invitation", async () => {
-				await page.goto("/sign-up?inviteId=" + invitationId);
+				await page.goto(`/sign-up?inviteId=${invitationId}`);
 				await expect(
 					page.getByRole("heading", { name: "Create your account" }),
 				).toBeVisible();

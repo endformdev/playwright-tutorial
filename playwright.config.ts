@@ -8,7 +8,8 @@ import { defineConfig, devices } from "@playwright/test";
 // import path from 'path';
 // dotenv.config({ path: path.resolve(__dirname, '.env') });
 
-export const baseURL = process.env.BASE_URL || "https://endform-playwright-tutorial.vercel.app"
+export const baseURL =
+	process.env.BASE_URL || "https://endform-playwright-tutorial.vercel.app";
 
 /**
  * See https://playwright.dev/docs/test-configuration.
