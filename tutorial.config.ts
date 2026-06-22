@@ -32,6 +32,8 @@ export const tutorialConfig: TutorialConfig = {
 			order: 2,
 			newPaths: [
 				"mcp-user.ts",
+				"tests/test.ts",
+				"tests/support/",
 				"tests/activity-section.spec.ts",
 				"tests/change-password.spec.ts",
 				"tests/change-name.spec.ts",
