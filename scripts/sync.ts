@@ -56,7 +56,7 @@ export async function sync() {
 			await pullToThisStage(currentBranch);
 			const futurePaths = getFuturePathsFrom(stage.name);
 			await removeFuturePaths(futurePaths);
-			await commitAllChanges(commitMessage);
+			await commitAllChanges(commitMessage, currentBranch);
 		}
 
 		for (const stage of nextStages) {
@@ -67,13 +67,13 @@ export async function sync() {
 			await pullToThisStage(currentBranch);
 			const futurePaths = getFuturePathsFrom(stage.name);
 			await restoreFuturePaths(futurePaths);
-			await commitAllChanges(commitMessage);
+			await commitAllChanges(commitMessage, currentBranch);
 		}
 
 		if (currentBranch !== "main") {
 			await switchBranchPreservingUntracked("main", preservedUntrackedFiles);
 			await pullToThisStage(currentBranch);
-			await commitAllChanges(commitMessage);
+			await commitAllChanges(commitMessage, currentBranch);
 		}
 
 		await switchBranchPreservingUntracked(
@@ -252,6 +252,24 @@ async function isPathTrackedByGit(path: string): Promise<boolean> {
 	return proc.exitCode === 0;
 }
 
+async function isPathTrackedByGitRef(
+	path: string,
+	ref: string,
+): Promise<boolean> {
+	const proc = Bun.spawn(
+		["git", "ls-tree", "-r", "--name-only", ref, "--", path],
+		{
+			stdout: "pipe",
+			stderr: "pipe",
+		},
+	);
+
+	const result = await new Response(proc.stdout).text();
+	await proc.exited;
+
+	return proc.exitCode === 0 && result.split("\n").includes(path);
+}
+
 async function removeFuturePaths(futurePaths: string[]): Promise<void> {
 	for (const path of futurePaths) {
 		const isTracked = await isPathTrackedByGit(path);
@@ -324,7 +342,10 @@ export async function pullToThisStage(fromStageBranch: string): Promise<void> {
 	}
 }
 
-export async function commitAllChanges(message: string): Promise<void> {
+export async function commitAllChanges(
+	message: string,
+	fromStageBranch: string,
+): Promise<void> {
 	const addTrackedProc = Bun.spawn(["git", "add", "-u"], {
 		stdout: "pipe",
 		stderr: "pipe",
@@ -336,12 +357,16 @@ export async function commitAllChanges(message: string): Promise<void> {
 		throw new Error(`Failed to add tracked changes: ${error}`);
 	}
 
-	const declaredUntrackedFiles = (await getUntrackedFiles()).filter(
-		isDeclaredTutorialPath,
-	);
-	if (declaredUntrackedFiles.length > 0) {
+	const restoredUntrackedFiles: string[] = [];
+	for (const file of await getUntrackedFiles()) {
+		if (await isPathTrackedByGitRef(file, fromStageBranch)) {
+			restoredUntrackedFiles.push(file);
+		}
+	}
+
+	if (restoredUntrackedFiles.length > 0) {
 		const addUntrackedProc = Bun.spawn(
-			["git", "add", "--", ...declaredUntrackedFiles],
+			["git", "add", "--", ...restoredUntrackedFiles],
 			{
 				stdout: "pipe",
 				stderr: "pipe",
@@ -351,7 +376,7 @@ export async function commitAllChanges(message: string): Promise<void> {
 
 		if (addUntrackedProc.exitCode !== 0) {
 			const error = await new Response(addUntrackedProc.stderr).text();
-			throw new Error(`Failed to add declared untracked paths: ${error}`);
+			throw new Error(`Failed to add restored untracked paths: ${error}`);
 		}
 	}
 
@@ -398,17 +423,4 @@ async function getUntrackedFiles(): Promise<string[]> {
 	}
 
 	return result.split("\0").filter(Boolean);
-}
-
-function isDeclaredTutorialPath(path: string): boolean {
-	return tutorialConfig.stages.some((stage) =>
-		stage.newPaths.some(
-			(newPath) =>
-				path === newPath || path.startsWith(withTrailingSlash(newPath)),
-		),
-	);
-}
-
-function withTrailingSlash(path: string): string {
-	return path.endsWith("/") ? path : `${path}/`;
 }
