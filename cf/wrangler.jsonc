@@ -3,11 +3,11 @@
 	"main": "src/index.js",
 	"compatibility_date": "2026-03-25",
 	"routes": [
-        {
-          "pattern": "playwright-tutorial-sqlite-db-every-hour-cleanup.endform.dev",
-          "custom_domain": true
-        }
-    ],
+		{
+			"pattern": "playwright-tutorial-sqlite-db-every-hour-cleanup.endform.dev",
+			"custom_domain": true
+		}
+	],
 	"durable_objects": {
 		"bindings": [
 			{
