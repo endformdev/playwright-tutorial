@@ -13,6 +13,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getActivityLogs } from "@/lib/db/queries";
 import { ActivityType } from "@/lib/db/schema";
+import { isFaultActive } from "@/lib/faults";
 
 const iconMap: Record<ActivityType, LucideIcon> = {
 	[ActivityType.SIGN_UP]: UserPlus,
@@ -70,6 +71,9 @@ function formatAction(action: ActivityType): string {
 
 export default async function ActivityPage() {
 	const logs = await getActivityLogs();
+	const visibleLogs = (await isFaultActive("activity-missing-create-team"))
+		? logs.filter((log) => log.action !== ActivityType.CREATE_TEAM)
+		: logs;
 
 	return (
 		<section className="flex-1 p-4 lg:p-8">
@@ -81,9 +85,9 @@ export default async function ActivityPage() {
 					<CardTitle>Recent Activity</CardTitle>
 				</CardHeader>
 				<CardContent>
-					{logs.length > 0 ? (
+					{visibleLogs.length > 0 ? (
 						<ul className="space-y-4">
-							{logs.map((log) => {
+							{visibleLogs.map((log) => {
 								const Icon = iconMap[log.action as ActivityType] || Settings;
 								const formattedAction = formatAction(
 									log.action as ActivityType,
