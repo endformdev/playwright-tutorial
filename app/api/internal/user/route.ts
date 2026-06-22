@@ -27,10 +27,13 @@ export async function POST(request: Request) {
 		if ("error" in createdUser) {
 			return new Response(createdUser.error, { status: 400 });
 		}
+		if (createdUser.id == null) {
+			return new Response("Created user is missing an id", { status: 500 });
+		}
 
 		const expiresInOneDay = new Date(Date.now() + 24 * 60 * 60 * 1000);
 		const encryptedSession = await createSession(
-			createdUser.id!,
+			createdUser.id,
 			expiresInOneDay,
 		);
 
