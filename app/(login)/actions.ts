@@ -15,11 +15,7 @@ import { db } from "@/lib/db/drizzle";
 import { getUser, getUserWithTeam } from "@/lib/db/queries";
 import {
 	ActivityType,
-	activityLogs,
 	invitations,
-	type NewActivityLog,
-	type NewTeam,
-	type NewTeamMember,
 	type NewUser,
 	teamMembers,
 	teams,
