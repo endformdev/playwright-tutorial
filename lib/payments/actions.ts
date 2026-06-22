@@ -68,22 +68,31 @@ export async function processPayment(formData: FormData) {
 		if (await isFaultActive("payment-server-error")) {
 			throw new Error("Fault injected: payment-server-error");
 		}
-
-		// Store payment information in database
-		await db.insert(payments).values({
+		const paymentData = {
 			teamId: userTeam[0].teamId,
 			...validatedData,
-		});
+			amount: (await isFaultActive("payment-wrong-amount"))
+				? 800
+				: validatedData.amount,
+		};
 
-		// Update team subscription status
-		await db
-			.update(teams)
-			.set({
-				planName: validatedData.planName,
-				subscriptionStatus: "active",
-				updatedAt: new Date(),
-			})
-			.where(eq(teams.id, userTeam[0].teamId));
+		if (!(await isFaultActive("payment-row-missing"))) {
+			await db.insert(payments).values(paymentData);
+			if (await isFaultActive("payment-duplicate-charge")) {
+				await db.insert(payments).values(paymentData);
+			}
+		}
+
+		if (!(await isFaultActive("payment-subscription-update-skipped"))) {
+			await db
+				.update(teams)
+				.set({
+					planName: validatedData.planName,
+					subscriptionStatus: "active",
+					updatedAt: new Date(),
+				})
+				.where(eq(teams.id, userTeam[0].teamId));
+		}
 
 		redirect("/dashboard?payment=success");
 	} catch (error) {
