@@ -6,6 +6,7 @@ import { z } from "zod";
 import { db } from "@/lib/db/drizzle";
 import { getUser } from "@/lib/db/queries";
 import { payments, teamMembers, teams } from "@/lib/db/schema";
+import { isFaultActive } from "@/lib/faults";
 
 const paymentSchema = z.object({
 	cardNumber: z
@@ -64,6 +65,9 @@ export async function processPayment(formData: FormData) {
 
 	try {
 		const validatedData = paymentSchema.parse(data);
+		if (await isFaultActive("payment-server-error")) {
+			throw new Error("Fault injected: payment-server-error");
+		}
 
 		// Store payment information in database
 		await db.insert(payments).values({
