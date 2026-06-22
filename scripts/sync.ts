@@ -1,6 +1,15 @@
-import { existsSync } from "fs";
-import { copyFile, mkdir, readdir, readFile, writeFile } from "fs/promises";
-import { dirname, join } from "path";
+import { existsSync } from "node:fs";
+import {
+	copyFile,
+	mkdir,
+	mkdtemp,
+	readdir,
+	readFile,
+	rm,
+	writeFile,
+} from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { dirname, join } from "node:path";
 import { tutorialConfig } from "../tutorial.config";
 import {
 	getCurrentBranch,
@@ -24,6 +33,7 @@ export async function sync() {
 	if (!currentStage) {
 		throw new Error("Current branch is not a tutorial stage");
 	}
+	const preservedUntrackedFiles = await preserveUntrackedFiles();
 
 	// get the current commit message
 	const commitMessage = await getCurrentCommitMessage();
@@ -36,31 +46,39 @@ export async function sync() {
 		(s) => s.order > currentStage.order,
 	);
 
-	for (const stage of previousStages) {
-		await switchBranch(stage.name);
-		await pullToThisStage(currentBranch);
-		const futurePaths = getFuturePathsFrom(stage.name);
-		await removeFuturePaths(futurePaths);
-		await commitAllChanges(commitMessage);
+	try {
+		for (const stage of previousStages) {
+			await switchBranch(stage.name);
+			await pullToThisStage(currentBranch);
+			const futurePaths = getFuturePathsFrom(stage.name);
+			await removeFuturePaths(futurePaths);
+			await commitAllChanges(commitMessage);
+		}
+
+		for (const stage of nextStages) {
+			await switchBranch(stage.name);
+			await pullToThisStage(currentBranch);
+			const futurePaths = getFuturePathsFrom(stage.name);
+			await restoreFuturePaths(futurePaths);
+			await commitAllChanges(commitMessage);
+		}
+
+		if (currentBranch !== "main") {
+			await switchBranch("main");
+			await pullToThisStage(currentBranch);
+			await commitAllChanges(commitMessage);
+		}
+
+		await switchBranch(currentBranch);
+
+		await syncDocsContent();
+	} finally {
+		if ((await getCurrentBranch()) !== currentBranch) {
+			await switchBranch(currentBranch);
+		}
+
+		await restorePreservedUntrackedFiles(preservedUntrackedFiles);
 	}
-
-	for (const stage of nextStages) {
-		await switchBranch(stage.name);
-		await pullToThisStage(currentBranch);
-		const futurePaths = getFuturePathsFrom(stage.name);
-		await restoreFuturePaths(futurePaths);
-		await commitAllChanges(commitMessage);
-	}
-
-	if (currentBranch !== "main") {
-		await switchBranch("main");
-		await pullToThisStage(currentBranch);
-		await commitAllChanges(commitMessage);
-	}
-
-	await switchBranch(currentBranch);
-
-	await syncDocsContent();
 
 	// for stages before this one
 
@@ -84,6 +102,59 @@ export async function sync() {
 
 	// bring all content to current stage
 	// git restore --source=current-stage -- .
+}
+
+type PreservedUntrackedFiles = {
+	backupRoot: string;
+	files: string[];
+} | null;
+
+async function preserveUntrackedFiles(): Promise<PreservedUntrackedFiles> {
+	const files = await getUntrackedFiles();
+	if (files.length === 0) {
+		return null;
+	}
+
+	const backupRoot = await mkdtemp(join(tmpdir(), "tutorial-sync-untracked-"));
+
+	for (const file of files) {
+		if (!existsSync(file)) {
+			continue;
+		}
+
+		const targetPath = join(backupRoot, file);
+		await mkdir(dirname(targetPath), { recursive: true });
+		await copyFile(file, targetPath);
+		await rm(file, { force: true });
+	}
+
+	return { backupRoot, files };
+}
+
+async function restorePreservedUntrackedFiles(
+	preservedFiles: PreservedUntrackedFiles,
+): Promise<void> {
+	if (!preservedFiles) {
+		return;
+	}
+
+	try {
+		for (const file of preservedFiles.files) {
+			if (existsSync(file)) {
+				continue;
+			}
+
+			const sourcePath = join(preservedFiles.backupRoot, file);
+			if (!existsSync(sourcePath)) {
+				continue;
+			}
+
+			await mkdir(dirname(file), { recursive: true });
+			await copyFile(sourcePath, file);
+		}
+	} finally {
+		await rm(preservedFiles.backupRoot, { recursive: true, force: true });
+	}
 }
 
 export async function syncDocsContent() {
@@ -227,28 +298,45 @@ export async function pullToThisStage(fromStageBranch: string): Promise<void> {
 }
 
 export async function commitAllChanges(message: string): Promise<void> {
-	// Check if there are any changes to commit first
-	const checkProc = Bun.spawn(["git", "diff", "--quiet"], {
+	const addTrackedProc = Bun.spawn(["git", "add", "-u"], {
+		stdout: "pipe",
+		stderr: "pipe",
+	});
+	await addTrackedProc.exited;
+
+	if (addTrackedProc.exitCode !== 0) {
+		const error = await new Response(addTrackedProc.stderr).text();
+		throw new Error(`Failed to add tracked changes: ${error}`);
+	}
+
+	const declaredUntrackedFiles = (await getUntrackedFiles()).filter(
+		isDeclaredTutorialPath,
+	);
+	if (declaredUntrackedFiles.length > 0) {
+		const addUntrackedProc = Bun.spawn(
+			["git", "add", "--", ...declaredUntrackedFiles],
+			{
+				stdout: "pipe",
+				stderr: "pipe",
+			},
+		);
+		await addUntrackedProc.exited;
+
+		if (addUntrackedProc.exitCode !== 0) {
+			const error = await new Response(addUntrackedProc.stderr).text();
+			throw new Error(`Failed to add declared untracked paths: ${error}`);
+		}
+	}
+
+	const checkProc = Bun.spawn(["git", "diff", "--cached", "--quiet"], {
 		stdout: "pipe",
 		stderr: "pipe",
 	});
 	await checkProc.exited;
 
-	// If exit code is 0, there are no changes, so return early
+	// If exit code is 0, there are no staged changes, so return early.
 	if (checkProc.exitCode === 0) {
 		return;
-	}
-
-	// git add -A
-	const proc = Bun.spawn(["git", "add", "-A"], {
-		stdout: "pipe",
-		stderr: "pipe",
-	});
-	await proc.exited;
-
-	if (proc.exitCode !== 0) {
-		const error = await new Response(proc.stderr).text();
-		throw new Error(`Failed to add all changes: ${error}`);
 	}
 
 	// git commit -m "Sync with previous stage"
@@ -263,4 +351,37 @@ export async function commitAllChanges(message: string): Promise<void> {
 		const error = await new Response(proc2.stderr).text();
 		throw new Error(`Failed to commit all changes: ${error}`);
 	}
+}
+
+async function getUntrackedFiles(): Promise<string[]> {
+	const proc = Bun.spawn(
+		["git", "ls-files", "--others", "--exclude-standard", "-z"],
+		{
+			stdout: "pipe",
+			stderr: "pipe",
+		},
+	);
+
+	const result = await new Response(proc.stdout).text();
+	await proc.exited;
+
+	if (proc.exitCode !== 0) {
+		const error = await new Response(proc.stderr).text();
+		throw new Error(`Failed to list untracked files: ${error}`);
+	}
+
+	return result.split("\0").filter(Boolean);
+}
+
+function isDeclaredTutorialPath(path: string): boolean {
+	return tutorialConfig.stages.some((stage) =>
+		stage.newPaths.some(
+			(newPath) =>
+				path === newPath || path.startsWith(withTrailingSlash(newPath)),
+		),
+	);
+}
+
+function withTrailingSlash(path: string): string {
+	return path.endsWith("/") ? path : `${path}/`;
 }
