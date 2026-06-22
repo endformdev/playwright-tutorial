@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./test";
 import { testWithNewUser } from "./test-with-new-user";
 
 test.describe("User Password Change Flow", () => {
