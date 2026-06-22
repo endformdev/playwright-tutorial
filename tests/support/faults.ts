@@ -2,8 +2,12 @@ import type { Page, TestInfo } from "@playwright/test";
 
 export const implementedFaults = [
 	"api-team-500",
+	"api-team-malformed-json",
 	"script-404",
 	"unexpected-dashboard-redirect",
+	"activity-missing-create-team",
+	"payment-server-error",
+	"invite-accepted-but-member-missing",
 ] as const;
 
 export type FaultName = (typeof implementedFaults)[number];
@@ -12,13 +16,27 @@ const faultTargets: Record<FaultName, string[]> = {
 	"api-team-500": [
 		"should change user name in general settings and verify it appears in team members list",
 	],
+	"api-team-malformed-json": [
+		"should change user name in general settings and verify it appears in team members list",
+	],
 	"script-404": [
 		"should successfully change password and sign in with new credentials",
 	],
 	"unexpected-dashboard-redirect": [
 		"should navigate to dashboard activity section and verify user activities",
 	],
+	"activity-missing-create-team": [
+		"should navigate to dashboard activity section and verify user activities",
+	],
+	"payment-server-error": [
+		"should successfully upgrade from Free to Plus plan",
+	],
+	"invite-accepted-but-member-missing": [
+		"should successfully invite a team member and complete signup process",
+	],
 };
+
+const FAULT_HEADER = "x-faults";
 
 export async function installFaultsForTest(page: Page, testInfo: TestInfo) {
 	const faults = process.env.FAULTS?.trim();
@@ -36,11 +54,23 @@ export async function installFaultsForTest(page: Page, testInfo: TestInfo) {
 			case "api-team-500":
 				await installApiTeam500(page);
 				break;
+			case "api-team-malformed-json":
+				await installApiTeamMalformedJson(page);
+				break;
 			case "script-404":
 				await installScript404(page);
 				break;
 			case "unexpected-dashboard-redirect":
 				await installUnexpectedDashboardRedirect(page);
+				break;
+			case "activity-missing-create-team":
+				await installActivityMissingCreateTeam(page);
+				break;
+			case "payment-server-error":
+				await installPaymentServerError(page);
+				break;
+			case "invite-accepted-but-member-missing":
+				await installInviteAcceptedButMemberMissing(page);
 				break;
 		}
 	}
@@ -61,6 +91,14 @@ async function installApiTeam500(page: Page) {
 	});
 }
 
+async function installApiTeamMalformedJson(page: Page) {
+	const faultName = "api-team-malformed-json";
+
+	await page.setExtraHTTPHeaders({
+		[FAULT_HEADER]: faultName,
+	});
+}
+
 async function installScript404(page: Page) {
 	const faultName = "script-404";
 
@@ -78,6 +116,30 @@ async function installScript404(page: Page) {
 		}
 
 		await route.continue();
+	});
+}
+
+async function installActivityMissingCreateTeam(page: Page) {
+	const faultName = "activity-missing-create-team";
+
+	await page.setExtraHTTPHeaders({
+		[FAULT_HEADER]: faultName,
+	});
+}
+
+async function installPaymentServerError(page: Page) {
+	const faultName = "payment-server-error";
+
+	await page.setExtraHTTPHeaders({
+		[FAULT_HEADER]: faultName,
+	});
+}
+
+async function installInviteAcceptedButMemberMissing(page: Page) {
+	const faultName = "invite-accepted-but-member-missing";
+
+	await page.setExtraHTTPHeaders({
+		[FAULT_HEADER]: faultName,
 	});
 }
 

@@ -2,7 +2,12 @@
 
 import { tutorialConfig } from "../tutorial.config";
 import { sync, syncDocsContent } from "./sync";
-import { getCurrentBranch, pullBranch, pushBranch, switchBranch } from "./utils";
+import {
+	getCurrentBranch,
+	pullBranch,
+	pushBranch,
+	switchBranch,
+} from "./utils";
 
 // CLI usage
 if (import.meta.main) {
