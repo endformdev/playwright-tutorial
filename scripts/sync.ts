@@ -33,7 +33,8 @@ export async function sync() {
 	if (!currentStage) {
 		throw new Error("Current branch is not a tutorial stage");
 	}
-	const preservedUntrackedFiles = await preserveUntrackedFiles();
+	const preservedUntrackedFiles = await createPreservedUntrackedFiles();
+	await preserveCurrentUntrackedFiles(preservedUntrackedFiles);
 
 	// get the current commit message
 	const commitMessage = await getCurrentCommitMessage();
@@ -48,7 +49,10 @@ export async function sync() {
 
 	try {
 		for (const stage of previousStages) {
-			await switchBranch(stage.name);
+			await switchBranchPreservingUntracked(
+				stage.name,
+				preservedUntrackedFiles,
+			);
 			await pullToThisStage(currentBranch);
 			const futurePaths = getFuturePathsFrom(stage.name);
 			await removeFuturePaths(futurePaths);
@@ -56,7 +60,10 @@ export async function sync() {
 		}
 
 		for (const stage of nextStages) {
-			await switchBranch(stage.name);
+			await switchBranchPreservingUntracked(
+				stage.name,
+				preservedUntrackedFiles,
+			);
 			await pullToThisStage(currentBranch);
 			const futurePaths = getFuturePathsFrom(stage.name);
 			await restoreFuturePaths(futurePaths);
@@ -64,20 +71,28 @@ export async function sync() {
 		}
 
 		if (currentBranch !== "main") {
-			await switchBranch("main");
+			await switchBranchPreservingUntracked("main", preservedUntrackedFiles);
 			await pullToThisStage(currentBranch);
 			await commitAllChanges(commitMessage);
 		}
 
-		await switchBranch(currentBranch);
+		await switchBranchPreservingUntracked(
+			currentBranch,
+			preservedUntrackedFiles,
+		);
 
 		await syncDocsContent();
 	} finally {
-		if ((await getCurrentBranch()) !== currentBranch) {
-			await switchBranch(currentBranch);
+		try {
+			if ((await getCurrentBranch()) !== currentBranch) {
+				await switchBranchPreservingUntracked(
+					currentBranch,
+					preservedUntrackedFiles,
+				);
+			}
+		} finally {
+			await restorePreservedUntrackedFiles(preservedUntrackedFiles);
 		}
-
-		await restorePreservedUntrackedFiles(preservedUntrackedFiles);
 	}
 
 	// for stages before this one
@@ -107,37 +122,49 @@ export async function sync() {
 type PreservedUntrackedFiles = {
 	backupRoot: string;
 	files: string[];
-} | null;
+};
 
-async function preserveUntrackedFiles(): Promise<PreservedUntrackedFiles> {
+async function createPreservedUntrackedFiles(): Promise<PreservedUntrackedFiles> {
+	return {
+		backupRoot: await mkdtemp(join(tmpdir(), "tutorial-sync-untracked-")),
+		files: [],
+	};
+}
+
+async function switchBranchPreservingUntracked(
+	branchName: string,
+	preservedFiles: PreservedUntrackedFiles,
+): Promise<void> {
+	await preserveCurrentUntrackedFiles(preservedFiles);
+	await switchBranch(branchName);
+}
+
+async function preserveCurrentUntrackedFiles(
+	preservedFiles: PreservedUntrackedFiles,
+): Promise<void> {
 	const files = await getUntrackedFiles();
 	if (files.length === 0) {
-		return null;
+		return;
 	}
-
-	const backupRoot = await mkdtemp(join(tmpdir(), "tutorial-sync-untracked-"));
 
 	for (const file of files) {
 		if (!existsSync(file)) {
 			continue;
 		}
 
-		const targetPath = join(backupRoot, file);
+		const targetPath = join(preservedFiles.backupRoot, file);
 		await mkdir(dirname(targetPath), { recursive: true });
-		await copyFile(file, targetPath);
+		if (!existsSync(targetPath)) {
+			await copyFile(file, targetPath);
+			preservedFiles.files.push(file);
+		}
 		await rm(file, { force: true });
 	}
-
-	return { backupRoot, files };
 }
 
 async function restorePreservedUntrackedFiles(
 	preservedFiles: PreservedUntrackedFiles,
 ): Promise<void> {
-	if (!preservedFiles) {
-		return;
-	}
-
 	try {
 		for (const file of preservedFiles.files) {
 			if (existsSync(file)) {
