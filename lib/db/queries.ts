@@ -2,7 +2,13 @@ import { and, desc, eq, isNull } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth/session";
 import { db } from "./drizzle";
-import { activityLogs, teamMembers, teams, users } from "./schema";
+import {
+	activityLogs,
+	type TeamDataWithMembers,
+	teamMembers,
+	teams,
+	users,
+} from "./schema";
 
 export async function getUser() {
 	const sessionCookie = (await cookies()).get("session");
@@ -114,5 +120,26 @@ export async function getTeamForUser() {
 		},
 	});
 
-	return result?.team || null;
+	if (!result?.team) {
+		return null;
+	}
+
+	return {
+		...result.team,
+		teamMembers: [...result.team.teamMembers].sort(compareTeamMembers),
+	};
+}
+
+function compareTeamMembers(
+	a: TeamDataWithMembers["teamMembers"][number],
+	b: TeamDataWithMembers["teamMembers"][number],
+) {
+	const roleOrder = roleSortOrder(a.role) - roleSortOrder(b.role);
+	if (roleOrder !== 0) return roleOrder;
+
+	return a.joinedAt.getTime() - b.joinedAt.getTime() || a.id - b.id;
+}
+
+function roleSortOrder(role: string) {
+	return role === "owner" ? 0 : 1;
 }
