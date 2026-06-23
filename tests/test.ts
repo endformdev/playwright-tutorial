@@ -7,7 +7,7 @@ const playwrightOtelEnabled = Boolean(
 		process.env.OTEL_EXPORTER_OTLP_ENDPOINT,
 );
 
-const testBase = playwrightOtelEnabled ? playwrightOpentelemetryTest.extend(base) : base;
+const testBase = playwrightOtelEnabled ? playwrightOpentelemetryTest : base;
 
 export const test = testBase.extend({
 	page: async ({ page }, use, testInfo) => {
