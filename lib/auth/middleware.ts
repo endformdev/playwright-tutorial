@@ -2,54 +2,61 @@ import { redirect } from "next/navigation";
 import type { z } from "zod";
 import { getTeamForUser, getUser } from "@/lib/db/queries";
 import type { TeamDataWithMembers, User } from "@/lib/db/schema";
+import { withActionSpan } from "@/lib/telemetry";
 
 export type ActionState = {
 	error?: string;
 	success?: string;
-	[key: string]: any; // This allows for additional properties
+	[key: string]: string | number | readonly string[] | undefined;
 };
 
-type ValidatedActionFunction<S extends z.ZodType<any, any>, T> = (
+type ValidatedActionFunction<S extends z.ZodType, T> = (
 	data: z.infer<S>,
 	formData: FormData,
 ) => Promise<T>;
 
-export function validatedAction<S extends z.ZodType<any, any>, T>(
+export function validatedAction<S extends z.ZodType, T>(
 	schema: S,
+	operation: string,
 	action: ValidatedActionFunction<S, T>,
 ) {
 	return async (_prevState: ActionState, formData: FormData) => {
-		const result = schema.safeParse(Object.fromEntries(formData));
-		if (!result.success) {
-			return { error: result.error.issues[0].message };
-		}
+		return withActionSpan(operation, async () => {
+			const result = schema.safeParse(Object.fromEntries(formData));
+			if (!result.success) {
+				return { error: result.error.issues[0].message };
+			}
 
-		return action(result.data, formData);
+			return action(result.data, formData);
+		});
 	};
 }
 
-type ValidatedActionWithUserFunction<S extends z.ZodType<any, any>, T> = (
+type ValidatedActionWithUserFunction<S extends z.ZodType, T> = (
 	data: z.infer<S>,
 	formData: FormData,
 	user: User,
 ) => Promise<T>;
 
-export function validatedActionWithUser<S extends z.ZodType<any, any>, T>(
+export function validatedActionWithUser<S extends z.ZodType, T>(
 	schema: S,
+	operation: string,
 	action: ValidatedActionWithUserFunction<S, T>,
 ) {
 	return async (_prevState: ActionState, formData: FormData) => {
-		const user = await getUser();
-		if (!user) {
-			throw new Error("User is not authenticated");
-		}
+		return withActionSpan(operation, async () => {
+			const user = await getUser();
+			if (!user) {
+				throw new Error("User is not authenticated");
+			}
 
-		const result = schema.safeParse(Object.fromEntries(formData));
-		if (!result.success) {
-			return { error: result.error.issues[0].message };
-		}
+			const result = schema.safeParse(Object.fromEntries(formData));
+			if (!result.success) {
+				return { error: result.error.issues[0].message };
+			}
 
-		return action(result.data, formData, user);
+			return action(result.data, formData, user);
+		});
 	};
 }
 
