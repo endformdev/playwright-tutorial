@@ -73,21 +73,20 @@ test.describe("Team Invitation Flow", () => {
 				).toBeVisible();
 				await expect(page).toHaveURL("/dashboard");
 
-				const firstTeamMember = await page.getByTestId("team-member").first();
-				expect(firstTeamMember.getByTestId("team-member-name")).toContainText(
-					existingMemberName,
-				);
-				expect(firstTeamMember.getByTestId("team-member-role")).toContainText(
-					"owner",
-				);
+				const teamMembers = page.getByTestId("team-member");
+				await expect(teamMembers).toHaveCount(2);
 
-				const secondTeamMember = await page.getByTestId("team-member").nth(1);
-				expect(secondTeamMember.getByTestId("team-member-name")).toContainText(
-					newUserEmail,
-				);
-				expect(secondTeamMember.getByTestId("team-member-role")).toContainText(
-					"member",
-				);
+				const existingMember = teamMembers.filter({
+					hasText: existingMemberName,
+				});
+				await expect(
+					existingMember.getByTestId("team-member-role"),
+				).toContainText("owner");
+
+				const invitedMember = teamMembers.filter({ hasText: newUserEmail });
+				await expect(
+					invitedMember.getByTestId("team-member-role"),
+				).toContainText("member");
 			});
 		},
 	);
