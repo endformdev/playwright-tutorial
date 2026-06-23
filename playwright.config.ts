@@ -1,4 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
+import type { PlaywrightOpentelemetryUseOptions } from "playwright-opentelemetry/fixture";
 
 /**
  * Read environment variables from file.
@@ -11,10 +12,15 @@ import { defineConfig, devices } from "@playwright/test";
 export const baseURL =
 	process.env.BASE_URL || "https://endform-playwright-tutorial.vercel.app";
 
+const playwrightOtelEnabled = Boolean(
+	process.env.PLAYWRIGHT_TRACE_API_ENDPOINT ||
+		process.env.OTEL_EXPORTER_OTLP_ENDPOINT,
+);
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
-export default defineConfig({
+export default defineConfig<PlaywrightOpentelemetryUseOptions>({
 	testDir: "./tests",
 	globalSetup: "./global-setup.ts",
 	globalTeardown: "./global-teardown.ts",
@@ -27,7 +33,12 @@ export default defineConfig({
 	/* Opt out of parallel tests on CI. */
 	workers: "50%",
 	/* Reporter to use. See https://playwright.dev/docs/test-reporters */
-	reporter: [["html", { open: "never" }]],
+	reporter: [
+		["html", { open: "never" }],
+		...(playwrightOtelEnabled
+			? [["playwright-opentelemetry/reporter"] as const]
+			: []),
+	],
 	/* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
 	use: {
 		/* Base URL to use in actions like `await page.goto('/')`. */
@@ -36,7 +47,15 @@ export default defineConfig({
 		// baseURL: "http://localhost:3000",
 
 		/* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-		trace: "retain-on-failure",
+		trace: playwrightOtelEnabled ? "on" : "retain-on-failure",
+		playwrightOpentelemetry: playwrightOtelEnabled
+			? {
+					trace: "on",
+					storeTraceZip: false,
+					propagateTraceHeaders: true,
+					serviceName: "playwright-tutorial-tests",
+				}
+			: undefined,
 	},
 
 	/* Run your local dev server before starting the tests */
