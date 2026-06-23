@@ -7,6 +7,7 @@ import { db } from "@/lib/db/drizzle";
 import { getUser } from "@/lib/db/queries";
 import { payments, teamMembers, teams } from "@/lib/db/schema";
 import { isFaultActive } from "@/lib/faults";
+import { withActionSpan, withSpan } from "@/lib/telemetry";
 
 const paymentSchema = z.object({
 	cardNumber: z
@@ -31,76 +32,109 @@ const paymentSchema = z.object({
 });
 
 export async function processPayment(formData: FormData) {
-	const user = await getUser();
-	if (!user) {
-		redirect("/sign-in?redirect=pricing");
-	}
-
-	// Get user's team
-	const userTeam = await db
-		.select({
-			teamId: teamMembers.teamId,
-		})
-		.from(teamMembers)
-		.where(eq(teamMembers.userId, user.id))
-		.limit(1);
-
-	if (userTeam.length === 0) {
-		throw new Error("User is not associated with any team");
-	}
-
-	const data = {
-		cardNumber: formData.get("cardNumber") as string,
-		cardHolderName: formData.get("cardHolderName") as string,
-		expiryDate: formData.get("expiryDate") as string,
-		cvv: formData.get("cvv") as string,
-		billingAddress: formData.get("billingAddress") as string,
-		city: formData.get("city") as string,
-		state: formData.get("state") as string,
-		zipCode: formData.get("zipCode") as string,
-		country: formData.get("country") as string,
-		planName: formData.get("planName") as string,
-		amount: Number(formData.get("amount")),
-	};
-
-	try {
-		const validatedData = paymentSchema.parse(data);
-		if (await isFaultActive("payment-server-error")) {
-			throw new Error("Fault injected: payment-server-error");
+	return withActionSpan("process_payment", async (span) => {
+		const user = await getUser();
+		if (!user) {
+			span?.setAttribute("app.authenticated", false);
+			redirect("/sign-in?redirect=pricing");
 		}
-		const paymentData = {
-			teamId: userTeam[0].teamId,
-			...validatedData,
-			amount: (await isFaultActive("payment-wrong-amount"))
-				? 800
-				: validatedData.amount,
+
+		// Get user's team
+		const userTeam = await db
+			.select({
+				teamId: teamMembers.teamId,
+			})
+			.from(teamMembers)
+			.where(eq(teamMembers.userId, user.id))
+			.limit(1);
+
+		if (userTeam.length === 0) {
+			span?.setAttribute("app.result", "team_missing");
+			throw new Error("User is not associated with any team");
+		}
+
+		const data = {
+			cardNumber: formData.get("cardNumber") as string,
+			cardHolderName: formData.get("cardHolderName") as string,
+			expiryDate: formData.get("expiryDate") as string,
+			cvv: formData.get("cvv") as string,
+			billingAddress: formData.get("billingAddress") as string,
+			city: formData.get("city") as string,
+			state: formData.get("state") as string,
+			zipCode: formData.get("zipCode") as string,
+			country: formData.get("country") as string,
+			planName: formData.get("planName") as string,
+			amount: Number(formData.get("amount")),
 		};
 
-		if (!(await isFaultActive("payment-row-missing"))) {
-			await db.insert(payments).values(paymentData);
-			if (await isFaultActive("payment-duplicate-charge")) {
-				await db.insert(payments).values(paymentData);
+		try {
+			const validatedData = paymentSchema.parse(data);
+			if (await isFaultActive("payment-server-error")) {
+				throw new Error("Fault injected: payment-server-error");
 			}
-		}
+			const paymentData = {
+				teamId: userTeam[0].teamId,
+				...validatedData,
+				amount: (await isFaultActive("payment-wrong-amount"))
+					? 800
+					: validatedData.amount,
+			};
 
-		if (!(await isFaultActive("payment-subscription-update-skipped"))) {
-			await db
-				.update(teams)
-				.set({
-					planName: validatedData.planName,
-					subscriptionStatus: "active",
-					updatedAt: new Date(),
-				})
-				.where(eq(teams.id, userTeam[0].teamId));
-		}
+			if (!(await isFaultActive("payment-row-missing"))) {
+				await withSpan(
+					"payment.recorded",
+					{
+						"app.operation": "payment.recorded",
+						"payment.plan": paymentData.planName,
+						"payment.amount": paymentData.amount,
+						"payment.currency": "USD",
+					},
+					async () => db.insert(payments).values(paymentData),
+				);
+				if (await isFaultActive("payment-duplicate-charge")) {
+					await withSpan(
+						"payment.recorded",
+						{
+							"app.operation": "payment.recorded",
+							"payment.plan": paymentData.planName,
+							"payment.amount": paymentData.amount,
+							"payment.currency": "USD",
+						},
+						async () => db.insert(payments).values(paymentData),
+					);
+				}
+			}
 
-		redirect("/dashboard?payment=success");
-	} catch (error) {
-		if (error instanceof z.ZodError) {
-			throw new Error(error.issues.map((e) => e.message).join(", "));
+			if (!(await isFaultActive("payment-subscription-update-skipped"))) {
+				await withSpan(
+					"team.subscription.updated",
+					{
+						"app.operation": "team.subscription.updated",
+						"subscription.plan": validatedData.planName,
+						"subscription.status": "active",
+					},
+					async () =>
+						db
+							.update(teams)
+							.set({
+								planName: validatedData.planName,
+								subscriptionStatus: "active",
+								updatedAt: new Date(),
+							})
+							.where(eq(teams.id, userTeam[0].teamId)),
+				);
+			}
+
+			span?.setAttribute("app.result", "payment_processed");
+			redirect("/dashboard?payment=success");
+		} catch (error) {
+			span?.setAttribute("app.result", "error");
+			if (error instanceof z.ZodError) {
+				throw new Error(error.issues.map((e) => e.message).join(", "));
+			}
+			throw error;
 		}
-		throw error;
-	}
+	});
 }
 
 export async function checkoutAction(formData: FormData) {
