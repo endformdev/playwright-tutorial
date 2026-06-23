@@ -97,8 +97,8 @@ importers:
         specifier: ^0.69.0
         version: 0.69.0
       playwright-opentelemetry:
-        specifier: ^0.8.1
-        version: 0.8.1(@playwright/test@1.61.0)
+        specifier: ^0.9.0
+        version: 0.9.0(@playwright/test@1.61.0)
       tsx:
         specifier: ^4.22.4
         version: 4.22.4
@@ -2350,8 +2350,8 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  playwright-opentelemetry@0.8.1:
-    resolution: {integrity: sha512-VDZpyPP1uZGeM0xVe3PVSu3rrTWy5OZjoBSKeHFH/PWtj49UM7b3M1U62vUga/uz7MyM/rFYsAanxlbnZP7yIw==}
+  playwright-opentelemetry@0.9.0:
+    resolution: {integrity: sha512-6HYi8cwOnvf3N5AnRLcT4YmrBLgMT4M6H3UkT0YlaTT8PUAkzyno0aGRG5HwdR+wrsxPMM59c1+O4ReiQJgHWg==}
     peerDependencies:
       '@playwright/test': '*'
 
@@ -4464,7 +4464,7 @@ snapshots:
 
   playwright-core@1.61.0: {}
 
-  playwright-opentelemetry@0.8.1(@playwright/test@1.61.0):
+  playwright-opentelemetry@0.9.0(@playwright/test@1.61.0):
     dependencies:
       '@playwright/test': 1.61.0
       '@zip.js/zip.js': 2.8.26
