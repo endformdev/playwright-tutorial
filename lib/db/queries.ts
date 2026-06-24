@@ -12,16 +12,12 @@ import {
 
 export async function getUser() {
 	const sessionCookie = (await cookies()).get("session");
-	if (!sessionCookie || !sessionCookie.value) {
+	if (!sessionCookie?.value) {
 		return null;
 	}
 
 	const sessionData = await verifyToken(sessionCookie.value);
-	if (
-		!sessionData ||
-		!sessionData.user ||
-		typeof sessionData.user.id !== "number"
-	) {
+	if (!sessionData?.user || typeof sessionData.user.id !== "number") {
 		return null;
 	}
 

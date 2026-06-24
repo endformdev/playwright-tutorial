@@ -2,6 +2,9 @@ import type { Page, TestInfo } from "@playwright/test";
 
 export const implementedFaults = [
 	"api-team-500",
+	"api-team-extra-request",
+	"api-team-db-latency-spike",
+	"api-team-db-read-skipped",
 	"api-team-latency-spike",
 	"api-team-malformed-json",
 	"api-user-malformed-json",
@@ -34,6 +37,15 @@ export type FaultName = (typeof implementedFaults)[number];
 
 const faultTargets: Record<FaultName, string[]> = {
 	"api-team-500": [
+		"should change user name in general settings and verify it appears in team members list",
+	],
+	"api-team-extra-request": [
+		"should change user name in general settings and verify it appears in team members list",
+	],
+	"api-team-db-latency-spike": [
+		"should change user name in general settings and verify it appears in team members list",
+	],
+	"api-team-db-read-skipped": [
 		"should change user name in general settings and verify it appears in team members list",
 	],
 	"api-team-latency-spike": [
@@ -116,6 +128,9 @@ const FAULT_HEADER = "x-faults";
 
 const faultInstallers: Record<FaultName, (page: Page) => Promise<void>> = {
 	"api-team-500": installApiTeam500,
+	"api-team-extra-request": installApiTeamExtraRequest,
+	"api-team-db-latency-spike": installApiTeamDbLatencySpike,
+	"api-team-db-read-skipped": installApiTeamDbReadSkipped,
 	"api-team-latency-spike": installApiTeamLatencySpike,
 	"api-team-malformed-json": installApiTeamMalformedJson,
 	"api-user-malformed-json": installApiUserMalformedJson,
@@ -186,6 +201,44 @@ async function installApiTeam500(page: Page) {
 			body: JSON.stringify({ error: `Fault injected: ${faultName}` }),
 		});
 	});
+}
+
+async function installApiTeamExtraRequest(page: Page) {
+	await page.addInitScript(() => {
+		const originalFetch = window.fetch.bind(window) as typeof window.fetch;
+		let duplicated = false;
+
+		const faultFetch = Object.assign(
+			async (...args: Parameters<typeof window.fetch>) => {
+				const [input] = args;
+				const response = await originalFetch(...args);
+				const url =
+					typeof input === "string" || input instanceof URL
+						? input.toString()
+						: input.url;
+
+				if (
+					!duplicated &&
+					new URL(url, window.location.href).pathname === "/api/team"
+				) {
+					duplicated = true;
+					void originalFetch(...args).catch(() => undefined);
+				}
+
+				return response;
+			},
+			originalFetch,
+		) as typeof window.fetch;
+		window.fetch = faultFetch;
+	});
+}
+
+async function installApiTeamDbLatencySpike(page: Page) {
+	await setAppFaultHeader(page, "api-team-db-latency-spike");
+}
+
+async function installApiTeamDbReadSkipped(page: Page) {
+	await setAppFaultHeader(page, "api-team-db-read-skipped");
 }
 
 async function installApiTeamMalformedJson(page: Page) {
