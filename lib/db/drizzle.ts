@@ -68,32 +68,9 @@ async function executeProxyQueryUntraced(
 async function executeProxyBatch(
 	queries: BatchQuery[],
 ): Promise<ProxyQueryResult[]> {
-	return withSpan(
-		"db.batch",
-		{
-			"db.system": "sqlite",
-			"db.operation": "batch",
-			"db.statement_count": queries.length,
-		},
-		async (span) => {
-			const operations = [
-				...new Set(queries.map((query) => sqlOperation(query.sql))),
-			];
-			const collections = [
-				...new Set(
-					queries.map((query) => sqlCollection(query.sql)).filter(Boolean),
-				),
-			];
-
-			if (operations.length === 1 && operations[0]) {
-				span?.setAttribute("db.operation", operations[0]);
-			}
-			if (collections.length === 1 && collections[0]) {
-				span?.setAttribute("db.collection", collections[0]);
-			}
-
-			return executeProxyBatchUntraced(queries);
-		},
+	return withDbBatchSpan(
+		queries.map((query) => query.sql),
+		() => executeProxyBatchUntraced(queries),
 	);
 }
 
@@ -145,14 +122,9 @@ function instrumentLibsqlClient(client: LibsqlClient): LibsqlClient {
 	instrumented.batch = (...args: unknown[]) => {
 		const statements = Array.isArray(args[0]) ? args[0] : [];
 
-		return withSpan(
-			"db.batch",
-			{
-				"db.system": "sqlite",
-				"db.operation": "batch",
-				"db.statement_count": statements.length,
-			},
-			async () => batch(...args),
+		return withDbBatchSpan(
+			statements.map((statement) => sqlFromStatement(statement)),
+			() => batch(...args),
 		);
 	};
 
@@ -169,11 +141,7 @@ function withDbSpan<T>(
 
 	return withSpan(
 		"db.query",
-		{
-			"db.system": "sqlite",
-			"db.operation": operation,
-			...(collection ? { "db.collection": collection } : {}),
-		},
+		dbQueryAttributes(operation, collection, method),
 		async (span) => {
 			if (await shouldInjectDbLatencySpike(operation, collection)) {
 				span?.setAttribute("app.result", "latency_spike");
@@ -183,6 +151,44 @@ function withDbSpan<T>(
 			return fn();
 		},
 	);
+}
+
+function withDbBatchSpan<T>(
+	sqlStatements: (string | undefined)[],
+	fn: () => Promise<T>,
+) {
+	return withSpan("db.batch", dbBatchAttributes(sqlStatements), async () =>
+		fn(),
+	);
+}
+
+function dbQueryAttributes(
+	operation: string,
+	collection: string | undefined,
+	method: string,
+) {
+	return {
+		"db.system": "sqlite",
+		"db.operation": operation,
+		"db.query.method": method,
+		...(collection ? { "db.collection": collection } : {}),
+	};
+}
+
+function dbBatchAttributes(sqlStatements: (string | undefined)[]) {
+	const operations = [
+		...new Set(sqlStatements.map(sqlOperation).filter(isString)),
+	];
+	const collections = [
+		...new Set(sqlStatements.map(sqlCollection).filter(isString)),
+	];
+
+	return {
+		"db.system": "sqlite",
+		"db.operation": operations.length === 1 ? operations[0] : "batch",
+		"db.statement_count": sqlStatements.length,
+		...(collections.length === 1 ? { "db.collection": collections[0] } : {}),
+	};
 }
 
 async function shouldInjectDbLatencySpike(
@@ -240,6 +246,10 @@ function sqlCollection(sql: string | undefined) {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === "object" && value !== null;
+}
+
+function isString(value: string | undefined): value is string {
+	return typeof value === "string";
 }
 
 function createDatabase() {

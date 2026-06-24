@@ -37,18 +37,3 @@ export async function withSpan<T>(
 		}
 	});
 }
-
-export async function withActionSpan<T>(
-	operation: string,
-	fn: (span?: Span) => Promise<T>,
-) {
-	return withSpan(
-		`action.${operation}`,
-		{ "app.operation": `action.${operation}` },
-		fn,
-	);
-}
-
-export function sleep(ms: number) {
-	return new Promise((resolve) => setTimeout(resolve, ms));
-}

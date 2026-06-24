@@ -2,7 +2,6 @@ import { compare, hash } from "bcryptjs";
 import { jwtVerify, SignJWT } from "jose";
 import { cookies } from "next/headers";
 import type { NewUser } from "@/lib/db/schema";
-import { withSpan } from "@/lib/telemetry";
 
 const DEMO_AUTH_SECRET = "playwright-tutorial-demo-auth-secret";
 const key = new TextEncoder().encode(
@@ -48,37 +47,24 @@ export async function getSession() {
 }
 
 export async function createSession(userId: number, expires: Date) {
-	return withSpan(
-		"auth.session.create",
-		{ "app.operation": "auth.session.create" },
-		async () => {
-			const session: SessionData = {
-				user: { id: userId },
-				expires: expires.toISOString(),
-			};
-
-			return await signToken(session);
-		},
-	);
+	const session: SessionData = {
+		user: { id: userId },
+		expires: expires.toISOString(),
+	};
+	return await signToken(session);
 }
 
 export async function setSession(user: NewUser) {
-	await withSpan(
-		"auth.session.set_cookie",
-		{ "app.operation": "auth.session.set_cookie" },
-		async () => {
-			if (user.id == null) {
-				throw new Error("Cannot create a session for a user without an id");
-			}
+	if (user.id == null) {
+		throw new Error("Cannot create a session for a user without an id");
+	}
 
-			const expiresInOneDay = new Date(Date.now() + 24 * 60 * 60 * 1000);
-			const encryptedSession = await createSession(user.id, expiresInOneDay);
-			(await cookies()).set("session", encryptedSession, {
-				expires: expiresInOneDay,
-				httpOnly: true,
-				secure: true,
-				sameSite: "lax",
-			});
-		},
-	);
+	const expiresInOneDay = new Date(Date.now() + 24 * 60 * 60 * 1000);
+	const encryptedSession = await createSession(user.id, expiresInOneDay);
+	(await cookies()).set("session", encryptedSession, {
+		expires: expiresInOneDay,
+		httpOnly: true,
+		secure: true,
+		sameSite: "lax",
+	});
 }
