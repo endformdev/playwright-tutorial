@@ -23,70 +23,65 @@ import {
 	users,
 } from "@/lib/db/schema";
 import { isFaultActive } from "@/lib/faults";
-import { withActionSpan, withSpan } from "@/lib/telemetry";
 
 const signInSchema = z.object({
 	email: z.string().email().min(3).max(255),
 	password: z.string().min(8).max(100),
 });
 
-export const signIn = validatedAction(
-	signInSchema,
-	"sign_in",
-	async (data, formData) => {
-		const { email, password } = data;
+export const signIn = validatedAction(signInSchema, async (data, formData) => {
+	const { email, password } = data;
 
-		const userWithTeam = await db
-			.select({
-				user: users,
-				team: teams,
-			})
-			.from(users)
-			.leftJoin(teamMembers, eq(users.id, teamMembers.userId))
-			.leftJoin(teams, eq(teamMembers.teamId, teams.id))
-			.where(eq(users.email, email))
-			.limit(1);
+	const userWithTeam = await db
+		.select({
+			user: users,
+			team: teams,
+		})
+		.from(users)
+		.leftJoin(teamMembers, eq(users.id, teamMembers.userId))
+		.leftJoin(teams, eq(teamMembers.teamId, teams.id))
+		.where(eq(users.email, email))
+		.limit(1);
 
-		if (userWithTeam.length === 0) {
-			return {
-				error: "Invalid email or password. Please try again.",
-				email,
-				password,
-			};
-		}
-
-		const { user: foundUser, team: foundTeam } = userWithTeam[0];
-
-		const isPasswordValid = await comparePasswords(
+	if (userWithTeam.length === 0) {
+		return {
+			error: "Invalid email or password. Please try again.",
+			email,
 			password,
-			foundUser.passwordHash,
+		};
+	}
+
+	const { user: foundUser, team: foundTeam } = userWithTeam[0];
+
+	const isPasswordValid = await comparePasswords(
+		password,
+		foundUser.passwordHash,
+	);
+
+	if (!isPasswordValid) {
+		return {
+			error: "Invalid email or password. Please try again.",
+			email,
+			password,
+		};
+	}
+
+	await Promise.all([
+		setSession(foundUser),
+		logActivity(foundTeam?.id, foundUser.id, ActivityType.SIGN_IN),
+	]);
+
+	const redirectTo = formData.get("redirect") as string | null;
+	if (redirectTo === "checkout") {
+		const plan = formData.get("plan") as string;
+		const amount = formData.get("amount") as string;
+		redirect(
+			`/pricing/checkout?plan=${encodeURIComponent(plan)}&amount=${amount}`,
 		);
+	}
 
-		if (!isPasswordValid) {
-			return {
-				error: "Invalid email or password. Please try again.",
-				email,
-				password,
-			};
-		}
-
-		await Promise.all([
-			setSession(foundUser),
-			logActivity(foundTeam?.id, foundUser.id, ActivityType.SIGN_IN),
-		]);
-
-		const redirectTo = formData.get("redirect") as string | null;
-		if (redirectTo === "checkout") {
-			const plan = formData.get("plan") as string;
-			const amount = formData.get("amount") as string;
-			redirect(
-				`/pricing/checkout?plan=${encodeURIComponent(plan)}&amount=${amount}`,
-			);
-		}
-
-		redirect("/dashboard");
-	},
-);
+	redirect("/dashboard");
+});
 
 const signUpSchema = z.object({
 	email: z.string().email(),
@@ -94,47 +89,34 @@ const signUpSchema = z.object({
 	inviteId: z.string().optional(),
 });
 
-export const signUp = validatedAction(
-	signUpSchema,
-	"sign_up",
-	async (data, formData) => {
-		const { email, password, inviteId } = data;
+export const signUp = validatedAction(signUpSchema, async (data, formData) => {
+	const { email, password, inviteId } = data;
 
-		const createdUser = await signup(email, password, inviteId);
+	const createdUser = await signup(email, password, inviteId);
 
-		await setSession(createdUser as NewUser);
+	await setSession(createdUser as NewUser);
 
-		const redirectTo = formData.get("redirect") as string | null;
-		if (redirectTo === "checkout") {
-			const plan = formData.get("plan") as string;
-			const amount = formData.get("amount") as string;
-			redirect(
-				`/pricing/checkout?plan=${encodeURIComponent(plan)}&amount=${amount}`,
-			);
-		}
+	const redirectTo = formData.get("redirect") as string | null;
+	if (redirectTo === "checkout") {
+		const plan = formData.get("plan") as string;
+		const amount = formData.get("amount") as string;
+		redirect(
+			`/pricing/checkout?plan=${encodeURIComponent(plan)}&amount=${amount}`,
+		);
+	}
 
-		redirect("/dashboard");
-	},
-);
+	redirect("/dashboard");
+});
 
 export async function signOut() {
-	await withActionSpan("sign_out", async (span) => {
-		const user = (await getUser()) as User;
-		const userWithTeam = await getUserWithTeam(user.id);
-		if (!(await isFaultActive("signout-activity-log-missing"))) {
-			await logActivity(userWithTeam?.teamId, user.id, ActivityType.SIGN_OUT);
-		}
-		if (!(await isFaultActive("signout-cookie-not-cleared"))) {
-			await withSpan(
-				"auth.session.delete",
-				{ "app.operation": "auth.session.delete" },
-				async () => (await cookies()).delete("session"),
-			);
-			span?.setAttribute("app.result", "session_deleted");
-		} else {
-			span?.setAttribute("app.result", "session_delete_skipped");
-		}
-	});
+	const user = (await getUser()) as User;
+	const userWithTeam = await getUserWithTeam(user.id);
+	if (!(await isFaultActive("signout-activity-log-missing"))) {
+		await logActivity(userWithTeam?.teamId, user.id, ActivityType.SIGN_OUT);
+	}
+	if (!(await isFaultActive("signout-cookie-not-cleared"))) {
+		(await cookies()).delete("session");
+	}
 }
 
 const updatePasswordSchema = z.object({
@@ -145,7 +127,6 @@ const updatePasswordSchema = z.object({
 
 export const updatePassword = validatedActionWithUser(
 	updatePasswordSchema,
-	"update_password",
 	async (data, _, user) => {
 		const { currentPassword, newPassword, confirmPassword } = data;
 
@@ -211,7 +192,6 @@ const deleteAccountSchema = z.object({
 
 export const deleteAccount = validatedActionWithUser(
 	deleteAccountSchema,
-	"delete_account",
 	async (data, _, user) => {
 		const { password } = data;
 
@@ -263,7 +243,6 @@ const updateAccountSchema = z.object({
 
 export const updateAccount = validatedActionWithUser(
 	updateAccountSchema,
-	"update_account",
 	async (data, _, user) => {
 		const { name, email } = data;
 		const userWithTeam = await getUserWithTeam(user.id);
@@ -296,7 +275,6 @@ const removeTeamMemberSchema = z.object({
 
 export const removeTeamMember = validatedActionWithUser(
 	removeTeamMemberSchema,
-	"remove_team_member",
 	async (data, _, user) => {
 		const { memberId } = data;
 		const userWithTeam = await getUserWithTeam(user.id);
@@ -331,7 +309,6 @@ const inviteTeamMemberSchema = z.object({
 
 export const inviteTeamMember = validatedActionWithUser(
 	inviteTeamMemberSchema,
-	"invite_team_member",
 	async (data, _, user) => {
 		const { email, role } = data;
 		const userWithTeam = await getUserWithTeam(user.id);
@@ -339,13 +316,17 @@ export const inviteTeamMember = validatedActionWithUser(
 		if (!userWithTeam?.teamId) {
 			return { error: "User is not part of a team" };
 		}
-		const teamId = userWithTeam.teamId;
 
 		const existingMember = await db
 			.select()
 			.from(users)
 			.leftJoin(teamMembers, eq(users.id, teamMembers.userId))
-			.where(and(eq(users.email, email), eq(teamMembers.teamId, teamId)))
+			.where(
+				and(
+					eq(users.email, email),
+					eq(teamMembers.teamId, userWithTeam.teamId),
+				),
+			)
 			.limit(1);
 
 		if (existingMember.length > 0) {
@@ -359,7 +340,7 @@ export const inviteTeamMember = validatedActionWithUser(
 			.where(
 				and(
 					eq(invitations.email, email),
-					eq(invitations.teamId, teamId),
+					eq(invitations.teamId, userWithTeam.teamId),
 					eq(invitations.status, "pending"),
 				),
 			)
@@ -376,7 +357,7 @@ export const inviteTeamMember = validatedActionWithUser(
 		const invitation = await db
 			.insert(invitations)
 			.values({
-				teamId,
+				teamId: userWithTeam.teamId,
 				email,
 				role,
 				invitedBy: user.id,
@@ -384,7 +365,11 @@ export const inviteTeamMember = validatedActionWithUser(
 			})
 			.returning();
 
-		await logActivity(teamId, user.id, ActivityType.INVITE_TEAM_MEMBER);
+		await logActivity(
+			userWithTeam.teamId,
+			user.id,
+			ActivityType.INVITE_TEAM_MEMBER,
+		);
 
 		// TODO: Send invitation email and include ?inviteId={id} to sign-up URL
 		// await sendInvitationEmail(email, userWithTeam.team.name, role)

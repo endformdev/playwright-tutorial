@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import type { z } from "zod";
 import { getTeamForUser, getUser } from "@/lib/db/queries";
 import type { TeamDataWithMembers, User } from "@/lib/db/schema";
-import { withActionSpan } from "@/lib/telemetry";
 
 export type ActionState = {
 	error?: string;
@@ -17,18 +16,15 @@ type ValidatedActionFunction<S extends z.ZodType, T> = (
 
 export function validatedAction<S extends z.ZodType, T>(
 	schema: S,
-	operation: string,
 	action: ValidatedActionFunction<S, T>,
 ) {
 	return async (_prevState: ActionState, formData: FormData) => {
-		return withActionSpan(operation, async () => {
-			const result = schema.safeParse(Object.fromEntries(formData));
-			if (!result.success) {
-				return { error: result.error.issues[0].message };
-			}
+		const result = schema.safeParse(Object.fromEntries(formData));
+		if (!result.success) {
+			return { error: result.error.issues[0].message };
+		}
 
-			return action(result.data, formData);
-		});
+		return action(result.data, formData);
 	};
 }
 
@@ -40,23 +36,20 @@ type ValidatedActionWithUserFunction<S extends z.ZodType, T> = (
 
 export function validatedActionWithUser<S extends z.ZodType, T>(
 	schema: S,
-	operation: string,
 	action: ValidatedActionWithUserFunction<S, T>,
 ) {
 	return async (_prevState: ActionState, formData: FormData) => {
-		return withActionSpan(operation, async () => {
-			const user = await getUser();
-			if (!user) {
-				throw new Error("User is not authenticated");
-			}
+		const user = await getUser();
+		if (!user) {
+			throw new Error("User is not authenticated");
+		}
 
-			const result = schema.safeParse(Object.fromEntries(formData));
-			if (!result.success) {
-				return { error: result.error.issues[0].message };
-			}
+		const result = schema.safeParse(Object.fromEntries(formData));
+		if (!result.success) {
+			return { error: result.error.issues[0].message };
+		}
 
-			return action(result.data, formData, user);
-		});
+		return action(result.data, formData, user);
 	};
 }
 
