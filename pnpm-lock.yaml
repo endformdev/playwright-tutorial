@@ -100,8 +100,8 @@ importers:
         specifier: ^1.3.14
         version: 1.3.14
       endform:
-        specifier: ^0.69.0
-        version: 0.69.0
+        specifier: ^0.71.0
+        version: 0.71.0
       playwright-opentelemetry:
         specifier: ^0.9.0
         version: 0.9.0(@playwright/test@1.61.0)
@@ -2167,28 +2167,28 @@ packages:
   end-of-stream@1.4.5:
     resolution: {integrity: sha512-ooEGc6HP26xXq/N+GCGOT0JKCLDGrq2bQUZrQ7gyrJiZANJ/8YDTxTpQBXGMn+WbIQXNVpyWymm7KYVICQnyOg==}
 
-  endform-darwin-arm64@0.69.0:
-    resolution: {integrity: sha512-tEZWj6p35KgxjWMNA1uzOlNrXotSE7BECW/UEdZStZ6S2rXRzE/jwQwrJwql2WGDxJYNONcnhNmtvVakyge+SQ==}
+  endform-darwin-arm64@0.71.0:
+    resolution: {integrity: sha512-ls4jHaqmlItpe512Stw+Q15DD0Pg7nYn2EL17tG0RXb0AdsbG6RZMGecXK9rIi/7wGLHfFxoUxWOoc1lToN9GQ==}
     cpu: [arm64]
     os: [darwin]
 
-  endform-darwin-x86@0.69.0:
-    resolution: {integrity: sha512-/50qJ2BToP++7TzQcnGgfyP316pDH7fWi+AYcv7zTNz/NbGLkhNq2JqxiN0V7c0LEMFH3QaOcgECmAI0KLZCkg==}
+  endform-darwin-x86@0.71.0:
+    resolution: {integrity: sha512-kJOOeH6C+TkZmfmUvVl30wToA7N53oAtU0ScylikOyXB2S2STSeiv+6MhJLmWpJFhb5luXcypCiCGSp1Wnkg+w==}
     cpu: [x64]
     os: [darwin]
 
-  endform-linux-arm64@0.69.0:
-    resolution: {integrity: sha512-BqLzAlIWU4dwkeirvzPoetUOpxLAAF8j9MguHXcCXINdjhQTYh3nqL0Hy/4NorjWYWw/1sds/y4by8NHoD/T1A==}
+  endform-linux-arm64@0.71.0:
+    resolution: {integrity: sha512-x1jghgt88seSjtL+Zzbk+0d4hvXRu/1Bn63QNJftx1kicHWVZigl1nANW3qbkXmwLOjjVtZcbztq9IbCcThYzg==}
     cpu: [arm64]
     os: [linux]
 
-  endform-linux-x86@0.69.0:
-    resolution: {integrity: sha512-58nWIzlelUoXMoZun/lFLEHtL7tq2ONLZgel1B2ppeudsB5zk2gJI5NySqrLFy4OgJQlGWMfkWKuOVa7kPMxGQ==}
+  endform-linux-x86@0.71.0:
+    resolution: {integrity: sha512-7SGIrOaovcgcZK1gUortuOAjapNGEr2XTNxmeqgJch2E6vy6Ec7ft4seeLu/q5+nhK9O0+hYzRy+ZidVgDPcTw==}
     cpu: [x64]
     os: [linux]
 
-  endform@0.69.0:
-    resolution: {integrity: sha512-Ceb1mQebarzbfzYQLpuIBH5WFOFJowCF2vplsptcaXvcsOpUeSzt5yI7fhN7DxTIAEaxL1c/yyqyf6Jf6UxmKA==}
+  endform@0.71.0:
+    resolution: {integrity: sha512-AagkjZpr+IZW27hsLXuFk7A5PUhfkZwupghm8E73ONN0BelOQm31DKn2EbwI9GqVvjd+W3HaZJ9QEj2BdUzViA==}
     hasBin: true
 
   enhanced-resolve@5.21.6:
@@ -4296,24 +4296,24 @@ snapshots:
       once: 1.4.0
     optional: true
 
-  endform-darwin-arm64@0.69.0:
+  endform-darwin-arm64@0.71.0:
     optional: true
 
-  endform-darwin-x86@0.69.0:
+  endform-darwin-x86@0.71.0:
     optional: true
 
-  endform-linux-arm64@0.69.0:
+  endform-linux-arm64@0.71.0:
     optional: true
 
-  endform-linux-x86@0.69.0:
+  endform-linux-x86@0.71.0:
     optional: true
 
-  endform@0.69.0:
+  endform@0.71.0:
     optionalDependencies:
-      endform-darwin-arm64: 0.69.0
-      endform-darwin-x86: 0.69.0
-      endform-linux-arm64: 0.69.0
-      endform-linux-x86: 0.69.0
+      endform-darwin-arm64: 0.71.0
+      endform-darwin-x86: 0.71.0
+      endform-linux-arm64: 0.71.0
+      endform-linux-x86: 0.71.0
 
   enhanced-resolve@5.21.6:
     dependencies:
