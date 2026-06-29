@@ -53,7 +53,6 @@ export default defineConfig<PlaywrightOpentelemetryUseOptions>({
 					trace: "on",
 					storeTraceZip: false,
 					propagateTraceHeaders: true,
-					serviceName: "playwright-tutorial-tests",
 				}
 			: undefined,
 	},
