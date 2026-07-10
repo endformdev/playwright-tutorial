@@ -1,0 +1,38 @@
+name: Run end-to-end tests with Endform
+
+on:
+  pull_request: # or push: if you want to run on commits to main
+    branches:
+      - main
+
+permissions:
+  contents: read
+  id-token: write # required for authentication with Endform
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+
+      - name: Set up pnpm (or whichever package manager you use)
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: true
+
+      - name: Wait for Vercel deployment
+        uses: endformdev/actions/run-with-vercel-deployment@main
+        with:
+          project-name: your-vercel-project-name
+          set-url-env-var: BASE_URL # Sets the Vercel preview URL as this environment variable
+          set-vercel-bypass-env-var: VERCEL_BYPASS_TOKEN # Exports a deployment protection bypass token as this env var
+
+      - name: Run end-to-end tests with Endform
+        working-directory: . # where your Playwright suite is located
+        run: |
+          npx endform@latest test
+          
