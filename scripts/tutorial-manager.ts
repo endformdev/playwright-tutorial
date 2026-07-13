@@ -43,6 +43,12 @@ if (import.meta.main) {
 				console.log(
 					"  sync-docs                 - Sync docs content to docs repo",
 				);
+				console.log(
+					"  pull                      - Rebase all tutorial branches from their remotes",
+				);
+				console.log(
+					"  push                      - Rebase and push all tutorial branches",
+				);
 				process.exit(1);
 		}
 	} catch (error) {
@@ -67,10 +73,12 @@ async function push(): Promise<void> {
 
 	for (const stage of tutorialConfig.stages) {
 		await switchBranch(stage.name);
+		await pullBranch();
 		await pushBranch();
 	}
 
 	await switchBranch("main");
+	await pullBranch();
 	await pushBranch();
 
 	await switchBranch(currentBranch);
