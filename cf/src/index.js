@@ -113,7 +113,7 @@ function json(data, init) {
 		headers: {
 			"content-type": "application/json",
 			...CORS_HEADERS,
-			...(responseInit.headers || {}),
+			...responseInit.headers,
 		},
 	});
 }

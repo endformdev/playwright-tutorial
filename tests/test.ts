@@ -4,7 +4,7 @@ import { installFaultsForTest } from "./support/faults";
 
 const playwrightOtelEnabled = Boolean(
 	process.env.PLAYWRIGHT_TRACE_API_ENDPOINT ||
-		process.env.OTEL_EXPORTER_OTLP_ENDPOINT,
+	process.env.OTEL_EXPORTER_OTLP_ENDPOINT,
 );
 
 const testBase = playwrightOtelEnabled ? playwrightOpentelemetryTest : base;
