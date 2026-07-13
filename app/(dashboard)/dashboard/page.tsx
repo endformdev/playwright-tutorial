@@ -131,7 +131,7 @@ function TeamMembers() {
 						>
 							<div className="flex items-center space-x-4">
 								<Avatar>
-									{/* 
+									{/*
                     This app doesn't save profile images, but here
                     is how you'd show them:
 
