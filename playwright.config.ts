@@ -14,7 +14,7 @@ export const baseURL =
 
 const playwrightOtelEnabled = Boolean(
 	process.env.PLAYWRIGHT_TRACE_API_ENDPOINT ||
-		process.env.OTEL_EXPORTER_OTLP_ENDPOINT,
+	process.env.OTEL_EXPORTER_OTLP_ENDPOINT,
 );
 
 /**
@@ -53,7 +53,6 @@ export default defineConfig<PlaywrightOpentelemetryUseOptions>({
 					trace: "on",
 					storeTraceZip: false,
 					propagateTraceHeaders: true,
-					serviceName: "playwright-tutorial-tests",
 				}
 			: undefined,
 	},

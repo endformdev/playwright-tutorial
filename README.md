@@ -4,7 +4,7 @@
 
 ## About the tutorial
 
-This tutorial is geared towards learning how to create a realistic playwright setup for testing fully fledged software as a service applications, generating tests for realistic applications, and then running those tests with Endform. 
+This tutorial is geared towards learning how to create a realistic playwright setup for testing fully fledged software as a service applications, generating tests for realistic applications, and then running those tests with Endform.
 
 ## Getting started with the tutorial repository
 
@@ -30,7 +30,6 @@ You can either:
 
 - Don't forget to connect your project with the Endform vercel integration
 - You will need the `copy-me-github-workflows` copied to `.github/workflows` to get going with running your tests in github actions
-
 
 ## About the SaaS
 
