@@ -1,5 +1,9 @@
 # SaaS Playwright testing tutorial
 
+## 📖 Start the tutorial
+
+👉 **[Follow the Playwright E2E tutorial: From Cowboy to Confidence →](https://endform.dev/docs/tutorial/playwright-e2e-from-cowboy-to-confidence)**
+
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fendformdev%2Fplaywright-tutorial&project-name=endform-playwright-example&repository-name=endform-playwright-example&products=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22endform%22%2C%22productSlug%22%3A%22endform%22%2C%22protocol%22%3A%22other%22%7D%5D)
 
 ## About the tutorial
