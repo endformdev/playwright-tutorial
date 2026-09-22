@@ -40,6 +40,24 @@ Outcomes distinguish verified success from false completion, an explicit model s
 
 ## Inspect a run
 
+To watch screenshots arrive in a browser, start the local viewer:
+
+```sh
+bun run jev:viewer
+```
+
+Open http://127.0.0.1:3031, then run `bun run jev:test` in another terminal.
+Keep the viewer beside your editor or terminal. It polls every 500 ms and displays
+the newest complete screenshot without refreshing the page. These are still images
+captured after each step, not browser video; the last image remains after the run ends.
+
+The controller writes its session and results directory to
+`test-results/jev-current-run.json` when the session starts. The viewer follows this
+pointer automatically, including when you start another run. Both the pointer and
+screenshots are published with atomic renames so the viewer never reads a partially
+written file. The pointer is ignored by Git with the rest of `test-results/`.
+This viewer follows the single `jev:test` controller, not concurrent benchmark runs.
+
 The script prints its Endform results folder (`test-results/live-session-<session-id>/`). It contains:
 
 - `screenshots/00-initial.png`, numbered `NN-after.png` images after each action, wait, or rejection, and a final `NN-verified-after-reload.png` on success. The initial image is the state for decision 1; each after-image is the state for the next decision.

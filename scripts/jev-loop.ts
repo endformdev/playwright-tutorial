@@ -1,5 +1,5 @@
 import { resolve } from "node:path";
-import { copyFile, mkdir, readdir } from "node:fs/promises";
+import { copyFile, mkdir, readdir, rename } from "node:fs/promises";
 import { config } from "dotenv";
 import spec from "./jev/name-change.json";
 
@@ -72,6 +72,16 @@ async function main() {
 			throw new Error("Endform did not report its results directory.");
 		resultsDirectory = resolve(root, resultsPath.trim());
 		await mkdir(resolve(resultsDirectory, "screenshots"), { recursive: true });
+		const pointer = resolve(root, "test-results/jev-current-run.json");
+		await Bun.write(
+			`${pointer}.tmp`,
+			JSON.stringify({
+				directory: resultsDirectory,
+				session,
+				startedAt: new Date().toISOString(),
+			}),
+		);
+		await rename(`${pointer}.tmp`, pointer);
 		console.log(
 			`Session: ${session}\nScreenshots: ${resolve(resultsDirectory, "screenshots")}`,
 		);
@@ -335,6 +345,10 @@ async function observe(session: string, label: string): Promise<Observation> {
 		throw new Error("Endform did not save the automatic ARIA snapshot.");
 	await copyFile(
 		resolve(resultsDirectory, screenshot),
+		resolve(resultsDirectory, "screenshots", `${screenshot}.tmp`),
+	);
+	await rename(
+		resolve(resultsDirectory, "screenshots", `${screenshot}.tmp`),
 		resolve(resultsDirectory, "screenshots", screenshot),
 	);
 	console.log(`    Screenshot: screenshots/${screenshot}`);

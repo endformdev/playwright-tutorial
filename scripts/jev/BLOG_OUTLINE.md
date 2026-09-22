@@ -36,9 +36,9 @@ Draft brief for the writing team. Branch: `oliver/jev-test-loop`. Use **Jev**, *
 
 - Introduce Endform live-test functionality: start a Playwright session and issue commands into the running browser while retaining its state and fixtures.
 - Each scenario supplies a frozen aim, input values, and success criteria. The controller is a Bun script calling the Endform CLI and Jev API.
-- Suggested diagram:
+- Decision-loop diagram ([editable Excalidraw source](./diagrams/jev-playwright-loop.excalidraw), [SVG](./diagrams/jev-playwright-loop.svg)):
 
-  `Aim + current accessibility snapshot → candidate actions → Jev selection/completion → execution gate → Playwright action → fresh snapshot → repeat`
+  ![Jev selects from candidate actions built from the aim and current accessibility snapshot. A separate execution gate allows a Playwright action, then a fresh snapshot feeds the next iteration. Completion claims go to independent Playwright checks.](./diagrams/jev-playwright-loop.svg)
 
 - Endform automatically saves an AI accessibility snapshot after commands. The controller reads it and maps element references to concrete Playwright locators.
 - Build click, fill, and check choices, plus navigation, wait, and stop options. In the naive version, every supplied input value can be paired with every textbox.
