@@ -20,6 +20,24 @@ When Jev says done, independent Playwright checks require an observed success me
 bun test scripts/jev-loop.test.ts
 ```
 
+## Suite benchmark
+
+Run all 15 listed Playwright tests ten times each, including the setup and teardown project tests as isolated scenarios:
+
+```sh
+bun run jev:benchmark
+```
+
+Run every configured fault once against its intended scenario:
+
+```sh
+bun run jev:benchmark:faults
+```
+
+`scripts/jev/cases.ts` contains the frozen aims, supplied values, success criteria, independent verification code, and fault mapping. Setup and teardown are adapted to run independently: signup begins with cleared cookies and cleans up its created account, while account deletion receives a fresh authenticated user. The default concurrency is three and can be overridden with `--concurrency N`. Reports are written under the ignored `benchmark-results/` directory. Its `screenshots/` folder links to every run's numbered images. Individual run records link to the corresponding Endform result directory with per-step choices and automatic accessibility snapshots.
+
+Outcomes distinguish verified success from false completion, an explicit model stop, repeated-state stalls, limits, and infrastructure or script errors. Timings include Endform session startup, the Jev loop, independent verification, and cleanup.
+
 ## Inspect a run
 
 The script prints its Endform results folder (`test-results/live-session-<session-id>/`). It contains:

@@ -58,7 +58,7 @@ async function main() {
 			"start",
 			"scripts/jev/harness.spec.ts",
 			"--config",
-			"scripts/jev/playwright.config.ts",
+			"scripts/jev/name-change.playwright.config.ts",
 			"--project",
 			"chromium",
 		]);
