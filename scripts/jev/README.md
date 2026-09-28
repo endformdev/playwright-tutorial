@@ -38,6 +38,8 @@ bun run jev:benchmark:faults
 
 Outcomes distinguish verified success from false completion, an explicit model stop, repeated-state stalls, limits, and infrastructure or script errors. Timings include Endform session startup, the Jev loop, independent verification, and cleanup.
 
+Both controllers retain each target's live accessibility reference in its action description. They also include up to six context lines from named ancestors and preceding descriptive siblings within those ancestors (prioritizing the nearest heading). This distinguishes repeated labels such as pricing-card buttons using the existing accessibility tree, without application-specific rules or extra browser reads. The same description reaches action selection, the execution gate, and history. Input candidates, thresholds, and verification are unchanged.
+
 ## Inspect a run
 
 To watch screenshots arrive in a browser, start the local viewer:
