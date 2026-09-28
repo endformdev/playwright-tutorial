@@ -1,77 +1,89 @@
 # Jev Playwright benchmark results
 
-Measured September 22, 2026 on branch `oliver/jev-test-loop` against the hosted Playwright tutorial application.
+## September 28, 2026: identifiable action descriptions
 
-## Method
+Measured on branch `oliver/jev-test-loop`, implementation commit `7b6d4dc`, against the hosted Playwright tutorial application. This is the full clean benchmark: all 15 scenarios, ten runs each, with concurrency three. The September 22 results are retained as the comparison baseline below.
 
-All 15 tests returned by `playwright test --list` were converted to frozen aims and run ten times each. Setup and teardown tests were adapted to isolated accounts. Each attempt used a fresh user, an Endform live-test session, AI-mode accessibility snapshots, screenshots after each step, and these fixed thresholds:
+**Result: 57/150 verified successes (38.0%), compared with 50/150 (33.3%) previously: seven more passes, or +4.7 percentage points.**
 
-- Jev completion probability: 0.90
-- Jev execution-gate probability: 0.80
-- Maximum steps: 30
-- Loop deadline after startup: 7 minutes
+### Change under test
 
-Independent Playwright code verified every completion claim. Timings include Endform startup, screenshots, decisions, verification, and cleanup. Three attempts ran concurrently. Jev cost uses the API's reported input-token usage at $0.042 per million tokens; output tokens are free. Endform/browser infrastructure cost is excluded.
+Both the single-name-change controller and the suite benchmark now retain the target accessibility reference in every element action description. A shared helper adds up to six context lines from named ancestors and preceding descriptive siblings, prioritizing the nearest heading. This uses only the existing accessibility tree, with no application-specific selectors or additional DOM reads. Selection, execution gating, and action history receive the same identifiable description.
 
-## Clean runs
+For example, the recorded pricing actions now distinguish:
 
-| Test case | Verified | Mean time | Mean Jev cost |
-|---|---:|---:|---:|
-| user signup and login flow | 8/10 | 19.7s | $0.000543 |
-| activity after account update | 7/10 | 23.6s | $0.001085 |
-| activity ordering | 0/10 | 26.4s | $0.001639 |
-| activity section | 10/10 | 13.7s | $0.000179 |
-| change email | 0/10 | 21.0s | $0.001091 |
-| change name | 6/10 | 25.6s | $0.001342 |
-| change password | 0/10 | 33.7s | $0.003089 |
-| has title | 10/10 | 11.5s | $0.000058 |
-| already logged in | 9/10 | 11.3s | $0.000064 |
-| duplicate invitation | 0/10 | 29.9s | $0.002671 |
-| payment history | 0/10 | 23.3s | $0.001575 |
-| plan upgrade | 0/10 | 22.1s | $0.001867 |
-| sign-out session | 0/10 | 22.7s | $0.001437 |
-| team invitation | 0/10 | 24.6s | $0.001880 |
-| delete account | 0/10 | 16.6s | $0.000551 |
+```text
+Click - button "Get Started" [ref=f1e59] (context: - heading "Base" [level=2] [ref=f1e18]; - paragraph [ref=f1e19]: with 7 day free trial)
+Click - button "Get Started" [ref=f1e60] (context: - heading "Plus" [level=2] [ref=f1e37]; - paragraph [ref=f1e38]: with 7 day free trial)
+```
 
-Overall: **50/150 verified successes (33.3%)**. Outcomes were 50 verified successes, 73 repeated-state stalls, 25 explicit model stops, and 2 transient Jev HTTP 529 errors. No clean run produced a false completion.
+Input values and candidate combinations, the execution gate, the completion threshold, history length, and independent verification are unchanged. No named-input changes were made, keeping the experiment focused on action descriptions.
 
-The clean benchmark consumed 4,540,802 input tokens and 191,851 output tokens. Estimated Jev cost was **$0.190714**, or **$0.001271 per attempt** on average. Summed per-attempt duration was 3,256.8 seconds, averaging 21.7 seconds. Since three attempts ran concurrently, summed duration is not wall-clock benchmark duration. Two HTTP 529 responses did not report usage, so the cost estimate excludes any unreported billing for those calls.
+### Method and validation
 
-By workflow shape:
+- Fresh isolated user and Endform live-test session for each attempt; signup clears cookies and deletion starts with a fresh account.
+- Completion threshold: 0.90; execution threshold: 0.80; maximum 30 iterations; seven-minute loop deadline after startup.
+- The model sees text accessibility snapshots. Screenshots are retained for inspection, not sent to Jev.
+- Independent Playwright verification runs when Jev declares completion. Existing verifier limitations remain; these checks do not prove every historical transition required by every aim.
+- Reporting policy: attempts interrupted by Jev API failures are discarded and rerun, retaining ten completed attempts per scenario. Timing and cost describe retained attempts.
+- Eight focused unit tests passed, including duplicate button labels, scoped sibling headings, named ancestors, disabled targets, and literal action arguments. TypeScript and targeted lint checks passed.
+- Before pushing the implementation, a separate ten-run name-change validation produced **9/10 verified successes and one stall**. It is excluded from the 150-run table below.
 
-- Observation-only checks: 29/30 (96.7%).
-- Bounded visible mutations—signup, name change, and update-activity: 21/30 (70%).
-- The remaining multi-stage, ambiguous, or completion-sensitive workflows: 0/90.
+Commands:
 
-Across the 130 main-suite attempts (excluding the separately run signup and deletion scenarios), the execution gate rejected 362 of 618 proposed nonterminal actions (58.6%). It often rejected an action Jev had just selected, and these contradictions caused many repeated-state stalls. Other recurring problems were identical `Get Started` candidates without ancestor context, user-menu buttons exposed only as initials, a cross-product of every supplied value with every textbox (88 candidates on checkout), premature form submission, and completion probabilities just below 0.90 after apparently successful deletion or sign-out. Title checks averaged about 1.4k input tokens, while password changes averaged about 73.5k; repeated decisions and the included history increased usage.
+```sh
+bun test scripts/jev-loop.test.ts scripts/jev-benchmark.test.ts scripts/jev/action-context.test.ts
+bun scripts/jev-benchmark.ts --mode clean --case change-name --repeat 10 --concurrency 3 --output benchmark-results/context-name-change-10x
+bun scripts/jev-benchmark.ts --mode clean --repeat 10 --concurrency 3 --output benchmark-results/context-full-clean-10x
+```
 
-## Injected-failure investigation
+### Full clean results
 
-All 30 repository fault injectors ran once against their mapped scenario after the clean benchmark.
+| Scenario | Previous verified | New verified | Mean time | Mean Jev cost |
+|---|---:|---:|---:|---:|
+| signup-and-login | 8/10 | 10/10 | 20.7s | $0.000635 |
+| activity-after-account-update | 7/10 | 10/10 | 18.1s | $0.000590 |
+| activity-order | 0/10 | 0/10 | 30.3s | $0.002260 |
+| activity-section | 10/10 | 10/10 | 13.8s | $0.000190 |
+| change-email | 0/10 | 0/10 | 26.4s | $0.002044 |
+| change-name | 6/10 | 10/10 | 20.5s | $0.000844 |
+| change-password | 0/10 | 0/10 | 30.6s | $0.003150 |
+| has-title | 10/10 | 10/10 | 12.2s | $0.000064 |
+| already-logged-in | 9/10 | 6/10 | 11.4s | $0.000072 |
+| duplicate-invite | 0/10 | 0/10 | 26.9s | $0.002408 |
+| payment-history | 0/10 | 0/10 | 22.7s | $0.002885 |
+| plan-upgrade | 0/10 | 0/10 | 24.7s | $0.003683 |
+| signout-session | 0/10 | 1/10 | 25.2s | $0.001803 |
+| team-invitation | 0/10 | 0/10 | 24.1s | $0.001872 |
+| delete-account | 0/10 | 0/10 | 16.3s | $0.000587 |
 
-| Outcome | Faults |
-|---|---:|
-| Explicit model stop | 16 |
-| Repeated-state stall | 11 |
-| Verified success | 2 |
-| Initialization error | 1 |
-| False completion | 0 |
+Outcomes: **57 verified successes, 77 repeated-state stalls, and 16 model stops**. No false completions or step/time-limit outcomes were observed under the existing checks.
 
-The fault matrix consumed 994,528 input tokens and cost an estimated **$0.041770**. Mean attempt time was 23.0 seconds.
+The retained runs consumed **5,497,283 input tokens** and **218,573 output tokens**, for an estimated **$0.230886** in Jev usage ($0.001539 per run). This uses the unchanged benchmark pricing assumption of $0.042 per million input tokens and free output tokens, recorded September 22, 2026; it excludes Endform/browser infrastructure and is not an invoice. The previous clean estimate was $0.190714.
 
-The two verified runs were `api-team-extra-request` and `api-team-db-latency-spike`. Both preserve the visible functional outcome that the name-change test checks; the accessibility-only loop cannot detect an extra background request and tolerated the database delay.
+Mean duration was **21.6s**; summed duration was **3,238.6s**. Durations include startup, screenshots, model decisions, verification, and cleanup. Summed duration is not wall-clock duration because three sessions ran concurrently, and failed runs are included in the averages.
 
-The strongest evidence comes from faulted scenarios whose clean equivalents were viable. Across the 13 fault cases mapped to activity-after-update, activity-section, and change-name, all 11 faults intended to change or prevent the visible expected result ended without verified success. The two behavior-preserving faults above passed. These results are encouraging, but generic stops and stalls do not establish that Jev recognized the injected fault. Fault activation and reachability were not separately instrumented for every run, and each fault was tried only once.
+### What changed, and what still fails
 
-The other 17 fault runs belong to scenarios with a 0% clean success rate. None falsely passed, but they cannot measure fault sensitivity because the naive loop already fails those workflows. `script-chunk-timeout` prevented initial dashboard navigation and surfaced as an Endform timeout before Jev made a request.
+- Signup improved from 8/10 to 10/10, activity after account update from 7/10 to 10/10, and name change from 6/10 to 10/10. Sign-out improved from 0/10 to 1/10.
+- The logged-in observation check regressed from 9/10 to 6/10. Its four stopped runs had completion scores of 0.87–0.89, below the unchanged 0.90 threshold; they never reached independent verification.
+- Eight scenarios still have zero verified successes. Identifiable targets do not resolve every execution or completion problem.
+- In payment-history run 1, the model selected the explicitly identified Plus button and reached checkout. It then repeatedly proposed the purchase button before filling the form; the execution gate rejected those proposals.
+- In activity-order run 1, the name fill and save executed, but subsequent navigation toward Security was repeatedly rejected. In password-change run 1, the password fields and submit executed, but the initials-only user-menu button was repeatedly rejected. Context from the tree cannot supply semantics that the tree does not expose.
+- Nine deletion runs stopped on the sign-in page with completion probabilities of 0.64–0.86; the other stopped on Security at 0.88. None reached verification, so apparent browser progress is not counted as a verified deletion.
+- Across all 150 attempts, the gate rejected **352/682 evaluated actions (51.6%)**. On the 130 attempts excluding signup and deletion, it rejected **345/613 (56.3%)**, compared with the previously recorded 362/618 (58.6%). These counts describe evaluated gate decisions, excluding terminal decisions before the gate.
 
-No false completions were observed under the implemented independent checks; this does not mean the verifier caught or prevented a false completion in these runs. Verification distinguishes Jev's completion claim from the checked application outcome, but the adapted checks do not cover every assertion in the original suite.
+The net improvement is modest and concentrated in short workflows. This is a historical comparison with ten runs per scenario, not an interleaved randomized ablation. The model defaults to the floating `jev-latest` alias, and this benchmark does not persist the returned model revision. Date, model, and service variation can contribute to differences, so the observed gain cannot be attributed entirely to the code change.
 
-## Artifacts
+### Historical fault investigation (September 22; not rerun)
 
-- Clean 13 Chromium cases: `benchmark-results/full-clean-10x/`
-- Setup/signup case: `benchmark-results/full-clean-10x-signup/`
-- Teardown/delete case: `benchmark-results/full-clean-10x-delete/`
-- Corrected fault matrix: `benchmark-results/full-fault-matrix-rerun/`
+The earlier 30-fault experiment remains historical evidence for the previous controller, not a measurement of this revision. Its two verified successes were `api-team-extra-request` and `api-team-db-latency-spike`, which preserved the visible name-change outcome. Eleven faults intended to disrupt visible outcomes on otherwise viable scenarios produced no verified passes. The other 17 faults targeted scenarios with no clean successes, so those failures did not establish fault sensitivity. Fault activation and reachability were not separately confirmed for every run.
 
-Each `results.json` links to its Endform results directory. Those directories contain numbered screenshots, automatic ARIA snapshots, and per-step JSON with all candidates, probabilities, gate results, and action outcomes. The benchmark directories are ignored by Git because they contain machine-specific absolute paths and bulky local artifacts.
+### Artifacts
+
+- New full clean results and generated report: `benchmark-results/context-full-clean-10x/`.
+- Separate name-change validation: `benchmark-results/context-name-change-10x/`.
+- Previous clean baseline: `benchmark-results/full-clean-10x/`, `benchmark-results/full-clean-10x-signup/`, and `benchmark-results/full-clean-10x-delete/`.
+- Historical fault matrix: `benchmark-results/full-fault-matrix-rerun/`.
+
+Each new run record points to its Endform result directory with numbered screenshots, accessibility snapshots, and step decisions. These bulky machine-local artifacts are ignored by Git; this summary is committed.
