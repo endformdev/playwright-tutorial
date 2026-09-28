@@ -1,3 +1,4 @@
+import { contextualTargets } from "./jev/action-context";
 import { resolve } from "node:path";
 import { copyFile, mkdir, readdir, rename } from "node:fs/promises";
 import { config } from "dotenv";
@@ -267,12 +268,9 @@ async function main() {
 
 export function candidates(snapshot: string, values: string[]): Action[] {
 	const actions: Action[] = [];
-	for (const line of snapshot.split("\n")) {
-		const node = line.match(/^\s*- (\w+)(?:\s|$)/);
-		const ref = line.match(/\[ref=([\w]+)\]/)?.[1];
-		if (!node || !ref || line.includes("[disabled]")) continue;
-		const role = node[1];
-		const label = line.trim().replace(/\[ref=[\w]+\]/g, "");
+	for (const target of contextualTargets(snapshot)) {
+		if (target.disabled) continue;
+		const { role, ref, label } = target;
 		if (["button", "link", "menuitem", "tab"].includes(role))
 			actions.push({
 				id: `a${actions.length}`,
