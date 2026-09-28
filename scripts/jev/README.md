@@ -10,11 +10,11 @@ Requires installed project dependencies, an authenticated Endform CLI (`pnpm exe
 
 `name-change.json` is the frozen, AI-authored text specification derived from `tests/change-name.spec.ts`. It contains the aim, supplied text values, and success criteria, not locators or an action sequence. The minimal harness uses the same user creation/cookie/cleanup helpers as that test. Its separate Playwright config avoids the original suite's telemetry dependency and setup projects.
 
-The Bun controller starts one Endform live session, paused before the harness body, and navigates to the authenticated dashboard. Every iteration reads the current AI accessibility snapshot and creates click/fill candidates using its references. Jev chooses the next action and judges completion; a second request judges whether the selected action should execute. Only supplied input values can be entered. No generative model runs inside the loop.
+The Bun controller starts one Endform live session, paused before the harness body, and navigates to the authenticated dashboard. Every iteration reads the current AI accessibility snapshot and creates click/fill candidates using its references. Jev chooses the next action and judges completion in one request. Selected actions execute without a separate model execution gate or action-confidence threshold. Only supplied input values can be entered. No generative model runs inside the loop.
 
-Current experimental thresholds: completion >= 0.9, execution >= 0.8. The loop allows 20 iterations, five minutes after startup, and at most three repetitions of an action on an unchanged snapshot. These are initial settings, not calibrated confidence guarantees. Failures and gate rejections return to observation; terminal failure exits nonzero.
+Current experimental completion threshold: >= 0.9. The loop allows 20 iterations, five minutes after startup, and at most three repetitions of an action on an unchanged snapshot. These are initial settings, not calibrated confidence guarantees. Execution failures return to observation; terminal failure exits nonzero.
 
-When Jev says done, independent Playwright checks require an observed success message, the team page, and the updated name both before and after reload. These checks never guide Jev. Session cleanup runs on completion, failure, or Ctrl-C (after the in-flight command finishes). The terminal prints every available action with its Jev probability, the selected action, the completion probability, and the execution-gate probability.
+When Jev says done, independent Playwright checks require an observed success message, the team page, and the updated name both before and after reload. These checks never guide Jev. Session cleanup runs on completion, failure, or Ctrl-C (after the in-flight command finishes). The terminal prints every available action with its Jev probability, the selected action, and the completion probability.
 
 ```sh
 bun test scripts/jev-loop.test.ts
@@ -38,7 +38,7 @@ bun run jev:benchmark:faults
 
 Outcomes distinguish verified success from false completion, an explicit model stop, repeated-state stalls, limits, and infrastructure or script errors. Timings include Endform session startup, the Jev loop, independent verification, and cleanup.
 
-Both controllers retain each target's live accessibility reference in its action description. They also include up to six context lines from named ancestors and preceding descriptive siblings within those ancestors (prioritizing the nearest heading). This distinguishes repeated labels such as pricing-card buttons using the existing accessibility tree, without application-specific rules or extra browser reads. The same description reaches action selection, the execution gate, and history. Input candidates, thresholds, and verification are unchanged.
+Both controllers retain each target's live accessibility reference in its action description. They also include up to six context lines from named ancestors and preceding descriptive siblings within those ancestors (prioritizing the nearest heading). This distinguishes repeated labels such as pricing-card buttons using the existing accessibility tree, without application-specific rules or extra browser reads. The same description reaches action selection and history. The no-gate variant preserves input candidates, the completion threshold, and verification.
 
 ## Inspect a run
 
@@ -63,10 +63,12 @@ This viewer follows the single `jev:test` controller, not concurrent benchmark r
 The script prints its Endform results folder (`test-results/live-session-<session-id>/`). It contains:
 
 - `screenshots/00-initial.png`, numbered `NN-after.png` images after each action, wait, or rejection, and a final `NN-verified-after-reload.png` on success. The initial image is the state for decision 1; each after-image is the state for the next decision.
-- `step-NN-choices.json`: all candidates, answer probabilities, execution judgment, and action result.
+- `step-NN-choices.json`: all candidates, answer probabilities, action result.
 - `jev-cost.json`: API-reported token totals, model revisions, and the estimated Jev cost.
 - Endform's automatically saved `run-*-ai-aria-snapshot.yml` files.
 
 Endform captures ARIA snapshots automatically after commands (including failures). The CLI saves them but only prints the command's stdout/stderr, so the controller reads the newly saved snapshot instead of calling `page.ariaSnapshot()` again. Screenshots are **explicit**: the controller calls `page.screenshot()` in the worker's current directory, and Endform transfers the new PNG back automatically. The controller groups copies under `screenshots/`. Screenshots and snapshots are sequential observations, not an atomic capture of an animating page. Capturing screenshots also adds latency to the loop.
 
-Cost is estimated at $0.042 per million input tokens and $0 for output tokens, using [TypeSafe's published pricing](https://typesafe.ai/blog/introducing-system-one-models-and-jev), checked September 22, 2026. Both selection/completion requests and execution-gate requests count. Missing usage (including failed API requests) is flagged as a partial estimate. This estimates Jev API charges only, excluding Endform/browser infrastructure, and is not an invoice.
+Cost is estimated at $0.042 per million input tokens and $0 for output tokens, using [TypeSafe's published pricing](https://typesafe.ai/blog/introducing-system-one-models-and-jev), checked September 22, 2026. Selection/completion requests count; this variant makes no execution-gate requests. Missing usage (including failed API requests) is flagged as a partial estimate. This estimates Jev API charges only, excluding Endform/browser infrastructure, and is not an invoice.
+
+The contextual gated baseline is recorded in `BENCHMARK_RESULTS.md`. The separate no-gate comparison is recorded in `BENCHMARK_RESULTS_NO_GATE.md`. The suite retains its 30-iteration and seven-minute limits, concurrency three, five-entry history, and repetition guard.

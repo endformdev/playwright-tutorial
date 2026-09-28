@@ -294,32 +294,15 @@ async function runCase(
 				error = "Same action selected on unchanged state four times";
 				break;
 			}
-			const gate = await ask(
-				usage,
-				{ ...state, chosenAction: selected.description },
-				{
-					execute: {
-						type: "noul",
-						instructions:
-							"Should the chosen action execute now? Answer yes only when it is an appropriate next step toward the aim on the current page. Answer no if it is premature, already completed, unrelated, or targets a disabled control.",
-					},
-				},
-			);
-			const execute = probability(gate.execute);
+			// Execute the selected bounded action without a second model judgment.
 			let result: string;
-			if (execute < 0.8) {
-				result = `Rejected by execution gate (${execute.toFixed(3)})`;
-				await Bun.sleep(1200);
-			} else {
-				try {
-					if (selected.kind === "wait") await Bun.sleep(1200);
-					else await run(session, actionCode(selected));
-					result = "Executed successfully";
-				} catch (actionError) {
-					result = `Execution failed: ${errorText(actionError)}`;
-				}
+			try {
+				if (selected.kind === "wait") await Bun.sleep(1200);
+				else await run(session, actionCode(selected));
+				result = "Executed successfully";
+			} catch (actionError) {
+				result = `Execution failed: ${errorText(actionError)}`;
 			}
-			decision.gate = gate;
 			decision.result = result;
 			await Bun.write(decisionPath, JSON.stringify(decision, null, 2));
 			observation = await observe(
