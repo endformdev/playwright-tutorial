@@ -138,7 +138,6 @@ async function main() {
 				url: observation.url,
 				actions,
 				answers,
-				gate: undefined as unknown,
 				result: "",
 			};
 			const decisionPath = resolve(
@@ -178,34 +177,15 @@ async function main() {
 				throw new Error(
 					"Stuck: same action selected on the same page four times.",
 				);
-			const gate = await ask(
-				{ ...state, chosenAction: action.description },
-				{
-					execute: {
-						type: "noul",
-						instructions:
-							"Should the chosen action execute now? Answer yes if it is an appropriate next step toward the aim given the current page and history. Answer no if it is premature, already completed, unrelated, or the target is disabled. Waiting is appropriate when the page is still updating.",
-					},
-				},
-			);
-			const execute = probability(gate.execute);
-			decision.gate = gate;
-			console.log(
-				`    Execute probability: ${execute.toFixed(3)} (threshold 0.800)`,
-			);
 			if (interrupted) throw new Error("Interrupted.");
+			// Execute the selected bounded action without a second model judgment.
 			let result: string;
-			if (execute < 0.8) {
-				result = `Not executed: gate probability ${execute.toFixed(3)}`;
-				await Bun.sleep(500);
-			} else {
-				try {
-					if (action.kind === "wait") await Bun.sleep(500);
-					else await run(session, actionCode(action));
-					result = "Executed successfully";
-				} catch (error) {
-					result = `Execution failed: ${error instanceof Error ? error.message : String(error)}`;
-				}
+			try {
+				if (action.kind === "wait") await Bun.sleep(500);
+				else await run(session, actionCode(action));
+				result = "Executed successfully";
+			} catch (error) {
+				result = `Execution failed: ${error instanceof Error ? error.message : String(error)}`;
 			}
 			console.log(`    ${result}`);
 			decision.result = result;
