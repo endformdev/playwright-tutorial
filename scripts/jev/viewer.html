@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Jev screenshots</title>
+		<style>
+			:root {
+				color-scheme: dark;
+				font:
+					14px/1.5 system-ui,
+					sans-serif;
+				background: #17191d;
+				color: #f0f0f0;
+			}
+			body {
+				margin: 0;
+			}
+			header {
+				padding: 12px 20px;
+				border-bottom: 1px solid #393c43;
+			}
+			.top {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 8px 24px;
+				align-items: baseline;
+			}
+			h1 {
+				font-size: 16px;
+				margin: 0;
+			}
+			#directory {
+				color: #b8bec8;
+				font-size: 12px;
+				overflow-wrap: anywhere;
+				margin-top: 4px;
+			}
+			main {
+				padding: 16px;
+				text-align: center;
+			}
+			img {
+				max-width: 100%;
+				max-height: calc(100vh - 130px);
+				width: auto;
+				height: auto;
+				object-fit: contain;
+			}
+			[hidden] {
+				display: none;
+			}
+		</style>
+	</head>
+	<body>
+		<header>
+			<div class="top">
+				<h1>Jev screenshots</h1>
+				<span id="status" role="status">Waiting for a run…</span>
+			</div>
+			<div id="directory">Start bun run jev:test in another terminal.</div>
+		</header>
+		<main>
+			<img
+				id="screenshot"
+				alt="Latest screenshot from the Jev browser session"
+				hidden
+			/>
+		</main>
+		<script>
+			const screenshot = document.getElementById("screenshot");
+			const status = document.getElementById("status");
+			const directory = document.getElementById("directory");
+			let displayed = "";
+			let session = "";
+			async function poll() {
+				try {
+					const response = await fetch("/state", { cache: "no-store" });
+					const state = await response.json();
+					if (!response.ok) throw new Error(state.error);
+					if (state.session !== session) {
+						session = state.session;
+						displayed = "";
+						screenshot.hidden = true;
+						screenshot.removeAttribute("src");
+					}
+					directory.textContent =
+						state.directory || "Start bun run jev:test in another terminal.";
+					if (!state.image) {
+						status.textContent = state.waiting
+							? "Waiting for a run…"
+							: "Waiting for the first screenshot…";
+						return;
+					}
+					if (state.image !== displayed) {
+						const next = new Image();
+						next.src = state.image;
+						await next.decode();
+						screenshot.src = state.image;
+						screenshot.hidden = false;
+						displayed = state.image;
+					}
+					status.textContent = `${state.latest} · watching for new screenshots`;
+				} catch (error) {
+					status.textContent = `Retrying… ${error.message}`;
+				} finally {
+					setTimeout(poll, 500);
+				}
+			}
+			poll();
+		</script>
+	</body>
+</html>

@@ -14,7 +14,11 @@
 		"format:check": "oxfmt --check",
 		"format:fix": "oxfmt --write",
 		"lint": "oxlint",
-		"mcp-user": "tsx mcp-user.ts"
+		"mcp-user": "tsx mcp-user.ts",
+		"jev:test": "bun scripts/jev-loop.ts",
+		"jev:viewer": "bun scripts/jev/viewer.ts",
+		"jev:benchmark": "bun scripts/jev-benchmark.ts --mode clean --repeat 10",
+		"jev:benchmark:faults": "bun scripts/jev-benchmark.ts --mode faults"
 	},
 	"dependencies": {
 		"@libsql/client": "^0.18.0",
