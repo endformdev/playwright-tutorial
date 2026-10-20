@@ -17,7 +17,7 @@ Current experimental completion threshold: >= 0.9. The loop allows 20 iterations
 When Jev says done, independent Playwright checks require an observed success message, the team page, and the updated name both before and after reload. These checks never guide Jev. Session cleanup runs on completion, failure, or Ctrl-C (after the in-flight command finishes). The terminal prints every available action with its Jev probability, the selected action, and the completion probability.
 
 ```sh
-bun test scripts/jev-loop.test.ts
+bun test scripts/jev-loop.test.ts scripts/jev-benchmark.test.ts scripts/jev/action-context.test.ts scripts/jev/progress.test.ts
 ```
 
 ## Suite benchmark
@@ -39,6 +39,31 @@ bun run jev:benchmark:faults
 Outcomes distinguish verified success from false completion, an explicit model stop, repeated-state stalls, limits, and infrastructure or script errors. Timings include Endform session startup, the Jev loop, independent verification, and cleanup.
 
 Both controllers retain each target's live accessibility reference in its action description. They also include up to six context lines from named ancestors and preceding descriptive siblings within those ancestors (prioritizing the nearest heading). This distinguishes repeated labels such as pricing-card buttons using the existing accessibility tree, without application-specific rules or extra browser reads. The same description reaches action selection and history. The no-gate variant preserves input candidates, the completion threshold, and verification.
+
+## Variants, screenshots, and the stepwise controller
+
+`--variants a,b,...` runs several controller configurations in one batch. Each scenario runs once per variant before the next scenario starts, so variants share the app, Jev service, and infrastructure conditions instead of running in separate batches. `scripts/jev/variants.ts` defines them; each flag is one general algorithm change, and none uses application-specific selectors or text:
+
+| Flag          | Change                                                                                                                                                                                                                                                                                                                                                                                                             |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `images`      | Send the current full-page screenshot as a Jev image asset (`TypeSafe-Danger-Zone-Images: true`), next to the accessibility tree. Tall pages are scaled to fit Jev's 280–1568 px limits (`images.ts`).                                                                                                                                                                                                             |
+| `settle`      | After each action, wait until no request younger than five seconds is in flight and the accessibility tree has been unchanged for 500 ms (at most five seconds), then observe.                                                                                                                                                                                                                                     |
+| `memory`      | Keep every past action in history, each with its result, resulting page, and the page text that appeared (`newPageText`), instead of the last five actions with full accessibility trees. Unchanged pages are reported as such.                                                                                                                                                                                    |
+| `fieldValues` | Offer one fill per field instead of every value × every field; a Choice per field picks which supplied value (or none) belongs there. Fills that would leave a field unchanged are skipped. Actions report the browser's constraint-validation bubble (for example "Please fill out this field."), which neither screenshots nor accessibility snapshots capture.                                                  |
+| `finish`      | Split the old stop option into _finish_ (a completion claim, independently verified like done ≥ 0.9) and _stop_ (the aim cannot be reached).                                                                                                                                                                                                                                                                       |
+| `skipNoops`   | Do not offer an action again on a page state it left unchanged.                                                                                                                                                                                                                                                                                                                                                    |
+| `steps`       | Split the aim into its ordered clauses (`progress.ts`). Each iteration first asks one Noul per unfinished part, extends the run of finished parts from the start (finished parts stay finished), then asks for the action that accomplishes the current part. Completion claims need every part but the last to be finished. Within a part, an action already tried from the same page state is not offered again. |
+| `escape`      | Offer pressing Escape. Modal menus hide the rest of the page from the accessibility tree, leaving no other way back.                                                                                                                                                                                                                                                                                               |
+
+`text-1.13` reproduces the September 28 no-gate controller; `text` is the same controller on Jev 1.14; `images` adds only the screenshot. `stepwise` enables every flag and is the default (`bun run jev:benchmark`); `stepwise-text` is the same without screenshots, measured within noise of it at under half the Jev cost. Variants pin `jev-1.14.0` (or `jev-1.13.0`) rather than a moving alias. Jev's `box` question type is not used: every candidate is already grounded by its accessibility reference. The single-scenario `bun run jev:test` demo above is unchanged and remains text-only.
+
+A run whose live session fails to start is retried up to twice; failures after the session starts are always counted. `--resume` with the same `--output` keeps recorded attempts (except sessions that never started) and runs the rest. Jev 429/5xx responses are retried with backoff and counted per run (`apiRetries`).
+
+```sh
+bun scripts/jev-benchmark.ts --mode clean --repeat 10 --concurrency 6 --variants text,images,stepwise,stepwise-text
+```
+
+The change-password, change-email, and delete-account verifiers originally passed on states a premature completion claim could reach (the dashboard is already showing at the start of change-password). They now check the outcome: the activity log must show a sign-in after the password change or account update, the new password must sign in from a fresh browser context, and deleted credentials must no longer sign in.
 
 ## Inspect a run
 
@@ -71,4 +96,4 @@ Endform captures ARIA snapshots automatically after commands (including failures
 
 Cost is estimated at $0.042 per million input tokens and $0 for output tokens, using [TypeSafe's published pricing](https://typesafe.ai/blog/introducing-system-one-models-and-jev), checked September 22, 2026. Selection/completion requests count; this variant makes no execution-gate requests. Missing usage (including failed API requests) is flagged as a partial estimate. This estimates Jev API charges only, excluding Endform/browser infrastructure, and is not an invoice.
 
-The contextual gated baseline is recorded in `BENCHMARK_RESULTS.md`. The separate no-gate comparison is recorded in `BENCHMARK_RESULTS_NO_GATE.md`. The suite retains its 30-iteration and seven-minute limits, concurrency three, five-entry history, and repetition guard.
+The contextual gated baseline is recorded in `BENCHMARK_RESULTS.md`. The separate no-gate comparison is recorded in `BENCHMARK_RESULTS_NO_GATE.md`. The screenshot and stepwise comparison, with its fault matrix, is recorded in `BENCHMARK_RESULTS_IMAGES.md`. Every variant keeps the 30-iteration and seven-minute limits and the repetition guard.

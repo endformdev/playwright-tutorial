@@ -106,7 +106,7 @@ export const cases: JevCase[] = [
 			currentPassword,
 		],
 		verificationCode: ({ inviteEmail }) =>
-			`if (new URL(page.url()).pathname !== "/dashboard/general") throw new Error("Expected general settings"); const email = page.getByRole("textbox", { name: "Email" }); await email.waitFor(); if (await email.inputValue() !== ${JSON.stringify(inviteEmail)}) throw new Error("New email is not persisted");`,
+			`if (new URL(page.url()).pathname !== "/dashboard/general") throw new Error("Expected general settings"); const email = page.getByRole("textbox", { name: "Email" }); await email.waitFor(); if (await email.inputValue() !== ${JSON.stringify(inviteEmail)}) throw new Error("New email is not persisted"); ${activityOrder("You signed in", "You updated your account")}`,
 		faults: ["api-user-malformed-json"],
 	},
 	{
@@ -145,8 +145,8 @@ export const cases: JevCase[] = [
 			"After signing out, signing in with the new password reaches Team Settings.",
 		],
 		inputValues: ({ userEmail }) => [currentPassword, newPassword, userEmail],
-		verificationCode: () =>
-			`if (new URL(page.url()).pathname !== "/dashboard") throw new Error("Expected dashboard after login"); await page.getByRole("heading", { name: "Team Settings" }).waitFor();`,
+		verificationCode: ({ userEmail }) =>
+			`if (new URL(page.url()).pathname !== "/dashboard") throw new Error("Expected dashboard after login"); await page.getByRole("heading", { name: "Team Settings" }).waitFor(); ${activityOrder("You signed in", "You changed your password")} ${freshSignIn(userEmail, newPassword, `await signIn.waitForURL("**/dashboard");`)}`,
 		faults: ["script-404", "script-chunk-404", "password-hash-update-skipped"],
 	},
 	{
@@ -272,11 +272,23 @@ export const cases: JevCase[] = [
 			"The current page is Sign in.",
 		],
 		inputValues: () => [currentPassword],
-		verificationCode: () =>
-			`if (new URL(page.url()).pathname !== "/sign-in") throw new Error("Expected sign-in after deletion"); await page.getByRole("heading", { name: "Sign in to your account" }).waitFor();`,
+		verificationCode: ({ userEmail }) =>
+			`if (new URL(page.url()).pathname !== "/sign-in") throw new Error("Expected sign-in after deletion"); await page.getByRole("heading", { name: "Sign in to your account" }).waitFor(); ${freshSignIn(userEmail, currentPassword, `await signIn.getByText("Invalid email or password", { exact: false }).waitFor();`)}`,
 		faults: [],
 	},
 ];
+
+// Verification for outcomes the final page cannot show by itself. The
+// activity log lists newest entries first.
+function activityOrder(newer: string, older: string) {
+	return `const activity = await page.context().newPage(); try { await activity.goto("/dashboard/activity"); await activity.getByRole("listitem").first().waitFor(); const entries = await activity.getByRole("listitem").allInnerTexts(); const newer = entries.findIndex((entry) => entry.includes(${JSON.stringify(newer)})); const older = entries.findIndex((entry) => entry.includes(${JSON.stringify(older)})); if (older < 0 || newer < 0 || newer > older) throw new Error(${JSON.stringify(`Expected "${newer}" after "${older}" in the activity log`)}); } finally { await activity.close(); }`;
+}
+
+// Sign in from a separate browser context so the check cannot reuse the
+// session under test, then run the given assertion on that page.
+function freshSignIn(email: string, password: string, expectation: string) {
+	return `const fresh = await page.context().browser().newContext({ baseURL: new URL(page.url()).origin }); try { const signIn = await fresh.newPage(); await signIn.goto("/sign-in"); await signIn.getByRole("textbox", { name: "Email" }).fill(${JSON.stringify(email)}); await signIn.getByRole("textbox", { name: "Password" }).fill(${JSON.stringify(password)}); await signIn.getByRole("button", { name: "Sign in" }).click(); ${expectation} } finally { await fresh.close(); }`;
+}
 
 export const casesById = new Map(
 	cases.map((testCase) => [testCase.id, testCase]),
