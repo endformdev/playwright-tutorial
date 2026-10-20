@@ -3,6 +3,9 @@
 export type Variant = {
 	name: string;
 	description: string;
+	// Which loop runs: Jev choosing among listed candidate actions, or
+	// Clairic pointing at an element reference and a value itself.
+	controller: "jev" | "clairic";
 	model: string;
 	// Send the current page screenshot to Jev alongside the accessibility tree.
 	images: boolean;
@@ -25,6 +28,9 @@ export type Variant = {
 	// Offer pressing Escape: modal menus hide the rest of the page from the
 	// accessibility tree, leaving no other way back.
 	escape: boolean;
+	// Clairic only: ask Clef whether the aim is complete, instead of asking
+	// Clairic to quote the text that proves it.
+	clefDone: boolean;
 };
 
 const baseline = {
@@ -35,6 +41,7 @@ const baseline = {
 	skipNoops: false,
 	steps: false,
 	escape: false,
+	clefDone: false,
 };
 
 const variantList: Variant[] = [
@@ -42,6 +49,7 @@ const variantList: Variant[] = [
 		name: "text-1.13",
 		description:
 			"September 28 no-gate controller: accessibility tree only, Jev 1.13.",
+		controller: "jev",
 		model: "jev-1.13.0",
 		images: false,
 		...baseline,
@@ -49,6 +57,7 @@ const variantList: Variant[] = [
 	{
 		name: "text",
 		description: "No-gate controller: accessibility tree only, Jev 1.14.",
+		controller: "jev",
 		model: "jev-1.14.0",
 		images: false,
 		...baseline,
@@ -57,6 +66,7 @@ const variantList: Variant[] = [
 		name: "images",
 		description:
 			"No-gate controller plus the current full-page screenshot, Jev 1.14.",
+		controller: "jev",
 		model: "jev-1.14.0",
 		images: true,
 		...baseline,
@@ -65,6 +75,7 @@ const variantList: Variant[] = [
 		name: "stepwise",
 		description:
 			"Screenshots plus every controller change: settling, compact history, per-field values, finish, no-op skipping, stepwise progress, and Escape.",
+		controller: "jev",
 		model: "jev-1.14.0",
 		images: true,
 		settle: true,
@@ -74,10 +85,12 @@ const variantList: Variant[] = [
 		skipNoops: true,
 		steps: true,
 		escape: true,
+		clefDone: false,
 	},
 	{
 		name: "stepwise-text",
 		description: "The stepwise controller without screenshots.",
+		controller: "jev",
 		model: "jev-1.14.0",
 		images: false,
 		settle: true,
@@ -87,6 +100,37 @@ const variantList: Variant[] = [
 		skipNoops: true,
 		steps: true,
 		escape: true,
+		clefDone: false,
+	},
+	{
+		name: "clairic",
+		description:
+			"Clairic points at the next element and value itself; no candidate actions. Quotes completion evidence.",
+		controller: "clairic",
+		model: "clairic",
+		images: false,
+		...baseline,
+		settle: true,
+	},
+	{
+		name: "clairic-screenshot",
+		description: "The clairic loop plus the current full-page screenshot.",
+		controller: "clairic",
+		model: "clairic",
+		images: true,
+		...baseline,
+		settle: true,
+	},
+	{
+		name: "clairic-clef",
+		description:
+			"The clairic loop, with Clef answering whether the aim is complete.",
+		controller: "clairic",
+		model: "clairic",
+		images: false,
+		...baseline,
+		settle: true,
+		clefDone: true,
 	},
 ];
 

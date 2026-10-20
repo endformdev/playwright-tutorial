@@ -17,7 +17,7 @@ Current experimental completion threshold: >= 0.9. The loop allows 20 iterations
 When Jev says done, independent Playwright checks require an observed success message, the team page, and the updated name both before and after reload. These checks never guide Jev. Session cleanup runs on completion, failure, or Ctrl-C (after the in-flight command finishes). The terminal prints every available action with its Jev probability, the selected action, and the completion probability.
 
 ```sh
-bun test scripts/jev-loop.test.ts scripts/jev-benchmark.test.ts scripts/jev/action-context.test.ts scripts/jev/progress.test.ts
+bun test scripts/jev-loop.test.ts scripts/jev-benchmark.test.ts scripts/jev/action-context.test.ts scripts/jev/progress.test.ts scripts/jev/clairic.test.ts
 ```
 
 ## Suite benchmark
@@ -65,6 +65,35 @@ bun scripts/jev-benchmark.ts --mode clean --repeat 10 --concurrency 6 --variants
 
 The change-password, change-email, and delete-account verifiers originally passed on states a premature completion claim could reach (the dashboard is already showing at the start of change-password). They now check the outcome: the activity log must show a sign-in after the password change or account update, the new password must sign in from a fresh browser context, and deleted credentials must no longer sign in.
 
+## Clairic: pointing instead of choosing
+
+[Clairic](https://developers.cloudflare.com/workers-ai/models/clairic/) is Cloudflare's extraction model (Workers AI, preview since October 19, 2026). Instead of choosing among options, it answers typed fields; a `text` field is an exact span of the input. The `clairic` controller (`clairic.ts`) uses that to drop candidate actions entirely. Each step sends one plain-text state:
+
+```text
+Aim, success criteria, supplied values, direct URLs (/dashboard and any captured invitation URL),
+a numbered log of past actions ("Clicked - button "General" [ref=e20] -> done; now on /dashboard/general"),
+the current URL and title, and the accessibility tree
+```
+
+and asks for four span fields:
+
+| Field     | Instruction (abridged)                                                   |
+| --------- | ------------------------------------------------------------------------ |
+| `element` | The ref (like e12) of the interactive element to click or type into next |
+| `text`    | The supplied value to type into that element, or null                    |
+| `url`     | A path from Direct URLs to open instead, or null                         |
+| `done`    | Quote the text showing every success criterion is met, or null           |
+
+Code turns the answers into one action: if `done` is not null, independent verification runs. Otherwise, if `element` is a reference on the page, its role decides the action (textboxes are filled with `text`, checkboxes and radios are checked, everything else is clicked); otherwise `url` is opened; with neither, the run ends as a model stop. Only the first token of a span is read, because spans can run on into the next line. Actions settle like the stepwise controller; the 30-step, seven-minute, and repeated-state limits are unchanged.
+
+`clairic-screenshot` adds the page screenshot (`images`), and `clairic-clef` replaces the `done` quote with a Clef Noul ("Have ALL success criteria been met?", claimed at ≥ 0.90), asked in parallel.
+
+Clairic variants need `CLOUDFLARE_ACCOUNT_ID` and a Workers AI `CLOUDFLARE_API_TOKEN` in `.env.jev`; the token is removed from the Endform subprocess environment like `JEV_API_KEY`. Cost uses Workers AI input prices ($0.10 per million tokens for Clairic, $0.24 for Clef; no output charge), recorded in the existing `estimatedJevUsd` field.
+
+```sh
+bun scripts/jev-benchmark.ts --mode clean --repeat 10 --concurrency 6 --variants text,clairic,clairic-screenshot,clairic-clef
+```
+
 ## Inspect a run
 
 To watch screenshots arrive in a browser, start the local viewer:
@@ -96,4 +125,4 @@ Endform captures ARIA snapshots automatically after commands (including failures
 
 Cost is estimated at $0.042 per million input tokens and $0 for output tokens, using [TypeSafe's published pricing](https://typesafe.ai/blog/introducing-system-one-models-and-jev), checked September 22, 2026. Selection/completion requests count; this variant makes no execution-gate requests. Missing usage (including failed API requests) is flagged as a partial estimate. This estimates Jev API charges only, excluding Endform/browser infrastructure, and is not an invoice.
 
-The contextual gated baseline is recorded in `BENCHMARK_RESULTS.md`. The separate no-gate comparison is recorded in `BENCHMARK_RESULTS_NO_GATE.md`. The screenshot and stepwise comparison, with its fault matrix, is recorded in `BENCHMARK_RESULTS_IMAGES.md`. Every variant keeps the 30-iteration and seven-minute limits and the repetition guard.
+The contextual gated baseline is recorded in `BENCHMARK_RESULTS.md`. The separate no-gate comparison is recorded in `BENCHMARK_RESULTS_NO_GATE.md`. The screenshot and stepwise comparison, with its fault matrix, is recorded in `BENCHMARK_RESULTS_IMAGES.md`. The naive Clairic loops are compared with the naive Jev loop in `BENCHMARK_RESULTS_CLAIRIC.md`. Every variant keeps the 30-iteration and seven-minute limits and the repetition guard.
