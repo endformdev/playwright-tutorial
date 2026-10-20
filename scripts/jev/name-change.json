@@ -1,0 +1,9 @@
+{
+	"source": "tests/change-name.spec.ts",
+	"aim": "Starting on the authenticated dashboard, change your name to John Doe in general settings. Confirm that the account update succeeds, then return to the team settings page and confirm John Doe appears in the team members list.",
+	"inputValues": ["John Doe"],
+	"successCriteria": [
+		"The account update success message has been observed after saving.",
+		"The current page is Team Settings and John Doe appears in the team members list."
+	]
+}

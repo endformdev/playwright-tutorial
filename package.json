@@ -14,7 +14,11 @@
 		"format:check": "oxfmt --check",
 		"format:fix": "oxfmt --write",
 		"lint": "oxlint",
-		"mcp-user": "tsx mcp-user.ts"
+		"mcp-user": "tsx mcp-user.ts",
+		"jev:test": "bun scripts/jev-loop.ts",
+		"jev:viewer": "bun scripts/jev/viewer.ts",
+		"jev:benchmark": "bun scripts/jev-benchmark.ts --mode clean --repeat 10",
+		"jev:benchmark:faults": "bun scripts/jev-benchmark.ts --mode faults"
 	},
 	"dependencies": {
 		"@libsql/client": "^0.18.0",
@@ -51,6 +55,7 @@
 		"oxfmt": "0.68.0",
 		"oxlint": "1.83.0",
 		"playwright-opentelemetry": "^0.13.0",
+		"sharp": "0.35.4",
 		"tsx": "^4.23.15",
 		"typescript": "^7.0.2"
 	},
