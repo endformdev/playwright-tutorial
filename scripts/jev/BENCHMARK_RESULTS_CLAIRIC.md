@@ -92,7 +92,7 @@ The Jev reference reproduces the October 16 measurement of the same controller (
 
 **Without that shortcut, it does not know when to stop.** With Clef judging completion, false completions dropped to zero, but 97 of 150 runs stalled or hit the step limit. The action log says what was clicked, not what the page answered, so after "Save Changes" Clairic saw no reason to move on and clicked Save again until the repeat guard ended the run. Clef's completion score stayed low: across the 97 failed runs, the median of each run's highest score was 0.02 (90th percentile 0.04).
 
-**Multi-step flows mostly never finish.** Apart from delete-account, every scenario that needs more than a couple of actions scored at most 2/10 in every Clairic variant. Typical traces bounce between pages (plan-upgrade: Change Plan → open /dashboard → Change Plan again): 25–35% of all steps opened a direct URL, and 95% of those in `clairic` reopened `/dashboard`. Checkout was reached in about half of the plan-upgrade and payment-history attempts and never completed.
+**Multi-step flows mostly never finish.** In `clairic`, apart from delete-account, every scenario that needs more than a couple of actions scored at most 2/10; `clairic-clef` also passed activity-after-account-update 10/10, and nothing longer. Typical traces bounce between pages (plan-upgrade: Change Plan → open /dashboard → Change Plan again): 25–35% of all steps opened a direct URL, and 95% of those in `clairic` reopened `/dashboard`. Checkout was reached in about half of the plan-upgrade and payment-history attempts and never completed.
 
 **The screenshot made it worse again.** As with Jev, adding the screenshot lowered the pass rate (28% → 20%), raised cost 2.4×, and added more stops and stalls.
 
