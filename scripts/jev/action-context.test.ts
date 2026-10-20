@@ -1,4 +1,5 @@
 import { expect, test } from "bun:test";
+import { contextualTargets, newPageText } from "./action-context";
 import { candidates as benchmarkCandidates } from "../jev-benchmark";
 import { candidates as nameChangeCandidates } from "../jev-loop";
 
@@ -53,3 +54,31 @@ for (const [name, candidates] of [
 		expect(new Set(clicks.map((action) => action.description)).size).toBe(2);
 	});
 }
+
+test("reads field values and reports only newly appeared page text", () => {
+	const before = `- main [ref=e1]:
+  - textbox "Name" [ref=e2]:
+    - /placeholder: Enter your name
+    - text: Old Name
+  - textbox "Plan" [ref=e3]: "Current: Free"
+  - button "Save" [ref=e4]`;
+	const after = `- main [ref=e1]:
+  - textbox "Name" [active] [ref=e2]:
+    - /placeholder: Enter your name
+    - text: John Doe
+  - textbox "Plan" [ref=e3]: "Current: Free"
+  - button "Save" [ref=e7] [cursor=pointer]
+  - paragraph [ref=e8]: Account updated successfully.`;
+	expect(
+		contextualTargets(before).map((target) => [target.ref, target.value]),
+	).toEqual([
+		["e1", undefined],
+		["e2", "Old Name"],
+		["e3", "Current: Free"],
+		["e4", undefined],
+	]);
+	expect(newPageText(before, after)).toEqual([
+		"text: John Doe",
+		"paragraph: Account updated successfully.",
+	]);
+});
