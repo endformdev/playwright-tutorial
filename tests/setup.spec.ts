@@ -20,7 +20,8 @@ test("user signup and login flow", async ({ page }) => {
 	});
 
 	await test.step("verify successful signup redirects to dashboard", async () => {
-		await expect(page).toHaveURL("/dashboard");
+		// The first sign-up can hit a cold server right after a deploy.
+		await expect(page).toHaveURL("/dashboard", { timeout: 15_000 });
 		await expect(
 			page.getByRole("heading", { name: "Team Settings" }),
 		).toBeVisible();

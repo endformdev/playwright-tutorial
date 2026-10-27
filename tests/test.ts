@@ -13,8 +13,6 @@ const testBase = playwrightOtelEnabled ? playwrightOpentelemetryTest : base;
 export const test = testBase.extend({
 	context: async ({ context, baseURL }, use) => {
 		if (baseURL) await addNetlifyPasswordCookie(context, baseURL);
-		// Netlify's Deploy Preview drawer can open over the page and catch clicks.
-		await context.route("**/.netlify/scripts/cdp*", (route) => route.abort());
 
 		await use(context);
 	},
