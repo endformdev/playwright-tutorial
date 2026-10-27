@@ -38,7 +38,7 @@ You can either:
 
 ## Coming from "Deploy to Netlify"?
 
-- Install the Endform extension on your Netlify team, connect it to your Endform organization, then click **Configure project** on the new project
+- [Install the Endform extension](https://app.netlify.com/extensions/5exms8e7-endform) on your Netlify team, connect it to your Endform organization, then click **Configure project** on the new project
 - The extension runs the tests against every Deploy Preview, so you don't need the GitHub Actions workflows
 - If your Deploy Previews are password protected, add the password as a secret environment variable named `E2E_NETLIFY_PREVIEW_PASSWORD`, scoped to Deploy Previews, and add it to the project's `SECRETS_SCAN_OMIT_KEYS` so Netlify's secrets scan doesn't fail the build. The tests use it to get past Netlify's password page (see [`setup-utils.ts`](setup-utils.ts) and [`tests/test.ts`](tests/test.ts)). To do the same in your own tests, follow the [guide in the Endform docs](https://endform.dev/docs/guides/netlify-integration/password-protected-deploy-previews).
 - To also see the results as a check on your pull requests, [install the Endform GitHub App](https://endform.dev/app/docs-link?link=settings-integrations) on the repository
@@ -139,7 +139,7 @@ When you're ready to deploy your SaaS application to production, follow these st
 
 1. Push your code to a GitHub repository.
 2. Import the repository on [Netlify](https://app.netlify.com/start). Netlify detects Next.js and pnpm, so the default build settings work.
-3. Install the Endform extension to run the tests against each Deploy Preview.
+3. [Install the Endform extension](https://app.netlify.com/extensions/5exms8e7-endform) to run the tests against each Deploy Preview.
 
 ### Add environment variables
 
