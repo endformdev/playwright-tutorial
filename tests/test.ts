@@ -1,5 +1,6 @@
 import { test as base } from "@playwright/test";
 import { test as playwrightOpentelemetryTest } from "playwright-opentelemetry/fixture";
+import { addNetlifyPasswordCookie } from "../setup-utils";
 import { installFaultsForTest } from "./support/faults";
 
 const playwrightOtelEnabled = Boolean(
@@ -10,6 +11,11 @@ const playwrightOtelEnabled = Boolean(
 const testBase = playwrightOtelEnabled ? playwrightOpentelemetryTest : base;
 
 export const test = testBase.extend({
+	context: async ({ context, baseURL }, use) => {
+		if (baseURL) await addNetlifyPasswordCookie(context, baseURL);
+
+		await use(context);
+	},
 	page: async ({ page }, use, testInfo) => {
 		await installFaultsForTest(page, testInfo);
 

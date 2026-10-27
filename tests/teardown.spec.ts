@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./test";
 
 test("delete current user account", async ({ page }) => {
 	const testPassword = "testpassword123";
