@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import type { BrowserContext } from "@playwright/test";
 
 export interface ApiUser {
 	email: string;
@@ -17,6 +18,7 @@ export async function createUser(baseURL: string): Promise<ApiUser> {
 
 	if (process.env.VERCEL_BYPASS_TOKEN)
 		headers.set("x-vercel-protection-bypass", process.env.VERCEL_BYPASS_TOKEN);
+	await setNetlifyPasswordCookie(headers, baseURL);
 
 	const response = await fetch(`${baseURL}/api/internal/user`, {
 		method: "POST",
@@ -50,6 +52,7 @@ export async function deleteUser(baseURL: string, email: string) {
 
 	if (process.env.VERCEL_BYPASS_TOKEN)
 		headers.set("x-vercel-protection-bypass", process.env.VERCEL_BYPASS_TOKEN);
+	await setNetlifyPasswordCookie(headers, baseURL);
 
 	const response = await fetch(`${baseURL}/api/internal/user`, {
 		method: "DELETE",
@@ -90,6 +93,53 @@ export async function deleteUserFromFile(
 	}
 }
 
+let netlifyPasswordCookie: Promise<{ name: string; value: string } | null>;
+
+// Netlify answers every request to a password-protected deploy with its
+// password page until the request carries the cookie that page sets. Posting
+// the password once gets that cookie, which works for the whole deploy.
+export function getNetlifyPasswordCookie(baseURL: string) {
+	const password = process.env.E2E_NETLIFY_PREVIEW_PASSWORD;
+	if (!password) return Promise.resolve(null);
+
+	netlifyPasswordCookie ??= fetch(baseURL, {
+		method: "POST",
+		body: new URLSearchParams({ password }),
+		redirect: "manual",
+	}).then((response) => {
+		const [cookie] = response.headers.getSetCookie();
+		if (!cookie) {
+			throw new Error(
+				`Netlify rejected E2E_NETLIFY_PREVIEW_PASSWORD (${response.status})`,
+			);
+		}
+
+		const [name, value] = cookie.split(";")[0]!.split("=");
+
+		return { name: name!, value: value! };
+	});
+
+	return netlifyPasswordCookie;
+}
+
+export async function addNetlifyPasswordCookie(
+	context: BrowserContext,
+	baseURL: string,
+) {
+	const cookie = await getNetlifyPasswordCookie(baseURL);
+	if (!cookie) return;
+
+	await context.addCookies([
+		{
+			...cookie,
+			domain: new URL(baseURL).hostname,
+			path: "/",
+			httpOnly: true,
+			secure: true,
+		},
+	]);
+}
+
 export function getCookieForSession(session: string, baseURL: string) {
 	return {
 		name: "session",
@@ -120,4 +170,9 @@ function writeSessionFile(session: string, baseURL: string, filePath: string) {
 			origins: [],
 		}),
 	);
+}
+
+async function setNetlifyPasswordCookie(headers: Headers, baseURL: string) {
+	const cookie = await getNetlifyPasswordCookie(baseURL);
+	if (cookie) headers.set("cookie", `${cookie.name}=${cookie.value}`);
 }
