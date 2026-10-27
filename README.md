@@ -5,6 +5,7 @@
 👉 **[Follow the Playwright E2E tutorial: From Cowboy to Confidence →](https://endform.dev/docs/tutorial/playwright-e2e-from-cowboy-to-confidence)**
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fendformdev%2Fplaywright-tutorial&project-name=endform-playwright-example&repository-name=endform-playwright-example&products=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22endform%22%2C%22productSlug%22%3A%22endform%22%2C%22protocol%22%3A%22other%22%7D%5D)
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/endformdev/playwright-tutorial)
 
 ## About the tutorial
 
@@ -33,7 +34,13 @@ You can either:
 ## Coming from "Deploy with Vercel"?
 
 - Don't forget to connect your project with the Endform vercel integration
-- You will need the `copy-me-github-workflows` copied to `.github/workflows` to get going with running your tests in github actions
+- You will need to rename `rename-me-to-.github-for-workflows` to `.github` to get going with running your tests in GitHub Actions
+
+## Coming from "Deploy to Netlify"?
+
+- Install the Endform extension on your Netlify team, connect it to your Endform organization, then click **Configure project** on the new project
+- The extension runs the tests against every Deploy Preview, so you don't need the GitHub Actions workflows
+- To also see the results as a check on your pull requests, [install the Endform GitHub App](https://endform.dev/app/docs-link?link=settings-integrations) on the repository
 
 ## About the SaaS
 
@@ -127,9 +134,15 @@ When you're ready to deploy your SaaS application to production, follow these st
 2. Connect your repository to [Vercel](https://vercel.com/) and deploy it.
 3. Follow the Vercel deployment process, which will guide you through setting up your project.
 
+### Deploy to Netlify
+
+1. Push your code to a GitHub repository.
+2. Import the repository on [Netlify](https://app.netlify.com/start). Netlify detects Next.js and pnpm, so the default build settings work.
+3. Install the Endform extension to run the tests against each Deploy Preview.
+
 ### Add environment variables
 
-In your Vercel project settings (or during deployment), add the necessary environment variables:
+In your Vercel or Netlify project settings (or during deployment), add the necessary environment variables:
 
 1. `BASE_URL`: Set this to your production domain.
 2. `DATABASE_URL`: Leave unset to use the shared Durable Object proxy, set it to a local SQLite path, set it to your own proxy URL, or use a Turso connection string (`libsql://your-database.turso.io`)
