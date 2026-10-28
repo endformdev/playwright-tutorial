@@ -48,7 +48,8 @@ export default defineConfig<PlaywrightOpentelemetryUseOptions>({
 		// baseURL: "http://localhost:3000",
 
 		/* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-		trace: playwrightOtelEnabled ? "on" : "retain-on-failure",
+		// trace: playwrightOtelEnabled ? "on" : "retain-on-failure",
+		trace: "on",
 		playwrightOpentelemetry: playwrightOtelEnabled
 			? {
 					trace: "on",
