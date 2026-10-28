@@ -23,6 +23,7 @@ import {
 	type User,
 	users,
 } from "@/lib/db/schema";
+import { sendInvitationEmail } from "@/lib/email";
 import { isFaultActive } from "@/lib/faults";
 
 const signInSchema = z.object({
@@ -366,12 +367,13 @@ export const inviteTeamMember = validatedActionWithUser(
 			})
 			.returning();
 
-		// Log the invite once the response has been sent, so inviting feels instant.
+		// Email the invitee and log the invite once the response has been sent,
+		// so inviting feels instant.
 		const teamId = userWithTeam.teamId;
-		after(() => logActivity(teamId, user.id, ActivityType.INVITE_TEAM_MEMBER));
-
-		// TODO: Send invitation email and include ?inviteId={id} to sign-up URL
-		// await sendInvitationEmail(email, userWithTeam.team.name, role)
+		after(async () => {
+			await sendInvitationEmail(email, role);
+			await logActivity(teamId, user.id, ActivityType.INVITE_TEAM_MEMBER);
+		});
 
 		return { success: "Invitation sent successfully", id: invitation[0].id };
 	},
