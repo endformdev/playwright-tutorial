@@ -450,6 +450,6 @@ async function setAppFaultHeader(page: Page, faultName: FaultName) {
 
 function getBaseUrl() {
 	return (
-		process.env.BASE_URL || "https://endform-playwright-tutorial.vercel.app"
+		process.env.BASE_URL || "https://playwright-tutorial.vercel.app"
 	);
 }

@@ -12,7 +12,7 @@ import { createUserInFile, deleteUserFromFile } from "./setup-utils";
 		process.exit(1);
 	}
 
-	const baseURL = "https://endform-playwright-tutorial.vercel.app";
+	const baseURL = "https://playwright-tutorial.vercel.app";
 	// const baseURL = "http://localhost:3000";
 
 	if (scriptArg === "create") {

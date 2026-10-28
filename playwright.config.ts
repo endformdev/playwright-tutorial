@@ -10,7 +10,7 @@ import type { PlaywrightOpentelemetryUseOptions } from "playwright-opentelemetry
 // dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 export const baseURL =
-	process.env.BASE_URL || "https://endform-playwright-tutorial.vercel.app";
+	process.env.BASE_URL || "https://playwright-tutorial.vercel.app";
 
 const playwrightOtelEnabled = Boolean(
 	process.env.PLAYWRIGHT_TRACE_API_ENDPOINT ||
