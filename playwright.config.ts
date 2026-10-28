@@ -50,6 +50,7 @@ export default defineConfig<PlaywrightOpentelemetryUseOptions>({
 		/* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
 		// trace: playwrightOtelEnabled ? "on" : "retain-on-failure",
 		trace: "on",
+		// trace: "retain-on-failure",
 		playwrightOpentelemetry: playwrightOtelEnabled
 			? {
 					trace: "on",
