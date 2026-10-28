@@ -11,6 +11,9 @@ permissions:
 
 jobs:
   e2e:
+    # Only run in this repository: copies made by the Deploy to Vercel/Netlify
+    # buttons don't have its Vercel project, so the job would always fail there.
+    if: github.repository == 'endformdev/playwright-tutorial'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
