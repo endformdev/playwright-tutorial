@@ -3,6 +3,7 @@
 import { and, eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { z } from "zod";
 import { logActivity } from "@/lib/auth/activity";
 import { signup } from "@/lib/auth/login";
@@ -365,11 +366,9 @@ export const inviteTeamMember = validatedActionWithUser(
 			})
 			.returning();
 
-		await logActivity(
-			userWithTeam.teamId,
-			user.id,
-			ActivityType.INVITE_TEAM_MEMBER,
-		);
+		// Log the invite once the response has been sent, so inviting feels instant.
+		const teamId = userWithTeam.teamId;
+		after(() => logActivity(teamId, user.id, ActivityType.INVITE_TEAM_MEMBER));
 
 		// TODO: Send invitation email and include ?inviteId={id} to sign-up URL
 		// await sendInvitationEmail(email, userWithTeam.team.name, role)
