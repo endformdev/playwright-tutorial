@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { db } from "@/lib/db/drizzle";
 import { getUser } from "@/lib/db/queries";
+import { withRetry } from "@/lib/db/retry";
 import { payments, teamMembers, teams } from "@/lib/db/schema";
 
 const paymentSchema = z.object({
@@ -65,21 +66,25 @@ export async function processPayment(formData: FormData) {
 	try {
 		const validatedData = paymentSchema.parse(data);
 
-		await db.insert(payments).values({
-			teamId: userTeam[0].teamId,
-			...validatedData,
+		// A dropped database request used to fail the whole checkout, so retry
+		// it a few times before showing the customer an error.
+		await withRetry(async () => {
+			await db.insert(payments).values({
+				teamId: userTeam[0].teamId,
+				...validatedData,
+			});
+
+			await db
+				.update(teams)
+				.set({
+					planName: validatedData.planName,
+					subscriptionStatus: "active",
+					updatedAt: new Date(),
+				})
+				.where(eq(teams.id, userTeam[0].teamId));
+
+			redirect("/dashboard?payment=success");
 		});
-
-		await db
-			.update(teams)
-			.set({
-				planName: validatedData.planName,
-				subscriptionStatus: "active",
-				updatedAt: new Date(),
-			})
-			.where(eq(teams.id, userTeam[0].teamId));
-
-		redirect("/dashboard?payment=success");
 	} catch (error) {
 		if (error instanceof z.ZodError) {
 			throw new Error(error.issues.map((e) => e.message).join(", "));
