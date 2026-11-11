@@ -11,7 +11,6 @@ import {
 	teams,
 	users,
 } from "@/lib/db/schema";
-import { isFaultActive } from "@/lib/faults";
 import { logActivity } from "./activity";
 
 export async function signup(
@@ -71,9 +70,7 @@ export async function signup(
 
 		if (invitation) {
 			teamId = invitation.teamId;
-			userRole = (await isFaultActive("invite-role-drift"))
-				? "owner"
-				: invitation.role;
+			userRole = invitation.role;
 
 			await db
 				.update(invitations)
@@ -118,14 +115,8 @@ export async function signup(
 		role: userRole,
 	};
 
-	const skipTeamMembership =
-		Boolean(inviteId) &&
-		(await isFaultActive("invite-accepted-but-member-missing"));
-
 	await Promise.all([
-		...(skipTeamMembership
-			? []
-			: [db.insert(teamMembers).values(newTeamMember)]),
+		db.insert(teamMembers).values(newTeamMember),
 		logActivity(teamId, createdUser.id, ActivityType.SIGN_UP),
 	]);
 

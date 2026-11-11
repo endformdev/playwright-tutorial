@@ -22,7 +22,6 @@ import {
 	type User,
 	users,
 } from "@/lib/db/schema";
-import { isFaultActive } from "@/lib/faults";
 
 const signInSchema = z.object({
 	email: z.string().email().min(3).max(255),
@@ -111,12 +110,8 @@ export const signUp = validatedAction(signUpSchema, async (data, formData) => {
 export async function signOut() {
 	const user = (await getUser()) as User;
 	const userWithTeam = await getUserWithTeam(user.id);
-	if (!(await isFaultActive("signout-activity-log-missing"))) {
-		await logActivity(userWithTeam?.teamId, user.id, ActivityType.SIGN_OUT);
-	}
-	if (!(await isFaultActive("signout-cookie-not-cleared"))) {
-		(await cookies()).delete("session");
-	}
+	await logActivity(userWithTeam?.teamId, user.id, ActivityType.SIGN_OUT);
+	(await cookies()).delete("session");
 }
 
 const updatePasswordSchema = z.object({
@@ -164,19 +159,12 @@ export const updatePassword = validatedActionWithUser(
 
 		const newPasswordHash = await hashPassword(newPassword);
 		const userWithTeam = await getUserWithTeam(user.id);
-		const skipPasswordUpdate = await isFaultActive(
-			"password-hash-update-skipped",
-		);
 
 		await Promise.all([
-			...(skipPasswordUpdate
-				? []
-				: [
-						db
-							.update(users)
-							.set({ passwordHash: newPasswordHash })
-							.where(eq(users.id, user.id)),
-					]),
+			db
+				.update(users)
+				.set({ passwordHash: newPasswordHash })
+				.where(eq(users.id, user.id)),
 			logActivity(userWithTeam?.teamId, user.id, ActivityType.UPDATE_PASSWORD),
 		]);
 
@@ -246,23 +234,10 @@ export const updateAccount = validatedActionWithUser(
 	async (data, _, user) => {
 		const { name, email } = data;
 		const userWithTeam = await getUserWithTeam(user.id);
-		const skipAccountUpdate = await isFaultActive(
-			"account-update-db-write-skipped",
-		);
-		const skipActivityLog = await isFaultActive("activity-update-log-missing");
-		const activityType = (await isFaultActive(
-			"activity-update-log-mislabelled",
-		))
-			? ActivityType.UPDATE_PASSWORD
-			: ActivityType.UPDATE_ACCOUNT;
 
 		await Promise.all([
-			...(skipAccountUpdate
-				? []
-				: [db.update(users).set({ name, email }).where(eq(users.id, user.id))]),
-			...(skipActivityLog
-				? []
-				: [logActivity(userWithTeam?.teamId, user.id, activityType)]),
+			db.update(users).set({ name, email }).where(eq(users.id, user.id)),
+			logActivity(userWithTeam?.teamId, user.id, ActivityType.UPDATE_ACCOUNT),
 		]);
 
 		return { name, success: "Account updated successfully." };
@@ -346,10 +321,7 @@ export const inviteTeamMember = validatedActionWithUser(
 			)
 			.limit(1);
 
-		if (
-			existingInvitation.length > 0 &&
-			!(await isFaultActive("duplicate-pending-invite-allowed"))
-		) {
+		if (existingInvitation.length > 0) {
 			return { error: "An invitation has already been sent to this email" };
 		}
 

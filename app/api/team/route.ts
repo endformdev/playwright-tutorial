@@ -1,23 +1,6 @@
 import { getTeamForUser } from "@/lib/db/queries";
-import { isFaultActive } from "@/lib/faults";
 
 export async function GET() {
-	if (await isFaultActive("api-team-malformed-json")) {
-		return new Response("{", {
-			status: 200,
-			headers: {
-				"content-type": "application/json",
-				"x-fault-injected": "api-team-malformed-json",
-			},
-		});
-	}
-
-	if (await isFaultActive("api-team-db-read-skipped")) {
-		return Response.json(null, {
-			headers: { "x-fault-injected": "api-team-db-read-skipped" },
-		});
-	}
-
 	const team = await getTeamForUser();
 	return Response.json(team);
 }
