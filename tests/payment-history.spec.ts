@@ -1,12 +1,6 @@
 import { expect, test } from "./test";
 import { testWithNewUser } from "./test-with-new-user";
 
-type PaymentRow = {
-	planName: string;
-	amount: number;
-	currency: string;
-};
-
 test.describe("Payment history", () => {
 	testWithNewUser(
 		"should record exactly one payment after upgrading to Plus",
@@ -43,18 +37,14 @@ test.describe("Payment history", () => {
 				await expect(page).toHaveURL(/.*\/dashboard\?payment=success$/);
 			});
 
-			await test.step("verify one expected payment was recorded", async () => {
-				const payments = await page.evaluate(async () => {
-					const response = await fetch("/api/payment");
-					return (await response.json()) as PaymentRow[];
-				});
-
-				expect(payments).toHaveLength(1);
-				expect(payments[0]).toMatchObject({
-					planName: "Plus",
-					amount: 1200,
-					currency: "USD",
-				});
+			await test.step("verify one Plus payment in the billing history", async () => {
+				await expect(page.getByText("Current Plan: Plus")).toBeVisible();
+				await expect(page.getByText("Billing History")).toBeVisible();
+				const payments = page.getByTestId("payment");
+				await expect(payments.first()).toBeVisible();
+				await expect(payments).toHaveCount(1);
+				await expect(payments.first()).toContainText("Plus plan");
+				await expect(payments.first()).toContainText("$12.00");
 			});
 		},
 	);
