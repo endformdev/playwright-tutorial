@@ -71,6 +71,55 @@ function ManageSubscription() {
 	);
 }
 
+type Payment = {
+	id: number;
+	planName: string;
+	amount: number;
+	currency: string;
+	createdAt: string;
+};
+
+function BillingHistory() {
+	const { data: payments } = useSWR<Payment[]>("/api/payment", fetcher);
+
+	return (
+		<Card className="mb-8">
+			<CardHeader>
+				<CardTitle>Billing History</CardTitle>
+			</CardHeader>
+			<CardContent>
+				{payments && payments.length > 0 ? (
+					<ul className="divide-y">
+						{payments.map((payment) => (
+							<li
+								key={payment.id}
+								data-testid="payment"
+								className="flex items-center justify-between py-2 text-sm"
+							>
+								<span>
+									{payment.planName} plan ·{" "}
+									<span className="text-muted-foreground">
+										{new Date(payment.createdAt).toLocaleDateString("en-US", {
+											month: "short",
+											day: "numeric",
+											year: "numeric",
+										})}
+									</span>
+								</span>
+								<span className="font-medium">
+									{formatAmount(payment.amount, payment.currency)}
+								</span>
+							</li>
+						))}
+					</ul>
+				) : (
+					<p className="text-sm text-muted-foreground">No payments yet.</p>
+				)}
+			</CardContent>
+		</Card>
+	);
+}
+
 function TeamMembersSkeleton() {
 	return (
 		<Card className="mb-8 h-[140px]">
@@ -294,6 +343,15 @@ export default function SettingsPage() {
 			<Suspense fallback={<InviteTeamMemberSkeleton />}>
 				<InviteTeamMember />
 			</Suspense>
+			<div className="mt-8">
+				<BillingHistory />
+			</div>
 		</section>
+	);
+}
+
+function formatAmount(amountInCents: number, currency: string) {
+	return new Intl.NumberFormat("en-US", { style: "currency", currency }).format(
+		amountInCents / 100,
 	);
 }
