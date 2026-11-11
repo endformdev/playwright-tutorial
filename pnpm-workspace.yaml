@@ -5,6 +5,7 @@ allowBuilds:
 
 minimumReleaseAgeExclude:
   - playwright-opentelemetry@0.15.0
+  - playwright-intent@0.1.0
 
 onlyBuiltDependencies:
   - better-sqlite3
