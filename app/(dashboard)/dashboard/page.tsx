@@ -1,7 +1,14 @@
 "use client";
 
 import { Loader2, PlusCircle } from "lucide-react";
-import { Suspense, useActionState, useEffect } from "react";
+import {
+	type FormEvent,
+	Suspense,
+	startTransition,
+	useActionState,
+	useEffect,
+	useState,
+} from "react";
 import useSWR from "swr";
 import { inviteTeamMember, removeTeamMember } from "@/app/(login)/actions";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -249,6 +256,7 @@ function InviteTeamMember() {
 		ActionState,
 		FormData
 	>(inviteTeamMember, {});
+	const [ownerInvite, setOwnerInvite] = useState<FormData | null>(null);
 
 	useEffect(() => {
 		if (inviteState?.id) {
@@ -256,13 +264,30 @@ function InviteTeamMember() {
 		}
 	}, [inviteState]);
 
+	const sendInvite = (formData: FormData) => {
+		setOwnerInvite(null);
+		startTransition(() => inviteAction(formData));
+	};
+
+	// Owners can change the plan and remove members, so inviting one takes a
+	// second, deliberate click.
+	const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		const formData = new FormData(event.currentTarget);
+		if (formData.get("role") === "owner") {
+			setOwnerInvite(formData);
+		} else {
+			sendInvite(formData);
+		}
+	};
+
 	return (
 		<Card>
 			<CardHeader>
 				<CardTitle>Invite Team Member</CardTitle>
 			</CardHeader>
 			<CardContent>
-				<form action={inviteAction} className="space-y-4">
+				<form onSubmit={handleSubmit} className="space-y-4">
 					<div>
 						<Label htmlFor="email" className="mb-2">
 							Email
@@ -294,6 +319,41 @@ function InviteTeamMember() {
 							</div>
 						</RadioGroup>
 					</div>
+					{ownerInvite && (
+						<div
+							role="alertdialog"
+							aria-labelledby="confirm-owner-invite-title"
+							aria-describedby="confirm-owner-invite-description"
+							className="rounded-md border border-orange-200 bg-orange-50 p-4 space-y-3"
+						>
+							<p id="confirm-owner-invite-title" className="font-medium">
+								Invite {String(ownerInvite.get("email"))} as an owner?
+							</p>
+							<p
+								id="confirm-owner-invite-description"
+								className="text-sm text-muted-foreground"
+							>
+								Owners can change the plan, manage billing and remove team
+								members.
+							</p>
+							<div className="flex gap-2">
+								<Button
+									type="button"
+									className="bg-orange-500 hover:bg-orange-600 text-white"
+									onClick={() => sendInvite(ownerInvite)}
+								>
+									Yes, invite as owner
+								</Button>
+								<Button
+									type="button"
+									variant="outline"
+									onClick={() => setOwnerInvite(null)}
+								>
+									Cancel
+								</Button>
+							</div>
+						</div>
+					)}
 					{inviteState?.error && (
 						<p className="text-red-500">{inviteState.error}</p>
 					)}
