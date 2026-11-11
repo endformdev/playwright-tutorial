@@ -96,8 +96,9 @@ export async function deleteUserFromFile(
 let netlifyPasswordCookie: Promise<{ name: string; value: string } | null>;
 
 // Netlify answers every request to a password-protected deploy with its
-// password page until the request carries the cookie that page sets. Posting
-// the password once gets that cookie, which works for the whole deploy.
+// password page (status 401) until the request carries the cookie that page
+// sets. Posting the password once gets that cookie, which works for the whole
+// deploy. If the deploy turns out to be public, no cookie is needed.
 export function getNetlifyPasswordCookie(baseURL: string) {
 	const password = process.env.E2E_NETLIFY_PREVIEW_PASSWORD;
 	if (!password) return Promise.resolve(null);
@@ -106,9 +107,12 @@ export function getNetlifyPasswordCookie(baseURL: string) {
 		method: "POST",
 		body: new URLSearchParams({ password }),
 		redirect: "manual",
-	}).then((response) => {
+	}).then(async (response) => {
 		const [cookie] = response.headers.getSetCookie();
 		if (!cookie) {
+			const probe = await fetch(baseURL, { redirect: "manual" });
+			if (probe.status !== 401) return null;
+
 			throw new Error(
 				`Netlify rejected E2E_NETLIFY_PREVIEW_PASSWORD (${response.status})`,
 			);
