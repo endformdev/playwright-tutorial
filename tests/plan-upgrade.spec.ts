@@ -32,9 +32,23 @@ test.describe("Plan Upgrade Flow", () => {
 				await page.getByRole("button", { name: "Get Started" }).nth(1).click();
 			});
 
-			await test.step("Verify checkout page for Plus plan", async () => {
+			await test.step("Review the Plus upgrade", async () => {
 				await expect(page).toHaveURL(
 					/.*\/pricing\/checkout\?plan=Plus&amount=1200$/,
+				);
+				await expect(
+					page.getByRole("heading", { name: "Review your upgrade" }),
+				).toBeVisible();
+				await expect(
+					page.getByRole("heading", { name: "Plus plan" }),
+				).toBeVisible();
+				await expect(page.getByText("Due today")).toBeVisible();
+				await page.getByRole("link", { name: "Continue to payment" }).click();
+			});
+
+			await test.step("Verify checkout page for Plus plan", async () => {
+				await expect(page).toHaveURL(
+					/.*\/pricing\/checkout\?plan=Plus&amount=1200&step=payment$/,
 				);
 				await expect(
 					page.getByRole("heading", { name: "Complete Your Purchase" }),

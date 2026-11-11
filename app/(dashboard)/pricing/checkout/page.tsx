@@ -1,18 +1,120 @@
+import { Check } from "lucide-react";
 import { Suspense, use } from "react";
 import { processPayment } from "@/lib/payments/actions";
 
-function CheckoutForm({
+type CheckoutSearchParams = {
+	plan?: string;
+	amount?: string;
+	step?: string;
+};
+
+const PLAN_HIGHLIGHTS: Record<string, string[]> = {
+	Base: ["Unlimited usage", "Unlimited workspace members", "Email support"],
+	Plus: [
+		"Everything in Base",
+		"Early access to new features",
+		"24/7 support and Slack access",
+	],
+};
+
+function Checkout({
 	searchParams,
 }: {
-	searchParams: Promise<{ plan?: string; amount?: string }>;
+	searchParams: Promise<CheckoutSearchParams>;
 }) {
 	const resolvedParams = use(searchParams);
 	const planName = resolvedParams.plan || "Unknown Plan";
 	const amount = Number(resolvedParams.amount) || 0;
 
+	if (resolvedParams.step === "payment") {
+		return <CheckoutForm planName={planName} amount={amount} />;
+	}
+
+	return <ReviewUpgrade planName={planName} amount={amount} />;
+}
+
+function ReviewUpgrade({
+	planName,
+	amount,
+}: {
+	planName: string;
+	amount: number;
+}) {
+	const paymentHref = `/pricing/checkout?plan=${encodeURIComponent(planName)}&amount=${amount}&step=payment`;
+
 	return (
 		<main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 			<div className="bg-white shadow-lg rounded-lg p-8">
+				<p className="text-sm font-medium text-orange-600 mb-2">Step 1 of 2</p>
+				<h1 className="text-3xl font-bold text-gray-900 mb-6">
+					Review your upgrade
+				</h1>
+
+				<div className="rounded-lg border border-gray-200 p-6 mb-6">
+					<div className="flex items-baseline justify-between mb-4">
+						<h2 className="text-xl font-semibold text-gray-900">
+							{planName} plan
+						</h2>
+						<p className="text-xl font-semibold text-gray-900">
+							${amount / 100}
+							<span className="text-sm font-normal text-gray-600">/month</span>
+						</p>
+					</div>
+					<ul className="space-y-2">
+						{(PLAN_HIGHLIGHTS[planName] ?? []).map((highlight) => (
+							<li key={highlight} className="flex items-center text-gray-700">
+								<Check className="h-4 w-4 text-orange-500 mr-2 shrink-0" />
+								{highlight}
+							</li>
+						))}
+					</ul>
+				</div>
+
+				<dl className="space-y-2 text-sm mb-8">
+					<div className="flex justify-between">
+						<dt className="text-gray-600">Billed</dt>
+						<dd className="text-gray-900">Monthly, starting today</dd>
+					</div>
+					<div className="flex justify-between">
+						<dt className="text-gray-600">Cancel</dt>
+						<dd className="text-gray-900">Anytime from Team Settings</dd>
+					</div>
+					<div className="flex justify-between border-t border-gray-200 pt-2 font-medium">
+						<dt className="text-gray-900">Due today</dt>
+						<dd className="text-gray-900">${amount / 100}.00</dd>
+					</div>
+				</dl>
+
+				<div className="flex justify-between items-center pt-6 border-t border-gray-200">
+					<a
+						href="/pricing"
+						className="text-orange-600 hover:text-orange-500 font-medium"
+					>
+						← Back to plans
+					</a>
+					<a
+						href={paymentHref}
+						className="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-6 rounded-md"
+					>
+						Continue to payment
+					</a>
+				</div>
+			</div>
+		</main>
+	);
+}
+
+function CheckoutForm({
+	planName,
+	amount,
+}: {
+	planName: string;
+	amount: number;
+}) {
+	return (
+		<main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+			<div className="bg-white shadow-lg rounded-lg p-8">
+				<p className="text-sm font-medium text-orange-600 mb-2">Step 2 of 2</p>
 				<h1 className="text-3xl font-bold text-gray-900 mb-2">
 					Complete Your Purchase
 				</h1>
@@ -241,11 +343,11 @@ function CheckoutForm({
 export default function CheckoutPage({
 	searchParams,
 }: {
-	searchParams: Promise<{ plan?: string; amount?: string }>;
+	searchParams: Promise<CheckoutSearchParams>;
 }) {
 	return (
 		<Suspense fallback={<div>Loading...</div>}>
-			<CheckoutForm searchParams={searchParams} />
+			<Checkout searchParams={searchParams} />
 		</Suspense>
 	);
 }

@@ -13,6 +13,8 @@ test.describe("Payment history", () => {
 				await expect(page).toHaveURL(
 					/.*\/pricing\/checkout\?plan=Plus&amount=1200$/,
 				);
+				await page.getByRole("link", { name: "Continue to payment" }).click();
+				await expect(page).toHaveURL(/.*&step=payment$/);
 
 				await page
 					.getByRole("textbox", { name: "Card Holder Name" })
