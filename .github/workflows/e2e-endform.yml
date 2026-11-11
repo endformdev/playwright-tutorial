@@ -1,0 +1,45 @@
+name: Endform
+
+on:
+  pull_request:
+    branches:
+      - webinar/main
+  push:
+    branches:
+      - webinar/main
+
+permissions:
+  contents: read
+  id-token: write # required for authentication with Endform
+
+jobs:
+  e2e:
+    if: github.repository == 'endformdev/playwright-tutorial'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Wait for Vercel deployment
+        uses: endformdev/actions/run-with-vercel-deployment@main
+        with:
+          project-name: endform-playwright-tutorial
+          set-url-env-var: BASE_URL
+          set-vercel-bypass-env-var: VERCEL_BYPASS_TOKEN
+
+      - name: Run end to end tests with Endform
+        run: npx endform@latest test

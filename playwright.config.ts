@@ -28,8 +28,8 @@ export default defineConfig<PlaywrightOpentelemetryUseOptions>({
 	fullyParallel: true,
 	/* Fail the build on CI if you accidentally left test.only in the source code. */
 	forbidOnly: !!process.env.CI,
-	/* Retry on CI only */
-	retries: process.env.CI ? 2 : 0,
+	/* No retries: a flaky test should show up as a failure, not hide behind a retry */
+	retries: 0,
 	/* Opt out of parallel tests on CI. */
 	workers: "50%",
 	/* Reporter to use. See https://playwright.dev/docs/test-reporters */
@@ -45,6 +45,14 @@ export default defineConfig<PlaywrightOpentelemetryUseOptions>({
 		baseURL,
 		// You can use this localhost baseURL if you are running the application locally
 		// baseURL: "http://localhost:3000",
+
+		/* Get the browser past Vercel's deployment protection on preview deployments */
+		extraHTTPHeaders: process.env.VERCEL_BYPASS_TOKEN
+			? {
+					"x-vercel-protection-bypass": process.env.VERCEL_BYPASS_TOKEN,
+					"x-vercel-set-bypass-cookie": "true",
+				}
+			: undefined,
 
 		/* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
 		trace: playwrightOtelEnabled ? "on" : "retain-on-failure",
