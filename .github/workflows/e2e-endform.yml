@@ -42,4 +42,4 @@ jobs:
           set-vercel-bypass-env-var: VERCEL_BYPASS_TOKEN
 
       - name: Run end to end tests with Endform
-        run: npx endform@latest test
+        run: npx endform@latest test --repeat-each 20 --max-failures 0 -g "team invitation in the activity log"
