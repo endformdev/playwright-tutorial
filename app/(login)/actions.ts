@@ -3,6 +3,7 @@
 import { and, eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { z } from "zod";
 import { logActivity } from "@/lib/auth/activity";
 import { signup } from "@/lib/auth/login";
@@ -22,6 +23,7 @@ import {
 	type User,
 	users,
 } from "@/lib/db/schema";
+import { sendInvitationEmail } from "@/lib/email";
 
 const signInSchema = z.object({
 	email: z.string().email().min(3).max(255),
@@ -337,14 +339,13 @@ export const inviteTeamMember = validatedActionWithUser(
 			})
 			.returning();
 
-		await logActivity(
-			userWithTeam.teamId,
-			user.id,
-			ActivityType.INVITE_TEAM_MEMBER,
-		);
-
-		// TODO: Send invitation email and include ?inviteId={id} to sign-up URL
-		// await sendInvitationEmail(email, userWithTeam.team.name, role)
+		// Email the invitee and log the invite once the response has been sent,
+		// so inviting feels instant.
+		const teamId = userWithTeam.teamId;
+		after(async () => {
+			await sendInvitationEmail(email, role);
+			await logActivity(teamId, user.id, ActivityType.INVITE_TEAM_MEMBER);
+		});
 
 		return { success: "Invitation sent successfully", id: invitation[0].id };
 	},
