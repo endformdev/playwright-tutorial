@@ -45,8 +45,7 @@ test.describe("Team Invitation Flow", () => {
 					page.getByText("Invitation sent successfully"),
 				).toBeVisible();
 
-				await page.waitForTimeout(1000);
-				expect(invitationId).not.toBeNull();
+				await expect.poll(() => invitationId).not.toBeNull();
 			});
 
 			await test.step("Sign out current user", async () => {
