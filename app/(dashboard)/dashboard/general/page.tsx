@@ -42,6 +42,9 @@ function AccountForm({
 					defaultValue={state.name || nameValue}
 					required
 				/>
+				<p className="mt-1 text-xs text-muted-foreground">
+					Your teammates see this name in the team members list.
+				</p>
 			</div>
 			<div>
 				<Label htmlFor="email" className="mb-2">
@@ -55,6 +58,9 @@ function AccountForm({
 					defaultValue={emailValue}
 					required
 				/>
+				<p className="mt-1 text-xs text-muted-foreground">
+					You sign in with this email, and we send receipts to it.
+				</p>
 			</div>
 		</>
 	);
